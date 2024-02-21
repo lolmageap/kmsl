@@ -1,0 +1,20 @@
+db.order.aggregate([
+    {
+        $lookup: {
+            from: "product",
+            localField: "productId",
+            foreignField: "id",
+            as: "data"
+        }
+    },
+    {
+        $unwind: "$data"
+    },
+    {
+        $match: {
+            $expr: {
+                $gt: ['$data.instock', '$price']
+            }
+        }
+    }
+])
