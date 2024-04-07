@@ -1,13 +1,25 @@
 package com.example.kotlinmongo
 
 import org.bson.Document
-import kotlin.reflect.full.createInstance
+import org.springframework.data.mongodb.core.query.BasicQuery
+import kotlin.reflect.KProperty1
 
-inline fun <reified T: Any> document(
-    function: Document.(T) -> Unit,
+fun document(
+    function: Document.() -> Document,
+): BasicQuery {
+    val document = Document()
+    val json = document.function().toJson()
+    return BasicQuery(json)
+}
+
+fun Document.orBuilder(
+    function: OrBuilder.() -> Unit,
 ): Document {
-    return Document().apply {
-        val instance = T::class.createInstance()
-        function(instance)
-    }
+    return OrBuilder.open(this, function)
+}
+
+fun <T, R> Document.field(
+    key: KProperty1<T, R>,
+): Field<T, R> {
+    return Field(key, this)
 }
