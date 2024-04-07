@@ -27,6 +27,22 @@ class Field<T, R>(
         return document.append(key.name, Document("\$gte", value))
     }
 
+    infix fun between(values: Pair<R, R>): Document {
+        return document.append(key.name, Document("\$gt", values.first).append("\$lt", values.second))
+    }
+
+    infix fun betweenInclusive(values: Pair<R, R>): Document {
+        return document.append(key.name, Document("\$gte", values.first).append("\$lte", values.second))
+    }
+
+    infix fun gtAndLte(values: Pair<R, R>): Document {
+        return document.append(key.name, Document("\$gt", values.first).append("\$lte", values.second))
+    }
+
+    infix fun gteAndLt(values: Pair<R, R>): Document {
+        return document.append(key.name, Document("\$gte", values.first).append("\$lt", values.second))
+    }
+
     infix fun ne(value: R): Document {
         return document.append(key.name, Document("\$ne", value))
     }
@@ -37,5 +53,21 @@ class Field<T, R>(
 
     infix fun nin(values: List<R>): Document {
         return document.append(key.name, Document("\$nin", values))
+    }
+
+    infix fun contains(value: R): Document {
+        return document.append(key.name, Document("\$regex", value))
+    }
+
+    infix fun containsNot(value: R): Document {
+        return document.append(key.name, Document("\$not", Document("\$regex", value)))
+    }
+
+    infix fun startsWith(value: R): Document {
+        return document.append(key.name, Document("\$regex", "^$value"))
+    }
+
+    infix fun endsWith(value: R): Document {
+        return document.append(key.name, Document("\$regex", "$value$"))
     }
 }
