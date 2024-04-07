@@ -1,42 +1,21 @@
 package com.example.kotlinmongo
 
 fun main() {
-    val author = createAuthor()
-    criteria<Author> {
-        and(Author::name).`is`("John Doe")
-        and(Author::age).`is`(30)
+    val document = document {
+        field(Author::weight) nin listOf(70.0, 80.0)
+        field(Author::height) `in` listOf(170.0f, 180.0f)
+        field(Address::street) gt "5th Avenue"
 
-        elemMatch {
-            and(Book::title).`is`("Book 1")
-            and(Book::description).`is`("Description 1")
-            and(Book::price).`is`(10.0)
-            and(Book::isbn).`is`("1234567890")
+        orBuilder {
+            or {
+                field(Author::name) eq "Jane Doe"
+            }
+
+            or {
+                field(Author::age) `in` listOf(30, 40)
+            }
         }
     }
+
+    println(document)
 }
-
-fun createBook() =
-    listOf(
-        Book(
-            id = "1",
-            title = "Book 1",
-            description = "Description 1",
-            price = 10.0,
-            isbn = "1234567890",
-        ),
-        Book(
-            id = "2",
-            title = "Book 2",
-            description = "Description 2",
-            price = 20.0,
-            isbn = "0987654321",
-        ),
-    )
-
-fun createAuthor() =
-    Author(
-        id = "1",
-        name = "John Doe",
-        age = 30,
-        books = createBook(),
-    )
