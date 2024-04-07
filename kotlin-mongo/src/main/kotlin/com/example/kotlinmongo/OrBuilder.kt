@@ -18,6 +18,7 @@ class OrBuilder private constructor(
 
     companion object {
         private val orCollection = mutableListOf<Document.() -> (Document)>()
+
         fun open(
             document: Document,
             function: OrBuilder.() -> Unit,
