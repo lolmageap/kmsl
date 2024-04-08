@@ -11,6 +11,10 @@ class Field<T, R>(
         return document.append(key.name, value)
     }
 
+    infix fun ne(value: R): Document {
+        return document.append(key.name, Document("\$ne", value))
+    }
+
     infix fun lt(value: R): Document {
         return document.append(key.name, Document("\$lt", value))
     }
@@ -43,9 +47,6 @@ class Field<T, R>(
         return document.append(key.name, Document("\$gte", values.first).append("\$lt", values.second))
     }
 
-    infix fun ne(value: R): Document {
-        return document.append(key.name, Document("\$ne", value))
-    }
 
     infix fun `in`(values: List<R>): Document {
         return document.append(key.name, Document("\$in", values))
@@ -69,5 +70,13 @@ class Field<T, R>(
 
     infix fun endsWith(value: R): Document {
         return document.append(key.name, Document("\$regex", "$value$"))
+    }
+
+    infix fun match(value: R): Document {
+        return document.append(key.name, Document("\$match", value))
+    }
+
+    infix fun notMatch(value: R): Document {
+        return document.append(key.name, Document("\$not", Document("\$match", value)))
     }
 }
