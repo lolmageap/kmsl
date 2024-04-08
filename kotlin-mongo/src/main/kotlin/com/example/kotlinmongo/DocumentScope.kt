@@ -23,3 +23,9 @@ fun <T, R> Document.field(
 ): Field<T, R> {
     return Field(key, this)
 }
+
+fun <T, R> Document.groupBy(
+    key: KProperty1<T, R>,
+): Group<T, R> {
+    return Group(key, this)
+}
