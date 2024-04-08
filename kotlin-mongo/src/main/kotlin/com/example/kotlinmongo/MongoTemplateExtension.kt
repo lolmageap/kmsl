@@ -14,6 +14,13 @@ fun <T : Any> MongoTemplate.find(
     return find(realQuery, entityClass.java)
 }
 
+fun <T : Any> MongoTemplate.find(
+    query: BasicQuery,
+    entityClass: KClass<T>,
+): List<T> {
+    return find(query, entityClass.java)
+}
+
 fun <T : Any> MongoTemplate.count(
     query: BasicQuery,
     entityClass: KClass<T>,
