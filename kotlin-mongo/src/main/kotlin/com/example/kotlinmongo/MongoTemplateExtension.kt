@@ -2,6 +2,7 @@ package com.example.kotlinmongo
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KClass
 
@@ -10,8 +11,10 @@ fun <T : Any> MongoTemplate.find(
     pageable: Pageable,
     entityClass: KClass<T>,
 ): List<T> {
-    val realQuery = query.with(pageable)
-    return find(realQuery, entityClass.java)
+    return find(
+        query.with(pageable),
+        entityClass.java,
+    )
 }
 
 fun <T : Any> MongoTemplate.find(
@@ -26,4 +29,15 @@ fun <T : Any> MongoTemplate.count(
     entityClass: KClass<T>,
 ): Long {
     return count(query, entityClass.java)
+}
+
+fun MongoTemplate.sumOfSingle(
+    aggregation: Aggregation,
+    inputType: KClass<*>,
+    alias: String = "total",
+): Long {
+    return aggregate(aggregation, inputType.java, Map::class.java)
+        .uniqueMappedResult?.let { result ->
+            (result[alias] as? Number)?.toLong() ?: 0L
+        } ?: 0L
 }
