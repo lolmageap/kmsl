@@ -12,20 +12,20 @@ fun document(
     return BasicQuery(json)
 }
 
-fun Document.orBuilder(
+fun Document.orScope(
     function: OrBuilder.() -> Unit,
 ): Document {
     return OrBuilder.open(this, function)
+}
+
+fun Document.andScope(
+    function: AndBuilder.() -> Unit,
+): Document {
+    return AndBuilder.open(this, function)
 }
 
 fun <T, R> Document.field(
     key: KProperty1<T, R>,
 ): Field<T, R> {
     return Field(key, this)
-}
-
-fun <T, R> Document.groupBy(
-    key: KProperty1<T, R>,
-): Group<T, R> {
-    return Group(key, this)
 }
