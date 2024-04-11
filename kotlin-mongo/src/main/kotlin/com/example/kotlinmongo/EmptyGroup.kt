@@ -11,15 +11,15 @@ class EmptyGroup(
     private val document: Document,
 ) {
     fun sumOf(
-        sumField: () -> KProperty<*>,
         alias: String = "total",
+        sumField: () -> KProperty<*>,
     ): Aggregation {
         return Aggregation.newAggregation(
             Aggregation.group().sum(sumField.invoke().name).`as`(alias)
         )
     }
 
-    fun sumOfInt(
+    fun sumOfNumber(
         alias: String = "total",
         sumField: () -> KProperty<*>,
     ): Aggregation {
