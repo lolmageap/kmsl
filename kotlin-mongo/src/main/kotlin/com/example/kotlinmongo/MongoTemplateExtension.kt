@@ -41,3 +41,16 @@ fun MongoTemplate.sumOfSingle(
             (result[alias] as? Number)?.toLong() ?: 0L
         } ?: 0L
 }
+
+fun MongoTemplate.sumOfGroup(
+    aggregation: Aggregation,
+    inputType: KClass<*>,
+    alias: String = "total",
+): Map<String, Long> {
+    return aggregate(aggregation, inputType.java, Map::class.java)
+        .mappedResults.associate { result ->
+            val key = result["_id"] as String
+            val value = (result[alias] as? Number)?.toLong() ?: 0L
+            key to value
+        }
+}
