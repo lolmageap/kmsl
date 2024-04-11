@@ -1,1 +1,1 @@
-rootProject.name = "kotlin-mongo"
+rootProject.name = "mongo-study"
