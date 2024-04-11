@@ -12,16 +12,14 @@ fun document(
     return BasicQuery(json)
 }
 
-fun Document.orScope(
-    function: OrBuilder.() -> Unit,
-): Document {
-    return OrBuilder.open(this, function)
-}
-
-fun Document.andScope(
-    function: AndBuilder.() -> Unit,
-): Document {
-    return AndBuilder.open(this, function)
+fun operator(
+    function: OperatorBuilder.() -> Unit,
+): BasicQuery {
+    val document = Document()
+    val operatorBuilder = OperatorBuilder.open(document, function)
+    return BasicQuery(
+        operatorBuilder.toJson()
+    )
 }
 
 fun <T, R> Document.field(
