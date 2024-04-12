@@ -2,7 +2,7 @@ package com.example.kotlinmongo
 
 import org.bson.Document
 
-class OperatorBuilder private constructor(
+class OrOperatorBuilder private constructor(
     private val document: Document,
 ) {
     /**
@@ -11,6 +11,8 @@ class OperatorBuilder private constructor(
      * or 함수를 각각 사용한다면 or 조건으로 연결됩니다.
      *
      * 하나의 or scope 에서 동일한 field 를 사용하면 마지막에 사용한 field 가 적용 됩니다.
+     *
+     * 위 문제를 해결 하려면 or scope 내에서 and 함수를 사용 하여 각각의 field 에 대한 조건을 걸어야 합니다.
      */
     fun or(
         function: Document.() -> (Document),
@@ -18,9 +20,6 @@ class OperatorBuilder private constructor(
         orCollection.add(function)
     }
 
-    /**
-     * 하나의 or scope 에서 동일한 field 를 사용하려면 or scope 내부에 and 함수를 사용하여 해결해야 합니다.
-     */
     fun Document.and(
         vararg function: Document.() -> (Document),
     ): Document {
@@ -36,18 +35,21 @@ class OperatorBuilder private constructor(
 
         fun open(
             document: Document,
-            function: OperatorBuilder.() -> Unit,
+            function: OrOperatorBuilder.() -> Unit,
         ): Document {
-            val operatorBuilder = OperatorBuilder(document)
-            operatorBuilder.function()
+            val orOperatorBuilder = OrOperatorBuilder(document)
+            orOperatorBuilder.function()
 
-            val orValue = orCollection.map {
-                val doc = Document()
-                doc.it()
+            if (orCollection.isNotEmpty()) {
+                val orValue = orCollection.map {
+                    val doc = Document()
+                    doc.it()
+                }
+
+                orOperatorBuilder.document.append("\$or", orValue)
             }
 
-            operatorBuilder.document.append("\$or", orValue)
-            return operatorBuilder.document
+            return orOperatorBuilder.document
         }
     }
 }
