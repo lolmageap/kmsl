@@ -12,13 +12,23 @@ fun document(
     return BasicQuery(json)
 }
 
-fun operator(
-    function: OperatorBuilder.() -> Unit,
+fun orOperator(
+    function: OrOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val document = Document()
-    val operatorBuilder = OperatorBuilder.open(document, function)
+    val orOperatorBuilder = OrOperatorBuilder.open(document, function)
     return BasicQuery(
-        operatorBuilder.toJson()
+        orOperatorBuilder.toJson()
+    )
+}
+
+fun andOperator(
+    function: AndOperatorBuilder.() -> Unit,
+): BasicQuery {
+    val document = Document()
+    val orOperatorBuilder = AndOperatorBuilder.open(document, function)
+    return BasicQuery(
+        orOperatorBuilder.toJson()
     )
 }
 
