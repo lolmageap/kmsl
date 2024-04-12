@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.query.BasicQuery
 
 class OperatorTest: StringSpec({
     "document scope 내에서 동일한 field 를 중복해서 사용 하려면 and scope 에 add 로 각각 사용 해야 한다." {
-        val document = operator {
+        val document = andOperator {
             and { field(Author::name) eq "John" }
             and { field(Author::name) eq "Doe" }
         }
@@ -15,7 +15,7 @@ class OperatorTest: StringSpec({
     }
 
     "document scope 내에서 동일한 field 를 중복해서 or 연산을 사용 하려면 or scope 에 add 로 각각 사용 해야 한다." {
-        val document = operator {
+        val document = orOperator {
             or { field(Author::name) eq "John" }
             or { field(Author::name) eq "Doe" }
         }
@@ -24,7 +24,7 @@ class OperatorTest: StringSpec({
     }
 
     "or scope 내에서 and scope 를 사용하면 and 조건으로 연결된다." {
-        val document = operator {
+        val document = orOperator {
             or {
                 field(Author::name) eq "John"
                 field(Author::age) eq 18
@@ -35,7 +35,7 @@ class OperatorTest: StringSpec({
     }
 
     "or scope 내에서 or 를 여러번 사용하면 or 조건으로 연결된다." {
-        val document = operator {
+        val document = orOperator {
             or {
                 field(Author::name) eq "John"
                 field(Author::age) eq 18
@@ -50,7 +50,7 @@ class OperatorTest: StringSpec({
     }
 
     "or scope 내에 하나의 add 에 동일한 field 를 여러번 사용하면 마지막 값으로 덮어 씌워진다." {
-        val document = operator {
+        val document = orOperator {
             or {
                 field(Author::name) eq "John"
                 field(Author::name) eq "Doe"
@@ -61,11 +61,12 @@ class OperatorTest: StringSpec({
     }
 
     "복잡한 조회 연산도 가능하다." {
-        val document = operator {
-            and {
+        val document = orOperator {
+            or {
                 field(Author::name) eq "Jane"
                 field(Author::age) eq 20
             }
+
             or {
                 field(Author::name) eq "John"
                 field(Author::age) eq 18
@@ -76,20 +77,16 @@ class OperatorTest: StringSpec({
     }
 
     "and 연산을 사용하면 and 조건으로 연결된다." {
-        val document = operator {
-            and {
-                field(Author::name) eq "Jane"
-            }
-            and {
-                field(Author::name) eq "John"
-            }
+        val document = andOperator {
+            and { field(Author::name) eq "Jane" }
+            and { field(Author::name) eq "John" }
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"Jane\" }, { \"name\" : \"John\" } ], \"\$or\" : [] }")
     }
 
     "or 연산을 사용하면 or 조건으로 연결된다." {
-        val document = operator {
+        val document = orOperator {
             or {
                 field(Author::name) eq "Jane"
             }
@@ -102,7 +99,7 @@ class OperatorTest: StringSpec({
     }
 
     "or scope 내에서 동일한 필드명 을 and 연산 으로 사용 하려면 and method 매개 변수에 함수 인자 상태로 값을 넣어야 한다." {
-        val document = operator {
+        val document = orOperator {
             or {
                 and(
                     { field(Author::name) eq "Jane" },
