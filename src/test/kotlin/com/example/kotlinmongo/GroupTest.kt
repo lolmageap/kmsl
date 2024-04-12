@@ -2,8 +2,10 @@ package com.example.kotlinmongo
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
 
+@SpringBootTest
 class GroupTest(
     private val mongoTemplate: MongoTemplate,
 ): StringSpec( {
