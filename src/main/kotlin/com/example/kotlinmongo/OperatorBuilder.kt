@@ -11,8 +11,6 @@ class OperatorBuilder private constructor(
      * or 함수를 각각 사용한다면 or 조건으로 연결됩니다.
      *
      * 하나의 or scope 에서 동일한 field 를 사용하면 마지막에 사용한 field 가 적용 됩니다.
-     *
-     * TODO: 위와 같은 상황을 해결 하려면 or scope 내에서 and scope 를 여러번 사용하면 됩니다. (아직 미구현)
      */
     fun or(
         function: Document.() -> (Document),
@@ -20,12 +18,9 @@ class OperatorBuilder private constructor(
         orCollection.add(function)
     }
 
-    fun and(
-        function: Document.() -> (Document),
-    ) {
-        andCollection.add(function)
-    }
-
+    /**
+     * 하나의 or scope 에서 동일한 field 를 사용하려면 or scope 내부에 and 함수를 사용하여 해결해야 합니다.
+     */
     fun Document.and(
         vararg function: Document.() -> (Document),
     ): Document {
@@ -38,7 +33,6 @@ class OperatorBuilder private constructor(
 
     companion object {
         private val orCollection = mutableListOf<Document.() -> (Document)>()
-        private val andCollection = mutableListOf<Document.() -> (Document)>()
 
         fun open(
             document: Document,
@@ -47,17 +41,11 @@ class OperatorBuilder private constructor(
             val operatorBuilder = OperatorBuilder(document)
             operatorBuilder.function()
 
-            val andValue = andCollection.map {
-                val doc = Document()
-                doc.it()
-            }
-
             val orValue = orCollection.map {
                 val doc = Document()
                 doc.it()
             }
 
-            operatorBuilder.document.append("\$and", andValue)
             operatorBuilder.document.append("\$or", orValue)
             return operatorBuilder.document
         }
