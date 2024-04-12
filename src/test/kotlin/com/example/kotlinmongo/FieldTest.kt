@@ -82,15 +82,11 @@ class FieldTest: StringSpec({
     }
 
     "greater than or equal and less than 성공 케이스" {
-        val document = operator {
-            and {
-                field(Author::age) gte 18
-            }
-            and {
-                field(Author::age) lt 30
-            }
-        }
 
+        val document = andOperator {
+            and { field(Author::age) gte 18 }
+            and { field(Author::age) lt 30 }
+        }
         document shouldBe BasicQuery("{ \"\$and\" : [ { \"age\" : { \"\$gte\" : 18 } }, { \"age\" : { \"\$lt\" : 30 } } ] }")
     }
 
@@ -167,7 +163,7 @@ class FieldTest: StringSpec({
     }
 
     "and 연산 테스트" {
-        val document = operator {
+        val document = andOperator {
             and {
                 field(Author::name) eq "John"
                 field(Author::age) eq 18
@@ -178,7 +174,7 @@ class FieldTest: StringSpec({
     }
 
     "or 연산 테스트" {
-        val document = operator {
+        val document = orOperator {
             or {
                 field(Author::name) eq "John"
                 field(Author::age) eq 18
