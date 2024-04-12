@@ -14,7 +14,9 @@ class EmptyGroup(
         alias: String = "total",
         sumField: () -> KProperty<*>,
     ): Aggregation {
+        val matchStage = matchOperation()
         return Aggregation.newAggregation(
+            matchStage,
             Aggregation.group().sum(sumField.invoke().name).`as`(alias)
         )
     }
@@ -39,7 +41,9 @@ class EmptyGroup(
     fun count(
         alias: String = "count",
     ): Aggregation {
+        val matchStage = matchOperation()
         return Aggregation.newAggregation(
+            matchStage,
             Aggregation.group().count().`as`(alias)
         )
     }
