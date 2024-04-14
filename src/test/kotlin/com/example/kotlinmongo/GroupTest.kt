@@ -15,7 +15,7 @@ class GroupTest(
             field(Author::age) eq 30
         }
 
-        val aggregation = document.groupBy().sumOf { Author::age }
+        val aggregation = document.sumOf { Author::age }
 
         mongoTemplate.sumOfSingle(aggregation, Author::class)
     }
