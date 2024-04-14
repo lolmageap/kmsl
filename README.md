@@ -26,7 +26,7 @@ document scope 에서 field 를 사용하면 projection 을 생성할 수 있습
 
 val basicQuery = document {
     field(Author::name) eq "정철희"
-    field(Author::age, 25)
+    field(Author::age) eq 25
 }
 
 mongoTemplate.find(basicQuery, Author::class)
@@ -75,7 +75,7 @@ val basicQuery = document {
     field(Author::name) eq "정철희"
 }
 
-val aggregate = basicQuery.sumOf { Author::age }
+val aggregate = basicQuery.sumOf { field(Author::age) }
 mongoTemplate.sumOfSingle(basicQuery, Author::class)
 ```
 
@@ -85,10 +85,10 @@ val basicQuery = document {
     field(Author::name) eq "정철희"
 }
 
-val aggregate = basicQuery.groupBy(Author::age).sumOfNumber { Author::phone }
+val aggregate = basicQuery.groupBy(Author::age).sumOfNumber { field(Author::phone) }
 mongoTemplate.sumOfGroup(basicQuery, Author::class)
 ```
 
 ## TODO
-[ ] - mongoTemplate 에 find, aggregate 할 때 class 의 정보를 넘기는데 이 부분을 생략/개선할 수 있을 것 같다.
-[ ] - naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
+- [ ] mongoTemplate 에 find, aggregate 할 때 class 의 정보를 넘기는데 이 부분을 생략/개선할 수 있을 것 같다.
+- [ ] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
