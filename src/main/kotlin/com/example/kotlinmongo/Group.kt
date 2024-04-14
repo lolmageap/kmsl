@@ -14,12 +14,14 @@ class Group<T, R>(
 ) {
     fun sumOf(
         alias: String = "total",
-        sumField: () -> KProperty1<T, *>,
+        sumField: Document.() -> Field<T, *>,
     ): Aggregation {
         val matchStage = matchOperation()
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group(key.name).sum(sumField.invoke().name).`as`(alias)
+            Aggregation.group(key.name).sum(
+                sumField.invoke(Document()).key.name
+            ).`as`(alias)
         )
     }
 
