@@ -1,11 +1,11 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.clazz
 
 import org.bson.Document
 import org.bson.types.ObjectId
 import kotlin.reflect.KProperty1
 
 class Field<T, R>(
-    private val key: KProperty1<T, R>,
+    val key: KProperty1<T, R>,
     private val document: Document,
 ) {
     infix fun eq(value: R): Document {
