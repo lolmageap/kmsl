@@ -3,11 +3,12 @@ package com.example.kotlinmongo
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 import java.io.Serializable
 
 @Document
 class Author(
-    @Id
+    @Id @Field("_id")
     val id: String,
     val name: String,
     val age: Int,
