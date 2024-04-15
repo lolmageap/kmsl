@@ -1,5 +1,8 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.extension
 
+import com.example.kotlinmongo.clazz.EmptyGroup
+import com.example.kotlinmongo.clazz.Field
+import com.example.kotlinmongo.clazz.Group
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery

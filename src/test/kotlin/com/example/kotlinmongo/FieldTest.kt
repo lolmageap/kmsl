@@ -1,5 +1,9 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.extension.andOperator
+import com.example.kotlinmongo.extension.document
+import com.example.kotlinmongo.extension.field
+import com.example.kotlinmongo.extension.orOperator
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe

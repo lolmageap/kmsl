@@ -1,4 +1,4 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.clazz
 
 import org.bson.Document
 

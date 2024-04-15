@@ -1,4 +1,4 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document

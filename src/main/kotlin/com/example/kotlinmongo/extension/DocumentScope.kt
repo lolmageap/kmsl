@@ -1,5 +1,8 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.extension
 
+import com.example.kotlinmongo.clazz.AndOperatorBuilder
+import com.example.kotlinmongo.clazz.Field
+import com.example.kotlinmongo.clazz.OrOperatorBuilder
 import org.bson.Document
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KProperty1

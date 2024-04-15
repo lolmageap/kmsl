@@ -1,4 +1,4 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.extension
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate

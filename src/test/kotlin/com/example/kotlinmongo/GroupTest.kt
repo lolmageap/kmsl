@@ -1,5 +1,6 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
