@@ -1,4 +1,4 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,18 +9,15 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 @Configuration
-class Config {
+class MongoConfig {
 
     @Bean
     fun mongoTemplate(): MongoTemplate {
         val factory = SimpleMongoClientDatabaseFactory("mongodb://localhost:27017/test")
         val converter = MappingMongoConverter(
-            DefaultDbRefResolver(
-                SimpleMongoClientDatabaseFactory("mongodb://localhost:27017/test")
-            ),
+            DefaultDbRefResolver(factory),
             MongoMappingContext(),
         )
-        val template = MongoTemplate(factory, converter)
-        return template
+        return MongoTemplate(factory, converter)
     }
 }
