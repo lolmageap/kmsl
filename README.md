@@ -1,6 +1,6 @@
 ## mongodb dsl
 
-kotlin + spring boot 를 이용한 mongodb dsl 샘플 프로젝트 입니다.  
+kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.  
 간단한 criteria, bson, aggregation 을 DSL 형태로 사용할 수 있습니다.
 
 현재 실무 에서 사용 하고 있으며 필요한 기능을 추가 하고 있습니다.  
@@ -8,6 +8,99 @@ kotlin + spring boot 를 이용한 mongodb dsl 샘플 프로젝트 입니다.
 
 spring data jpa와 spring data mongo를 같이 사용할 때 querydsl을 호환성 문제 때문에 사용할 수 없어 criteria, bson을 사용해야 했습니다.  
 하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제를 해결하려고 만들었습니다.
+
+### Criteria, QueryDSL Mongo와 Custom MongoDB DSL의 비교
+
+아래는 Author의 name을 in 연산, nickname을 like 연산, age는 between 연산하는 코드입니다.
+
+**Criteria**
+```kotlin
+fun findAuthors(
+    names: List<String>,
+    minAge: Int?,
+    maxAge: Int?,
+    nickname: String?,
+): List<Author> {
+    val criteriaList = mutableListOf<Criteria>()
+
+    criteriaList.add(Criteria.where("name").`in`(it))
+
+    if (minAge != null && maxAge != null) {
+        criteriaList.add(Criteria.where("age").gt(minAge).lt(maxAge))
+    } else {
+        minAge?.let {
+            criteriaList.add(Criteria.where("age").gt(it))
+        }
+        maxAge?.let {
+            criteriaList.add(Criteria.where("age").lt(it))
+        }
+   }
+
+   nickname?.let {
+	   criteriaList.add(Criteria.where("nickname").regex(it, "i"))
+   }
+    
+   val query = if (criteriaList.isNotEmpty()) {
+        val criteria = Criteria().andOperator(*criteriaList.toTypedArray())
+        Query(criteria)
+    } else {
+        Query()
+    }
+    
+    return mongoTemplate.find(query, Author::class.java)
+}
+```
+
+**QueryDSL Mongo**
+```kotlin
+private lateinit var authorRepository: JpaRepository<Author, Long>
+private val author = QAuthor.author
+
+fun findAuthors(
+names: List<String>,
+minAge: Int?,
+maxAge: Int?,
+nickname: String?,
+): List<Author> {
+var predicate = author.name.`in`(names)
+
+    if (minAge != null && maxAge != null) {
+        predicate = predicate.and(author.age.gt(minAge).and(author.age.lt(maxAge)))
+    } else {
+        minAge?.let {
+            predicate = predicate.and(author.age.gt(it))
+        }
+        maxAge?.let {
+            predicate = predicate.and(author.age.lt(it))
+        }
+    }
+
+    nickname?.let {
+        predicate = predicate.and(author.nickname.contains(it))
+    }
+
+    return authorRepository.findAll(predicate) as List<Author>
+}
+```
+
+**Custom Mongo DSL**
+```kotlin
+fun findAuthors(
+        names: List<String>,
+        nickname: String?,
+        minAge: Int?,
+        maxAge: Int?,
+): List<Author> {
+    val document = document {
+        field(Author::name) `in` names
+        field(Author::age) between (minAge to maxAge)
+        nickname?.let { field(Author::nickname) contains it }
+    }
+
+    return mongoTemplate.find(document, Author::class)
+}
+```
+위와 같이 동일한 결과를 반환하는 코드지만 Custom Mongo DSL은 가독성과 오타로 인한 런타임 문제, 타입 안정성까지 챙기게 됩니다.
 
 ## 사용법
 
