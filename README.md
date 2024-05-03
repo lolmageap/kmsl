@@ -182,6 +182,47 @@ val aggregate = basicQuery.groupBy(Author::age).sumOfNumber { field(Author::phon
 mongoTemplate.sumOfGroup(basicQuery, Author::class)
 ```
 
+### issue
+BasicQuery.where 을 실행 하면 원래 기본 document가 영향을 받는 이슈가 있었습니다.
+
+> example
+```kotlin
+val beforeBasicQuery = document {
+    field(Author::name) eq "정철희"
+}
+
+val afterBasicQuery = beforeBasicQuery.where { field(Author::age) eq 25 }
+
+require(beforeBasicQuery != afterBasicQuery) { "하지만 beforeBasicQuery 도 같이 변경이 되어 에러 발생." }
+```
+
+이 문제를 해결하기 위해 document scope를 copy 하게 수정했습니다.
+
+#### Before
+```kotlin
+fun BasicQuery.where(
+    document: Document.() -> Document,
+): BasicQuery {
+    val queryObject = this.queryObject
+    return BasicQuery(document.invoke(queryObject))
+}
+```
+
+#### After
+```kotlin
+fun BasicQuery.where(
+    document: Document.() -> Document,
+): BasicQuery {
+    val queryObject = this.queryObject.copy()
+    return BasicQuery(document.invoke(queryObject))
+}
+
+fun Document.copy(): Document {
+    return Document(this)
+}
+```
+
+
 ## TODO
 - [ ] mongoTemplate 에 find, aggregate 할 때 class 의 정보를 넘기는데 이 부분을 생략/개선할 수 있을 것 같다.
 - [ ] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
