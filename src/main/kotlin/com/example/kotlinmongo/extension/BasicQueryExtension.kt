@@ -11,23 +11,23 @@ import kotlin.reflect.KProperty1
 fun <T, R> BasicQuery.groupBy(
     key: KProperty1<T, R>,
 ): Group<T, R> {
-    return Group(key, this.queryObject)
+    return Group(key, this.queryObject.copy())
 }
 
 fun BasicQuery.groupBy(): EmptyGroup {
-    return EmptyGroup(this.queryObject)
+    return EmptyGroup(this.queryObject.copy())
 }
 
 fun BasicQuery.where(
     document: Document.() -> Document,
 ): BasicQuery {
-    val queryObject = this.queryObject
+    val queryObject = this.queryObject.copy()
     return BasicQuery(document.invoke(queryObject))
 }
 
 fun BasicQuery.sumOf(
     sumField: Document.() -> Field<*, *>,
 ): Aggregation {
-    val document = this.queryObject
+    val document = this.queryObject.copy()
     return EmptyGroup(document).sumOf { sumField.invoke(Document()) }
 }

@@ -40,3 +40,7 @@ fun <T, R> Document.field(
 ): Field<T, R> {
     return Field(key, this)
 }
+
+fun Document.copy(): Document {
+    return Document(this)
+}
