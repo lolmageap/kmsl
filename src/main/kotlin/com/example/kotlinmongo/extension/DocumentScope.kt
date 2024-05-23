@@ -19,7 +19,7 @@ fun orOperator(
     function: OrOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val document = Document()
-    val orOperatorBuilder = OrOperatorBuilder.open(document, function)
+    val orOperatorBuilder = OrOperatorBuilder(document, function).run()
     return BasicQuery(
         orOperatorBuilder.toJson()
     )
@@ -29,7 +29,7 @@ fun andOperator(
     function: AndOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val document = Document()
-    val orOperatorBuilder = AndOperatorBuilder.open(document, function)
+    val orOperatorBuilder = AndOperatorBuilder(document, function).run()
     return BasicQuery(
         orOperatorBuilder.toJson()
     )

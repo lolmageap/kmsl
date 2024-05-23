@@ -2,9 +2,12 @@ package com.example.kotlinmongo.clazz
 
 import org.bson.Document
 
-class OrOperatorBuilder private constructor(
+class OrOperatorBuilder(
     private val document: Document,
+    private val function: OrOperatorBuilder.() -> Unit,
 ) {
+    private val orCollection = mutableListOf<Document.() -> (Document)>()
+
     /**
      * or 함수 스코프 안에 두 개 이상의 함수를 넣게 되면 두 함수는 and 조건으로 연결됩니다.
      *
@@ -30,26 +33,18 @@ class OrOperatorBuilder private constructor(
         return this
     }
 
-    companion object {
-        private val orCollection = mutableListOf<Document.() -> (Document)>()
+    fun run(): Document {
+        function.invoke(this)
 
-        fun open(
-            document: Document,
-            function: OrOperatorBuilder.() -> Unit,
-        ): Document {
-            val orOperatorBuilder = OrOperatorBuilder(document)
-            orOperatorBuilder.function()
-
-            if (orCollection.isNotEmpty()) {
-                val orValue = orCollection.map {
-                    val doc = Document()
-                    doc.it()
-                }
-
-                orOperatorBuilder.document.append("\$or", orValue)
+        if (orCollection.isNotEmpty()) {
+            val orValue = orCollection.map {
+                val doc = Document()
+                doc.it()
             }
 
-            return orOperatorBuilder.document
+            document.append("\$or", orValue)
         }
+
+        return document
     }
 }
