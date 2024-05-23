@@ -8,6 +8,10 @@ class Field<T, R>(
     val key: KProperty1<T, R>,
     private val document: Document,
 ) {
+    operator fun not(): Field<T, R> {
+        return Field(key, document.append(name, Document("\$not", Document())))
+    }
+
     infix fun eq(value: R): Document {
         return document.append(name, getValue(value))
     }
@@ -37,15 +41,41 @@ class Field<T, R>(
             values.first == null && values.second == null -> {
                 document
             }
+
             values.first == null -> {
                 document.append(name, Document("\$lt", values.second?.let { getValue(it) }))
             }
+
             values.second == null -> {
                 document.append(name, Document("\$gt", values.first?.let { getValue(it) }))
             }
+
             else -> {
                 document.append(name, Document("\$gt", values.first?.let { getValue(it) })
-                    .append("\$lt", values.second?.let { getValue(it) }))
+                    .append("\$lt", values.second?.let { getValue(it) })
+                )
+            }
+        }
+    }
+
+    infix fun notBetween(values: Pair<R?, R?>): Document {
+        return when {
+            values.first == null && values.second == null -> {
+                document
+            }
+
+            values.first == null -> {
+                document.append(name, Document("\$gte", values.second?.let { getValue(it) }))
+            }
+
+            values.second == null -> {
+                document.append(name, Document("\$lte", values.first?.let { getValue(it) }))
+            }
+
+            else -> {
+                document.append(name, Document("\$lte", values.first?.let { getValue(it) })
+                    .append("\$gte", values.second?.let { getValue(it) })
+                )
             }
         }
     }
@@ -56,14 +86,36 @@ class Field<T, R>(
                 document
             }
             values.first == null -> {
-                document.append(name, Document("\$lte", values.second?.let { getValue(it) }))
+                document.append(name, Document("\$not", Document("\$lte", values.second?.let { getValue(it) })))
             }
             values.second == null -> {
-                document.append(name, Document("\$gte", values.first?.let { getValue(it) }))
+                document.append(name, Document("\$not", Document("\$gte", values.first?.let { getValue(it) })))
             }
             else -> {
-                document.append(name, Document("\$gte", values.first?.let { getValue(it) })
-                    .append("\$lte", values.second?.let { getValue(it) }))
+                document.append(
+                    name, Document("\$not", Document("\$gte", values.first?.let { getValue(it) })
+                        .append("\$lte", values.second?.let { getValue(it) })
+                    )
+                )
+            }
+        }
+    }
+
+    infix fun notBetweenInclusive(values: Pair<R?, R?>): Document {
+        return when {
+            values.first == null && values.second == null -> {
+                document
+            }
+            values.first == null -> {
+                document.append(name, Document("\$gt", values.second?.let { getValue(it) }))
+            }
+            values.second == null -> {
+                document.append(name, Document("\$lt", values.first?.let { getValue(it) }))
+            }
+            else -> {
+                document.append(name, Document("\$lt", values.first?.let { getValue(it) })
+                    .append("\$gt", values.second?.let { getValue(it) })
+                )
             }
         }
     }
