@@ -1,8 +1,5 @@
 package com.example.kotlinmongo.clazz
 
-import com.example.kotlinmongo.Author
-import com.example.kotlinmongo.extension.document
-import com.example.kotlinmongo.extension.field
 import org.bson.Document
 
 class DocumentOperatorBuilder(
