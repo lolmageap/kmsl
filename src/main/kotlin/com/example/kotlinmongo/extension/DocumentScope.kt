@@ -1,18 +1,25 @@
 package com.example.kotlinmongo.extension
 
-import com.example.kotlinmongo.clazz.AndOperatorBuilder
-import com.example.kotlinmongo.clazz.Field
-import com.example.kotlinmongo.clazz.OrOperatorBuilder
+import com.example.kotlinmongo.clazz.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KProperty1
 
 fun document(
-    function: Document.() -> Document,
+    rootOperatorType: RootOperatorType = RootOperatorType.AND,
+    function: DocumentOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val document = Document()
-    val json = document.function().toJson()
-    return BasicQuery(json)
+
+    val documentOperatorBuilder = DocumentOperatorBuilder(
+        document = document,
+        rootOperatorType = rootOperatorType,
+        function = function,
+    ).run()
+
+    return BasicQuery(
+        documentOperatorBuilder.toJson()
+    )
 }
 
 fun orOperator(
