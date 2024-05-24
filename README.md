@@ -226,3 +226,5 @@ fun Document.copy(): Document {
 ## TODO
 - [ ] mongoTemplate 에 find, aggregate 할 때 class 의 정보를 넘기는데 이 부분을 생략/개선할 수 있을 것 같다.
 - [ ] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
+- [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
+- [ ] and operator 와 or operator 와 document scope 를 하나로 합치자.
