@@ -92,9 +92,11 @@ fun findAuthors(
         maxAge: Int?,
 ): List<Author> {
     val document = document {
-        field(Author::name) `in` names
-        field(Author::age) between (minAge to maxAge)
-        nickname?.let { field(Author::nickname) contains it }
+        and(
+            { field(Author::name) `in` names },
+            { field(Author::age) between (minAge to maxAge) },
+            { nickname?.let { field(Author::nickname) contains it } }
+        )
     }
 
     return mongoTemplate.find(document, Author::class)
@@ -113,13 +115,16 @@ mongoTemplate.find(basicQuery, Author::class)
 ```
 
 #### field
-document scope 에서 field 를 사용하면 projection 을 생성할 수 있습니다.
+document scope 에서 and, or, nor, not을 사용하면 field를 함수 형태로 넘길 수 있습니다.
+field 객체는 Expression 을 생성할 수 있습니다.
 
 ```kotlin
 
 val basicQuery = document {
-    field(Author::name) eq "정철희"
-    field(Author::age) eq 25
+    and(
+        { field(Author::name) eq "정철희" },
+        { field(Author::age) ne 25 }
+    )
 }
 
 mongoTemplate.find(basicQuery, Author::class)
@@ -127,35 +132,38 @@ mongoTemplate.find(basicQuery, Author::class)
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) `in` ["정철희", "정원희"]
-    field(Author::age) between (25 to 30)
+    or(
+        { field(Author::name) `in` ["정철희", "정원희"] },
+        { field(Author::age) between (25 to 30) },
+    )
 }
 ```
 
-#### or
-or 연산을 하려고 하면 orOperator를 사용해서 or query를 생성할 수 있습니다.
-
+and, or, nor, not 인자 안에 함수 scope 내부는 and 연산으로 처리됩니다.
 ```kotlin
-val basicQuery = orOperator {
-    or { field(Author::name) eq "정철희" }
-    or { field(Author::age) eq 25 }
+val basicQuery = document {
+    or(
+        { 
+            // 모두 and 연산으로 처리됩니다.
+            field(Author::name) eq "정철희" 
+            field(Author::age) eq 25
+            field(Author::phone) eq "010-1234-5678"  
+        },
+        { 
+            // 모두 and 연산으로 처리됩니다.
+            field(Author::name) eq "정원희" 
+            field(Author::age) eq 30
+            field(Author::phone) eq "010-5678-1234"
+        }
+    )
 }
 
-mongoTemplate.find(basicQuery, Author::class)
-```
-
-orOperator에서 or scope 내부는 and 연산으로 처리됩니다.
-```kotlin
-val basicQuery = orOperator {
-    or {
-        field(Author::name) eq "정철희"
-        field(Author::age) eq 25
-    }
-    or {
-        field(Author::name) eq "정원희"
-        field(Author::age) eq 30
-    }
-}
+/**
+ * 위의 코드는 아래와 같은 쿼리를 생성합니다.
+ * ( 정철희 and 25 and 010-1234-5678 ) 
+ * or 
+ * ( 정원희 and 30 and 010-5678-1234 )
+ */
 
 mongoTemplate.find(basicQuery, Author::class)
 ```
@@ -164,8 +172,11 @@ mongoTemplate.find(basicQuery, Author::class)
 grouping을 사용하면 간단한 통계 쿼리를 생성할 수 있습니다.
 
 ```kotlin
+// 이름이 정철희인 사람들의 나이의 합
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    and(
+        { field(Author::name) eq "정철희" },
+    )
 }
 
 val aggregate = basicQuery.sumOf { field(Author::age) }
@@ -174,57 +185,19 @@ mongoTemplate.sumOfSingle(basicQuery, Author::class)
 
 만약 mongodb에 field가 string 이라면 sumOfNumber를 사용하면 됩니다.
 ```kotlin
+// 이름이 정철희인 사람들의 나이별로 그룹합니다.
+// 이 그룹의 핸드폰 번호를 숫자로 형변환한 값의 합 
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    and(
+        { field(Author::name) eq "정철희" },
+    )
 }
 
 val aggregate = basicQuery.groupBy(Author::age).sumOfNumber { field(Author::phone) }
 mongoTemplate.sumOfGroup(basicQuery, Author::class)
 ```
 
-### issue
-BasicQuery.where 을 실행 하면 원래 기본 document가 영향을 받는 이슈가 있었습니다.
-
-> example
-```kotlin
-val beforeBasicQuery = document {
-    field(Author::name) eq "정철희"
-}
-
-val afterBasicQuery = beforeBasicQuery.where { field(Author::age) eq 25 }
-
-require(beforeBasicQuery != afterBasicQuery) { "하지만 beforeBasicQuery 도 같이 변경이 되어 에러 발생." }
-```
-
-이 문제를 해결하기 위해 document scope를 copy 하게 수정했습니다.
-
-#### Before
-```kotlin
-fun BasicQuery.where(
-    document: Document.() -> Document,
-): BasicQuery {
-    val queryObject = this.queryObject
-    return BasicQuery(document.invoke(queryObject))
-}
-```
-
-#### After
-```kotlin
-fun BasicQuery.where(
-    document: Document.() -> Document,
-): BasicQuery {
-    val queryObject = this.queryObject.copy()
-    return BasicQuery(document.invoke(queryObject))
-}
-
-fun Document.copy(): Document {
-    return Document(this)
-}
-```
-
-
 ## TODO
-- [ ] mongoTemplate 에 find, aggregate 할 때 class 의 정보를 넘기는데 이 부분을 생략/개선할 수 있을 것 같다.
 - [ ] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
 - [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
-- [ ] and operator 와 or operator 와 document scope 를 하나로 합치자.
+- [x] and operator 와 or operator 와 document scope 를 하나로 합치자.
