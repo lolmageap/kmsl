@@ -2,49 +2,47 @@ package com.example.kotlinmongo.clazz
 
 import org.bson.Document
 
-class DocumentOperatorBuilder(
-    private val document: Document,
-    private val rootOperatorType: RootOperatorType,
-    private val function: DocumentOperatorBuilder.() -> Unit,
-) {
-    private val andCollection = mutableListOf<Document.() -> (Document)>()
-    private val orCollection = mutableListOf<Document.() -> (Document)>()
-    private val norCollection = mutableListOf<Document.() -> (Document)>()
-    private val notCollection = mutableListOf<Document.() -> (Document)>()
-    private val callStack = mutableListOf<RootOperatorType>()
-
+class DocumentOperatorBuilder {
     fun and(
-        function: Document.() -> (Document),
-    ) {
-        andCollection.add(function)
-        callStack.add(RootOperatorType.AND)
+        vararg block: Document.() -> (Document),
+    ): Document {
+        return Document().append("\$and", block.map {
+            val doc = Document()
+            doc.it()
+        })
     }
 
     fun or(
-        function: Document.() -> (Document),
-    ) {
-        orCollection.add(function)
-        callStack.add(RootOperatorType.OR)
+        vararg block: Document.() -> (Document),
+    ): Document {
+        return Document().append("\$or", block.map {
+            val doc = Document()
+            doc.it()
+        })
     }
 
     fun nor(
-        function: Document.() -> (Document),
-    ) {
-        norCollection.add(function)
-        callStack.add(RootOperatorType.NOR)
+        vararg block: Document.() -> (Document),
+    ): Document {
+        return Document().append("\$nor", block.map {
+            val doc = Document()
+            doc.it()
+        })
     }
 
     fun not(
-        function: Document.() -> (Document),
-    ) {
-        notCollection.add(function)
-        callStack.add(RootOperatorType.NOT)
+        vararg block: Document.() -> (Document),
+    ): Document {
+        return Document().append("\$not", block.map {
+            val doc = Document()
+            doc.it()
+        })
     }
 
     fun Document.and(
-        vararg function: Document.() -> (Document),
+        vararg block: Document.() -> (Document),
     ): Document {
-        this.append("\$and", function.map {
+        this.append("\$and", block.map {
             val doc = Document()
             doc.it()
         })
@@ -52,9 +50,9 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.or(
-        vararg function: Document.() -> (Document),
+        vararg block: Document.() -> (Document),
     ): Document {
-        this.append("\$or", function.map {
+        this.append("\$or", block.map {
             val doc = Document()
             doc.it()
         })
@@ -62,9 +60,9 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.nor(
-        vararg function: Document.() -> (Document),
+        vararg block: Document.() -> (Document),
     ): Document {
-        this.append("\$nor", function.map {
+        this.append("\$nor", block.map {
             val doc = Document()
             doc.it()
         })
@@ -72,64 +70,30 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.not(
-        vararg function: Document.() -> (Document),
+        vararg block: Document.() -> (Document),
     ): Document {
-        this.append("\$not", function.map {
+        this.append("\$not", block.map {
             val doc = Document()
             doc.it()
         })
         return this
     }
 
-    fun run(): Document {
-        when (rootOperatorType) {
-            RootOperatorType.AND -> document.append("\$and", Document())
-            RootOperatorType.OR -> document.append("\$or", Document())
-            RootOperatorType.NOR -> document.append("\$nor", Document())
-            RootOperatorType.NOT -> document.append("\$not", Document())
-        }
-
-        function.invoke(this)
-
-        callStack.forEach {
-            when (it) {
-                RootOperatorType.AND -> {
-                    if (andCollection.isNotEmpty()) {
-                        val andValue = andCollection.map { invoke ->
-                            Document().invoke()
-                        }
-                        document.append("\$and", andValue)
-                    }
-                }
-
-                RootOperatorType.OR -> {
-                    if (orCollection.isNotEmpty()) {
-                        val orValue = orCollection.map { invoke ->
-                            Document().invoke()
-                        }
-                        document.append("\$or", orValue)
-                    }
-                }
-
-                RootOperatorType.NOR -> {
-                    if (norCollection.isNotEmpty()) {
-                        val norValue = norCollection.map { invoke ->
-                            Document().invoke()
-                        }
-                        document.append("\$nor", norValue)
-                    }
-                }
-
-                RootOperatorType.NOT -> {
-                    if (notCollection.isNotEmpty()) {
-                        val notValue = notCollection.map { invoke ->
-                            Document().invoke()
-                        }
-                        document.append("\$not", notValue)
-                    }
-                }
-            }
-        }
+    private fun run(
+        document: Document,
+        block: DocumentOperatorBuilder.() -> Unit,
+    ): Document {
+        block.invoke(this)
         return document
+    }
+
+    companion object {
+        operator fun invoke(
+            document: Document,
+            block: DocumentOperatorBuilder.() -> Unit,
+        ): Document {
+            return DocumentOperatorBuilder()
+                .run(document, block)
+        }
     }
 }
