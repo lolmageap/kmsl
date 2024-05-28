@@ -51,8 +51,9 @@ class Field<T, R>(
             }
 
             else -> {
-                document.append(name, Document("\$gt", values.first?.let { getValue(it) })
-                    .append("\$lt", values.second?.let { getValue(it) })
+                document.append(
+                    name, Document("\$gt", values.first?.let { getValue(it) })
+                        .append("\$lt", values.second?.let { getValue(it) })
                 )
             }
         }
@@ -73,8 +74,9 @@ class Field<T, R>(
             }
 
             else -> {
-                document.append(name, Document("\$lte", values.first?.let { getValue(it) })
-                    .append("\$gte", values.second?.let { getValue(it) })
+                document.append(
+                    name, Document("\$lte", values.first?.let { getValue(it) })
+                        .append("\$gte", values.second?.let { getValue(it) })
                 )
             }
         }
@@ -93,8 +95,9 @@ class Field<T, R>(
             }
             else -> {
                 document.append(
-                    name, Document("\$not", Document("\$gte", values.first?.let { getValue(it) })
-                        .append("\$lte", values.second?.let { getValue(it) })
+                    name, Document(
+                        "\$not", Document("\$gte", values.first?.let { getValue(it) })
+                            .append("\$lte", values.second?.let { getValue(it) })
                     )
                 )
             }
@@ -113,8 +116,9 @@ class Field<T, R>(
                 document.append(name, Document("\$lt", values.first?.let { getValue(it) }))
             }
             else -> {
-                document.append(name, Document("\$lt", values.first?.let { getValue(it) })
-                    .append("\$gt", values.second?.let { getValue(it) })
+                document.append(
+                    name, Document("\$lt", values.first?.let { getValue(it) })
+                        .append("\$gt", values.second?.let { getValue(it) })
                 )
             }
         }
@@ -133,7 +137,8 @@ class Field<T, R>(
             }
             else -> {
                 document.append(name, Document("\$gt", values.first?.let { getValue(it) })
-                    .append("\$lte", values.second?.let { getValue(it) }))
+                    .append("\$lte", values.second?.let { getValue(it) })
+                )
             }
         }
     }
@@ -150,8 +155,9 @@ class Field<T, R>(
                 document.append(name, Document("\$gte", values.first?.let { getValue(it) }))
             }
             else -> {
-                document.append(name, Document("\$gte", values.first?.let { getValue(it) })
-                    .append("\$lt", values.second?.let { getValue(it) })
+                document.append(
+                    name, Document("\$gte", values.first?.let { getValue(it) })
+                        .append("\$lt", values.second?.let { getValue(it) })
                 )
             }
         }
