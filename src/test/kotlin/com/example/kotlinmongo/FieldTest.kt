@@ -194,8 +194,18 @@ class FieldTest : StringSpec({
     "or 연산 테스트" {
         val document = document {
             or(
-                { field(Author::name) eq "John" },
-                { field(Author::age) eq 18 },
+                {
+                    and(
+                        { field(Author::name) eq "John" },
+                        { field(Author::age) eq 18 },
+                    )
+                },
+                {
+                    and(
+                        { field(Author::name) eq "Any" },
+                        { field(Author::age) eq 81 },
+                    )
+                },
             )
         }
 

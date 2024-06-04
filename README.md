@@ -143,18 +143,20 @@ and, or, nor, not 인자 안에 함수 scope 내부는 and 연산으로 처리�
 ```kotlin
 val basicQuery = document {
     or(
-        { 
-            // 모두 and 연산으로 처리됩니다.
-            field(Author::name) eq "정철희" 
-            field(Author::age) eq 25
-            field(Author::phone) eq "010-1234-5678"  
+        {
+            and(
+                { field(Author::name) eq "정철희" },
+                { field(Author::age) eq 25 },
+                { field(Author::phone) eq "010-1234-5678" },
+            )
         },
-        { 
-            // 모두 and 연산으로 처리됩니다.
-            field(Author::name) eq "정원희" 
-            field(Author::age) eq 30
-            field(Author::phone) eq "010-5678-1234"
-        }
+        {
+            and(
+                { field(Author::name) eq "정원희" },
+                { field(Author::age) eq 30 },
+                { field(Author::phone) eq "010-5678-1234" },
+            )
+        },
     )
 }
 
