@@ -163,11 +163,11 @@ class Field<T, R>(
         }
     }
 
-    infix fun `in`(values: List<R>): Document {
+    infix fun `in`(values: Iterable<R>): Document {
         return document.append(name, Document("\$in", values.map { getValue(it) }))
     }
 
-    infix fun nin(values: List<R>): Document {
+    infix fun nin(values: Iterable<R>): Document {
         return document.append(name, Document("\$nin", values.map { getValue(it) }))
     }
 
