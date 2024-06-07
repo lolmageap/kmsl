@@ -19,6 +19,17 @@ fun <T : Any> MongoTemplate.find(
 
 fun <T : Any> MongoTemplate.find(
     query: BasicQuery,
+    limit: Int,
+    entityClass: KClass<T>,
+): List<T> {
+    return find(
+        query.limit(limit),
+        entityClass.java,
+    )
+}
+
+fun <T : Any> MongoTemplate.find(
+    query: BasicQuery,
     entityClass: KClass<T>,
 ): List<T> {
     return find(query, entityClass.java)
