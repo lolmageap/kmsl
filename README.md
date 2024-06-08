@@ -170,6 +170,27 @@ val basicQuery = document {
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
+#### 정렬
+
+정렬은 orderBy 함수를 사용하면 됩니다.
+```kotlin
+val basicQuery = document {
+    and(
+        { field(Author::name) eq "정철희" },
+    )
+}.orderBy(Author::age).desc()
+```
+
+아래처럼 여러 필드를 정렬할 수도 있습니다.
+```kotlin
+val basicQuery = document {
+    and(
+        { field(Author::name) eq "정철희" },
+    )
+}.orderBy(Author::age).desc()
+    .orderBy(Author::phone).asc()
+```
+
 #### grouping
 grouping을 사용하면 간단한 통계 쿼리를 생성할 수 있습니다.
 
@@ -200,6 +221,7 @@ mongoTemplate.sumOfGroup(basicQuery, Author::class)
 ```
 
 ## TODO
-- [ ] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
-- [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
+- [x] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
 - [x] and operator 와 or operator 와 document scope 를 하나로 합치자.
+- [x] 정렬을 구현하여 사용할 수 있도록 하자.
+- [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
