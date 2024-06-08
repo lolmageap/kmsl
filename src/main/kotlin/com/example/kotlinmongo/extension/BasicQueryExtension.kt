@@ -3,8 +3,8 @@ package com.example.kotlinmongo.extension
 import com.example.kotlinmongo.clazz.EmptyGroup
 import com.example.kotlinmongo.clazz.Field
 import com.example.kotlinmongo.clazz.Group
+import com.example.kotlinmongo.clazz.Order
 import org.bson.Document
-import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KProperty1
@@ -35,8 +35,6 @@ fun BasicQuery.sumOf(
 
 fun BasicQuery.orderBy(
     key: KProperty1<*, *>,
-    direction: Sort.Direction,
-): BasicQuery {
-    this.with(Sort.by(direction, key.name))
-    return this
+): Order {
+    return Order(this, key)
 }
