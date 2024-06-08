@@ -7,14 +7,26 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.query.BasicQuery
 
 class BasicQueryExtensionKtTest: StringSpec({
-    "orderBy 정렬 테스트" {
+    "단일 orderBy 정렬 테스트" {
         val result = document {
             and(
                 { field(Author::name) eq "John" },
                 { field(Author::age) eq 18 },
             )
-        }.orderBy(Author::name, Sort.Direction.DESC)
+        }.orderBy(Author::name).desc()
 
         result shouldBe BasicQuery("{ \"name\" : \"John\", \"age\" : 18 }").with(Sort.by(Sort.Direction.DESC, "name"))
+    }
+
+    "다중 orderBy 정렬 테스트" {
+        val result = document {
+            and(
+                { field(Author::name) eq "John" },
+                { field(Author::age) eq 18 },
+            )
+        }.orderBy(Author::name).desc()
+            .orderBy(Author::age).asc()
+
+        result shouldBe BasicQuery("{ \"name\" : \"John\", \"age\" : 18 }").with(Sort.by(Sort.Direction.DESC, "name").and(Sort.by(Sort.Direction.ASC, "age")))
     }
 })
