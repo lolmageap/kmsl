@@ -95,7 +95,7 @@ fun findAuthors(
         and(
             { field(Author::name) `in` names },
             { field(Author::age) between (minAge to maxAge) },
-            { nickname?.let { field(Author::nickname) contains it } }
+            { nickname?.let { field(Author::nickname) contains it } },
         )
     }
 
@@ -123,7 +123,7 @@ field 객체는 Expression 을 생성할 수 있습니다.
 val basicQuery = document {
     and(
         { field(Author::name) eq "정철희" },
-        { field(Author::age) ne 25 }
+        { field(Author::age) ne 25 },
     )
 }
 
