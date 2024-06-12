@@ -57,10 +57,10 @@ private lateinit var authorRepository: JpaRepository<Author, Long>
 private val author = QAuthor.author
 
 fun findAuthors(
-names: List<String>,
-minAge: Int?,
-maxAge: Int?,
-nickname: String?,
+    names: List<String>,
+    minAge: Int?,
+    maxAge: Int?,
+    nickname: String?,
 ): List<Author> {
 var predicate = author.name.`in`(names)
 
