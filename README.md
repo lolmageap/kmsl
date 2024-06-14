@@ -57,10 +57,10 @@ private lateinit var authorRepository: JpaRepository<Author, Long>
 private val author = QAuthor.author
 
 fun findAuthors(
-names: List<String>,
-minAge: Int?,
-maxAge: Int?,
-nickname: String?,
+    names: List<String>,
+    minAge: Int?,
+    maxAge: Int?,
+    nickname: String?,
 ): List<Author> {
 var predicate = author.name.`in`(names)
 
@@ -86,10 +86,10 @@ var predicate = author.name.`in`(names)
 **Custom Mongo DSL**
 ```kotlin
 fun findAuthors(
-        names: List<String>,
-        nickname: String?,
-        minAge: Int?,
-        maxAge: Int?,
+    names: List<String>,
+    nickname: String?,
+    minAge: Int?,
+    maxAge: Int?,
 ): List<Author> {
     val document = document {
         and(
