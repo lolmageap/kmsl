@@ -3,7 +3,7 @@ package com.example.kotlinmongo.clazz
 import org.bson.Document
 
 class DocumentOperatorBuilder(
-    private val document: Document,
+    val document: Document,
 ) {
     fun and(
         vararg block: Document.() -> (Document),
@@ -133,6 +133,18 @@ class DocumentOperatorBuilder(
         return this
     }
 
+    fun Document.elemMatch(
+        block: Document.() -> (Document),
+    ): Document {
+        val doc = Document()
+        val result = doc.block()
+        if (result.isNotEmpty()) {
+            this.append("\$elemMatch", result)
+        }
+
+        return this
+    }
+
     fun Document.and(
         function: List<Document.() -> (Document)>,
     ): Document {
@@ -200,6 +212,24 @@ class DocumentOperatorBuilder(
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$not", nonEmptyBlocks)
+        }
+
+        return this
+    }
+
+    fun Document.elemMatch(
+        function: List<Document.() -> (Document)>,
+    ): Document {
+        if (function.isEmpty()) return this
+
+        val nonEmptyBlocks = function.mapNotNull {
+            val doc = Document()
+            val result = doc.it()
+            if (result.isEmpty()) null else result
+        }
+
+        if (nonEmptyBlocks.isNotEmpty()) {
+            this.append("\$elemMatch", nonEmptyBlocks)
         }
 
         return this
