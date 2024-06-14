@@ -196,7 +196,19 @@ class Field<T, R>(
     }
 
     infix fun match(value: R): Document {
-        return document.append(name, Document("\$match", value))
+        return document.append(name, Document("\$match", getValue(value)))
+    }
+
+    infix fun all(value: Iterable<R>): Document {
+        return document.append(name, Document("\$all", value.map { getValue(it) }))
+    }
+
+    infix fun size(value: Int): Document {
+        return document.append(name, Document("\$size", value))
+    }
+
+    infix fun exists(value: Boolean): Document {
+        return document.append(name, Document("\$exists", value))
     }
 
     private val name: String
