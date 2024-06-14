@@ -7,7 +7,7 @@ kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.
 조건이 많고 mongodb 의 조건, 연산이 필요할 때 사용 하고 있습니다.  
 
 spring data jpa와 spring data mongo를 같이 사용할 때 querydsl을 호환성 문제 때문에 사용할 수 없어 criteria, bson을 사용해야 했습니다.  
-하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제를 해결하려고 만들었습니다.
+하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제가 있어 이를 해결하려 만들었습니다.
 
 ### Criteria, QueryDSL Mongo와 Custom MongoDB DSL의 비교
 
