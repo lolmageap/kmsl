@@ -59,7 +59,7 @@ class GroupTest(
             )
         }
 
-        val aggregation = document.groupBy().sumOfNumber { field(Author::name) }
+        val aggregation = document.groupBy().sumOf(Double::class) { field(Author::name) }
 
         mongoTemplate.sumOfSingle(aggregation, Author::class)
     }

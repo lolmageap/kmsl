@@ -206,17 +206,18 @@ val aggregate = basicQuery.sumOf { field(Author::age) }
 mongoTemplate.sumOfSingle(basicQuery, Author::class)
 ```
 
-만약 mongodb에 field가 string 이라면 sumOfNumber를 사용하면 됩니다.
+만약 mongodb에 field가 string 타입이어도 숫자로 형변환하여 계산할 수 있습니다. 숫자의 타입이 Int 인지, Long 인지, Double 인지에 설정도 가능합니다.  
+기본적으로 Long 타입으로 변환되게 설정되어 있습니다.  
 ```kotlin
 // 이름이 정철희인 사람들의 나이별로 그룹합니다.
-// 이 그룹의 핸드폰 번호를 숫자로 형변환한 값의 합 
+// 이 그룹의 핸드폰 번호를 숫자(Double Type)로 형변환한 값의 합 
 val basicQuery = document {
     and(
         { field(Author::name) eq "정철희" },
     )
 }
 
-val aggregate = basicQuery.groupBy(Author::age).sumOfNumber { field(Author::phone) }
+val aggregate = basicQuery.groupBy(Author::age).sumOf(Double::class) { field(Author::phone) }
 mongoTemplate.sumOfGroup(basicQuery, Author::class)
 ```
 
