@@ -1,6 +1,7 @@
 package com.example.kotlinmongo.clazz
 
 import java.math.BigDecimal
+import java.util.*
 import kotlin.reflect.KClass
 
 object MongoAggregateTypeFactory {
@@ -10,7 +11,9 @@ object MongoAggregateTypeFactory {
             BigDecimal::class -> "\$toDecimal"
             Int::class -> "\$toInt"
             Double::class -> "\$toDouble"
-            Float::class -> "\$toFloat"
+            String::class -> "\$toString"
+            Date::class -> "\$toDate"
+            Boolean::class -> "\$toBool"
             else -> "\$toLong"
         }
     }

@@ -17,9 +17,9 @@ class Group<T, R>(
     private val document: Document,
 ) {
     fun sumOf(
+        type: KClass<*> = Long::class,
         alias: String = "total",
         sumField: Document.() -> Field<T, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = sumField.invoke(Document()).key.name
         val expression = AggregationExpression {
@@ -35,9 +35,9 @@ class Group<T, R>(
     }
 
     fun avgOf(
+        type: KClass<*> = Long::class,
         alias: String = "avg",
         avgField: Document.() -> Field<T, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = avgField.invoke(Document()).key.name
         val expression = AggregationExpression {
@@ -53,9 +53,9 @@ class Group<T, R>(
     }
 
     fun maxOf(
+        type: KClass<*> = Long::class,
         alias: String = "max",
         maxField: Document.() -> Field<T, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = maxField.invoke(Document()).key.name
         val expression = AggregationExpression {
@@ -71,9 +71,9 @@ class Group<T, R>(
     }
 
     fun minOf(
+        type: KClass<*> = Long::class,
         alias: String = "min",
         minField: Document.() -> Field<T, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = minField.invoke(Document()).key.name
         val expression = AggregationExpression {

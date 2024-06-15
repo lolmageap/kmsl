@@ -11,9 +11,9 @@ class EmptyGroup(
     private val document: Document,
 ) {
     fun sumOf(
+        type: KClass<*> = Long::class,
         alias: String = "total",
         sumField: Document.() -> Field<*, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = sumField.invoke(Document()).key.name
         val expression = AggregationExpression {
@@ -29,9 +29,9 @@ class EmptyGroup(
     }
 
     fun avgOf(
+        type: KClass<*> = Long::class,
         alias: String = "avg",
         avgField: Document.() -> Field<*, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = avgField.invoke(Document()).key.name
         val expression = AggregationExpression {
@@ -47,9 +47,9 @@ class EmptyGroup(
     }
 
     fun maxOf(
+        type: KClass<*> = Long::class,
         alias: String = "max",
         maxField: Document.() -> Field<*, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = maxField.invoke(Document()).key.name
         val expression = AggregationExpression {
@@ -65,9 +65,9 @@ class EmptyGroup(
     }
 
     fun minOf(
+        type: KClass<*> = Long::class,
         alias: String = "min",
         minField: Document.() -> Field<*, *>,
-        type: KClass<*> = Long::class,
     ): Aggregation {
         val fieldName = minField.invoke(Document()).key.name
         val expression = AggregationExpression {
