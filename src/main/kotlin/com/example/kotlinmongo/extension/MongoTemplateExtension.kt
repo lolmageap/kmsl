@@ -12,7 +12,8 @@ fun <T : Any> MongoTemplate.find(
     entityClass: KClass<T>,
 ): List<T> {
     return find(
-        query.with(pageable),
+        query.limit(pageable.pageSize)
+            .skip(pageable.offset),
         entityClass.java,
     )
 }
