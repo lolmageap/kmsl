@@ -146,11 +146,11 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.and(
-        function: List<Document.() -> (Document)>,
+        block: List<Document.() -> (Document)>,
     ): Document {
-        if (function.isEmpty()) return this
+        if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = function.mapNotNull {
+        val nonEmptyBlocks = block.mapNotNull {
             val doc = Document()
             val result = doc.it()
             if (result.isEmpty()) null else result
@@ -164,11 +164,11 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.or(
-        function: List<Document.() -> (Document)>,
+        block: List<Document.() -> (Document)>,
     ): Document {
-        if (function.isEmpty()) return this
+        if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = function.mapNotNull {
+        val nonEmptyBlocks = block.mapNotNull {
             val doc = Document()
             val result = doc.it()
             if (result.isEmpty()) null else result
@@ -182,11 +182,11 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.nor(
-        function: List<Document.() -> (Document)>,
+        block: List<Document.() -> (Document)>,
     ): Document {
-        if (function.isEmpty()) return this
+        if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = function.mapNotNull {
+        val nonEmptyBlocks = block.mapNotNull {
             val doc = Document()
             val result = doc.it()
             if (result.isEmpty()) null else result
@@ -200,11 +200,11 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.not(
-        function: List<Document.() -> (Document)>,
+        block: List<Document.() -> (Document)>,
     ): Document {
-        if (function.isEmpty()) return this
+        if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = function.mapNotNull {
+        val nonEmptyBlocks = block.mapNotNull {
             val doc = Document()
             val result = doc.it()
             if (result.isEmpty()) null else result
@@ -218,11 +218,11 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.elemMatch(
-        function: List<Document.() -> (Document)>,
+        block: List<Document.() -> (Document)>,
     ): Document {
-        if (function.isEmpty()) return this
+        if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = function.mapNotNull {
+        val nonEmptyBlocks = block.mapNotNull {
             val doc = Document()
             val result = doc.it()
             if (result.isEmpty()) null else result
