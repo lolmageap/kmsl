@@ -209,6 +209,6 @@ class FieldTest : StringSpec({
             )
         }
 
-        document shouldBe BasicQuery("{ \"\$or\" : [ { \"name\" : \"John\" }, { \"age\" : 18 } ] }")
+        document shouldBe BasicQuery("{ \"\$or\" : [ { \"\$and\" : [ { \"name\" : \"John\" }, { \"age\" : 18 } ] }, { \"\$and\" : [ { \"name\" : \"Any\" }, { \"age\" : 81 } ] } ] }")
     }
 })
