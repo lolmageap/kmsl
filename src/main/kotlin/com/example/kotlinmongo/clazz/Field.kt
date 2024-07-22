@@ -124,45 +124,6 @@ class Field<T, R>(
         }
     }
 
-    infix fun gtAndLte(values: Pair<R?, R?>): Document {
-        return when {
-            values.first == null && values.second == null -> {
-                document
-            }
-            values.first == null -> {
-                document.append(name, Document("\$lte", values.second?.let { getValue(it) }))
-            }
-            values.second == null -> {
-                document.append(name, Document("\$gt", values.first?.let { getValue(it) }))
-            }
-            else -> {
-                document.append(name, Document("\$gt", values.first?.let { getValue(it) })
-                    .append("\$lte", values.second?.let { getValue(it) })
-                )
-            }
-        }
-    }
-
-    infix fun gteAndLt(values: Pair<R?, R?>): Document {
-        return when {
-            values.first == null && values.second == null -> {
-                document
-            }
-            values.first == null -> {
-                document.append(name, Document("\$lt", values.second?.let { getValue(it) }))
-            }
-            values.second == null -> {
-                document.append(name, Document("\$gte", values.first?.let { getValue(it) }))
-            }
-            else -> {
-                document.append(
-                    name, Document("\$gte", values.first?.let { getValue(it) })
-                        .append("\$lt", values.second?.let { getValue(it) })
-                )
-            }
-        }
-    }
-
     infix fun `in`(values: Iterable<R>): Document {
         return document.append(name, Document("\$in", values.map { getValue(it) }))
     }
