@@ -23,7 +23,7 @@ fun findAuthors(
 ): List<Author> {
     val criteriaList = mutableListOf<Criteria>()
 
-    criteriaList.add(Criteria.where("name").`in`(it))
+    criteriaList.add(Criteria.where("name").`in`(names))
 
     if (minAge != null && maxAge != null) {
         criteriaList.add(Criteria.where("age").gt(minAge).lt(maxAge))
@@ -34,19 +34,18 @@ fun findAuthors(
         maxAge?.let {
             criteriaList.add(Criteria.where("age").lt(it))
         }
-   }
+    }
 
-   nickname?.let {
-	   criteriaList.add(Criteria.where("nickname").regex(it, "i"))
-   }
-    
-   val query = if (criteriaList.isNotEmpty()) {
+    nickname?.let {
+        criteriaList.add(Criteria.where("nickname").regex(it, "i"))
+    }
+    val query = if (criteriaList.isNotEmpty()) {
         val criteria = Criteria().andOperator(*criteriaList.toTypedArray())
         Query(criteria)
     } else {
         Query()
     }
-    
+
     return mongoTemplate.find(query, Author::class.java)
 }
 ```
@@ -62,7 +61,7 @@ fun findAuthors(
     maxAge: Int?,
     nickname: String?,
 ): List<Author> {
-var predicate = author.name.`in`(names)
+    var predicate = author.name.`in`(names)
 
     if (minAge != null && maxAge != null) {
         predicate = predicate.and(author.age.gt(minAge).and(author.age.lt(maxAge)))
