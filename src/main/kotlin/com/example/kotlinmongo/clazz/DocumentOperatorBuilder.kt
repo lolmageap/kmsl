@@ -8,11 +8,7 @@ class DocumentOperatorBuilder(
     fun and(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             document.append("\$and", nonEmptyBlocks)
@@ -24,11 +20,7 @@ class DocumentOperatorBuilder(
     fun or(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             document.append("\$or", nonEmptyBlocks)
@@ -40,11 +32,7 @@ class DocumentOperatorBuilder(
     fun nor(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             document.append("\$nor", nonEmptyBlocks)
@@ -56,11 +44,7 @@ class DocumentOperatorBuilder(
     fun not(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             document.append("\$not", nonEmptyBlocks)
@@ -72,11 +56,7 @@ class DocumentOperatorBuilder(
     fun Document.and(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$and", nonEmptyBlocks)
@@ -88,11 +68,7 @@ class DocumentOperatorBuilder(
     fun Document.or(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$or", nonEmptyBlocks)
@@ -104,11 +80,7 @@ class DocumentOperatorBuilder(
     fun Document.nor(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$nor", nonEmptyBlocks)
@@ -120,11 +92,7 @@ class DocumentOperatorBuilder(
     fun Document.not(
         vararg block: Document.() -> (Document),
     ): Document {
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$not", nonEmptyBlocks)
@@ -132,6 +100,7 @@ class DocumentOperatorBuilder(
 
         return this
     }
+
 
     fun Document.elemMatch(
         block: Document.() -> (Document),
@@ -150,11 +119,7 @@ class DocumentOperatorBuilder(
     ): Document {
         if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$and", nonEmptyBlocks)
@@ -168,11 +133,7 @@ class DocumentOperatorBuilder(
     ): Document {
         if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$or", nonEmptyBlocks)
@@ -186,11 +147,7 @@ class DocumentOperatorBuilder(
     ): Document {
         if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$nor", nonEmptyBlocks)
@@ -204,11 +161,7 @@ class DocumentOperatorBuilder(
     ): Document {
         if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$not", nonEmptyBlocks)
@@ -222,11 +175,7 @@ class DocumentOperatorBuilder(
     ): Document {
         if (block.isEmpty()) return this
 
-        val nonEmptyBlocks = block.mapNotNull {
-            val doc = Document()
-            val result = doc.it()
-            if (result.isEmpty()) null else result
-        }
+        val nonEmptyBlocks = filteredNotEmptyBlocks(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
             this.append("\$elemMatch", nonEmptyBlocks)
@@ -240,6 +189,22 @@ class DocumentOperatorBuilder(
     ): Document {
         block.invoke(this)
         return document
+    }
+
+    private fun filteredNotEmptyBlocks(
+        block: Array<out Document.() -> Document>,
+    ) = block.mapNotNull {
+        val doc = Document()
+        val result = doc.it()
+        if (result.isEmpty()) null else result
+    }
+
+    private fun filteredNotEmptyBlocks(
+        block: List<Document.() -> Document>,
+    ) = block.mapNotNull {
+        val doc = Document()
+        val result = doc.it()
+        if (result.isEmpty()) null else result
     }
 
     companion object {
