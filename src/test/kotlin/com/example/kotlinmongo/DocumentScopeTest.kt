@@ -1,5 +1,6 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.entity.Author
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.field
 import io.kotest.core.spec.style.StringSpec
@@ -15,6 +16,6 @@ class DocumentScopeTest : StringSpec({
             )
         }
 
-        document shouldBe BasicQuery("{ \"name\" : \"John\", \"age\" : 18 }")
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
     }
 })

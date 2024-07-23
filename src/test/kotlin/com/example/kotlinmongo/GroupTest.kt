@@ -1,15 +1,18 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.entity.Author
 import com.example.kotlinmongo.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.BasicQuery
+import java.util.*
 
 @SpringBootTest
 class GroupTest(
     private val mongoTemplate: MongoTemplate,
-): StringSpec( {
+) : StringSpec({
     "단일 필드에 대한 합을 구할 수 있다" {
         val document = document {
             and(
@@ -19,7 +22,6 @@ class GroupTest(
         }
 
         val aggregation = document.sumOf { field(Author::age) }
-
         mongoTemplate.sumOfSingle(aggregation, Author::class)
     }
 
@@ -32,7 +34,6 @@ class GroupTest(
         }
 
         val aggregation = document.groupBy(Author::name).sumOf { field(Author::age) }
-
         mongoTemplate.sumOfGroup(aggregation, Author::class)
     }
 
@@ -47,11 +48,11 @@ class GroupTest(
         val heavyMan = document.where { field(Author::weight) gt 70.0 }
         val smallMan = document.where { field(Author::height) lt 160f }
 
-        heavyMan shouldBe "{ \"name\" : \"John\", \"age\" : 30, \"weight\" : { \"\$gt\" : 70.0 } }"
-        smallMan shouldBe "{ \"name\" : \"John\", \"age\" : 30, \"height\" : { \"\$lt\" : 160.0 } }"
+        heavyMan shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 30}, { \"weight\" : {\"\$gt\" : 70.0}}]}")
+        smallMan shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 30}, { \"height\" : {\"\$lt\" : 160.0}}]}")
     }
 
-    "mongoDB 에 값이 문자일 때 합을 구할 수 있다" {
+    "mongoDB 에 값이 날짜 형식과 같은 다른 형식으로 저장이 되어 있어도 합을 구할 수 있다" {
         val document = document {
             and(
                 { field(Author::name) eq "John" },
@@ -59,8 +60,7 @@ class GroupTest(
             )
         }
 
-        val aggregation = document.groupBy().sumOf(Double::class) { field(Author::name) }
-
+        val aggregation = document.groupBy().sumOf(Date::class) { field(Author::birthday) }
         mongoTemplate.sumOfSingle(aggregation, Author::class)
     }
 })

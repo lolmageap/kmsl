@@ -1,6 +1,6 @@
 package com.example.kotlinmongo.extension
 
-import com.example.kotlinmongo.Author
+import com.example.kotlinmongo.entity.Author
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.data.domain.Sort
@@ -15,7 +15,8 @@ class BasicQueryExtensionKtTest: StringSpec({
             )
         }.orderBy(Author::name).desc()
 
-        result shouldBe BasicQuery("{ \"name\" : \"John\", \"age\" : 18 }").with(Sort.by(Sort.Direction.DESC, "name"))
+        result shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
+            .with(Sort.by(Sort.Direction.DESC, "name"))
     }
 
     "다중 orderBy 정렬 테스트" {
@@ -27,6 +28,7 @@ class BasicQueryExtensionKtTest: StringSpec({
         }.orderBy(Author::name).desc()
             .orderBy(Author::age).asc()
 
-        result shouldBe BasicQuery("{ \"name\" : \"John\", \"age\" : 18 }").with(Sort.by(Sort.Direction.DESC, "name").and(Sort.by(Sort.Direction.ASC, "age")))
+        result shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
+            .with(Sort.by(Sort.Direction.DESC, "name").and(Sort.by(Sort.Direction.ASC, "age")))
     }
 })
