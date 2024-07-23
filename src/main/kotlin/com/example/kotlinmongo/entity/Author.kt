@@ -1,6 +1,5 @@
-package com.example.kotlinmongo
+package com.example.kotlinmongo.entity
 
-import com.example.kotlinmongo.entity.Book
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
@@ -21,6 +20,7 @@ class Author(
 
     val address: Address,
     val company: Company,
+    val birthday: String,
 )
 
 @Document
