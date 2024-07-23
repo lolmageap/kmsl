@@ -66,6 +66,31 @@ class Field<T, R>(
             }
 
             values.first == null -> {
+                document.append(name, Document("\$not", Document("\$lte", values.second?.let { getValue(it) })))
+            }
+
+            values.second == null -> {
+                document.append(name, Document("\$not", Document("\$gte", values.first?.let { getValue(it) })))
+            }
+
+            else -> {
+                document.append(
+                    name, Document(
+                        "\$not", Document("\$gte", values.first?.let { getValue(it) })
+                            .append("\$lte", values.second?.let { getValue(it) })
+                    )
+                )
+            }
+        }
+    }
+
+    infix fun betweenInclusive(values: Pair<R?, R?>): Document {
+        return when {
+            values.first == null && values.second == null -> {
+                document
+            }
+
+            values.first == null -> {
                 document.append(name, Document("\$gte", values.second?.let { getValue(it) }))
             }
 
@@ -82,43 +107,26 @@ class Field<T, R>(
         }
     }
 
-    infix fun betweenInclusive(values: Pair<R?, R?>): Document {
-        return when {
-            values.first == null && values.second == null -> {
-                document
-            }
-            values.first == null -> {
-                document.append(name, Document("\$not", Document("\$lte", values.second?.let { getValue(it) })))
-            }
-            values.second == null -> {
-                document.append(name, Document("\$not", Document("\$gte", values.first?.let { getValue(it) })))
-            }
-            else -> {
-                document.append(
-                    name, Document(
-                        "\$not", Document("\$gte", values.first?.let { getValue(it) })
-                            .append("\$lte", values.second?.let { getValue(it) })
-                    )
-                )
-            }
-        }
-    }
-
     infix fun notBetweenInclusive(values: Pair<R?, R?>): Document {
         return when {
             values.first == null && values.second == null -> {
                 document
             }
+
             values.first == null -> {
-                document.append(name, Document("\$gt", values.second?.let { getValue(it) }))
+                document.append(name, Document("\$not", Document("\$gte", values.second?.let { getValue(it) })))
             }
+
             values.second == null -> {
-                document.append(name, Document("\$lt", values.first?.let { getValue(it) }))
+                document.append(name, Document("\$not", Document("\$lte", values.first?.let { getValue(it) })))
             }
+
             else -> {
                 document.append(
-                    name, Document("\$lt", values.first?.let { getValue(it) })
-                        .append("\$gt", values.second?.let { getValue(it) })
+                    name, Document(
+                        "\$not", Document("\$lte", values.first?.let { getValue(it) })
+                            .append("\$gte", values.second?.let { getValue(it) })
+                    )
                 )
             }
         }
@@ -146,6 +154,7 @@ class Field<T, R>(
 
     infix fun containsNotIgnoreCase(value: R): Document {
         return document.append(name, Document("\$not", Document("\$regex", getValue(value)).append("\$options", "i")))
+
     }
 
     infix fun startsWith(value: R): Document {

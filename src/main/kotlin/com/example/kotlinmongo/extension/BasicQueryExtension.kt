@@ -11,13 +11,9 @@ import kotlin.reflect.KProperty1
 
 fun <T, R> BasicQuery.groupBy(
     key: KProperty1<T, R>,
-): Group<T, R> {
-    return Group(key, this.queryObject.copy())
-}
+) = Group(key, this.queryObject.copy())
 
-fun BasicQuery.groupBy(): EmptyGroup {
-    return EmptyGroup(this.queryObject.copy())
-}
+fun BasicQuery.groupBy() = EmptyGroup(this.queryObject.copy())
 
 fun BasicQuery.where(
     document: Document.() -> Document,
@@ -35,6 +31,4 @@ fun BasicQuery.sumOf(
 
 fun BasicQuery.orderBy(
     key: KProperty1<*, *>,
-): Order {
-    return Order(this, key)
-}
+) =  Order(this, key)
