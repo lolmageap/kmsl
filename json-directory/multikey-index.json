@@ -1,3 +1,0 @@
-db.grades.createIndex({"score.type": 1})
-
-db.grades.dropIndex({"score.type": 1})
