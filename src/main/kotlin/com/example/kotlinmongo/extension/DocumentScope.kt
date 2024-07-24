@@ -10,9 +10,7 @@ fun document(
     function: DocumentOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val document = Document()
-
     val documentOperatorBuilder = DocumentOperatorBuilder(document, function)
-
     return BasicQuery(
         documentOperatorBuilder.toJson()
     )
@@ -20,10 +18,6 @@ fun document(
 
 fun <T, R> Document.field(
     key: KProperty1<T, R>,
-): Field<T, R> {
-    return Field(key, this)
-}
+) = Field(key, this)
 
-fun Document.copy(): Document {
-    return Document(this)
-}
+fun Document.copy() = Document(this)

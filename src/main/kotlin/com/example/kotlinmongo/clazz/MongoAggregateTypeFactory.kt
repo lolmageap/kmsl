@@ -5,8 +5,8 @@ import java.util.*
 import kotlin.reflect.KClass
 
 object MongoAggregateTypeFactory {
-    fun <T: Any> exchange(type: KClass<T>): String {
-        return when (type) {
+    fun <T : Any> exchange(type: KClass<T>) =
+        when (type) {
             Long::class -> "\$toLong"
             BigDecimal::class -> "\$toDecimal"
             Int::class -> "\$toInt"
@@ -16,5 +16,4 @@ object MongoAggregateTypeFactory {
             Boolean::class -> "\$toBool"
             else -> "\$toLong"
         }
-    }
 }

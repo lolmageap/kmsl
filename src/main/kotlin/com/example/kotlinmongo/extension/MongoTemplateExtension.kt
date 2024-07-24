@@ -29,30 +29,24 @@ fun <T : Any> MongoTemplate.find(
 fun <T : Any> MongoTemplate.count(
     query: BasicQuery,
     entityClass: KClass<T>,
-): Long {
-    return count(query, entityClass.java)
-}
+) = count(query, entityClass.java)
 
 fun MongoTemplate.sumOfSingle(
     aggregation: Aggregation,
     inputType: KClass<*>,
     alias: String = "total",
-): Long {
-    return aggregate(aggregation, inputType.java, Map::class.java)
-        .uniqueMappedResult?.let { result ->
-            (result[alias] as? Number)?.toLong() ?: 0L
-        } ?: 0L
-}
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .uniqueMappedResult?.let { result ->
+        (result[alias] as? Number)?.toLong() ?: 0L
+    } ?: 0L
 
 fun MongoTemplate.sumOfGroup(
     aggregation: Aggregation,
     inputType: KClass<*>,
     alias: String = "total",
-): Map<String, Long> {
-    return aggregate(aggregation, inputType.java, Map::class.java)
-        .mappedResults.associate { result ->
-            val key = result["_id"] as String
-            val value = (result[alias] as? Number)?.toLong() ?: 0L
-            key to value
-        }
-}
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .mappedResults.associate { result ->
+        val key = result["_id"] as String
+        val value = (result[alias] as? Number)?.toLong() ?: 0L
+        key to value
+    }

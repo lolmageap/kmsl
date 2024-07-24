@@ -31,7 +31,7 @@ data class Order(
 
     private fun BasicQuery.extractSortObject() =
         Sort.by(
-            basicQuery.sortObject.entries.map {
+            this.sortObject.entries.map {
                 val sort = when (it.value) {
                     IS_ASC -> Sort.Direction.ASC
                     else -> Sort.Direction.DESC

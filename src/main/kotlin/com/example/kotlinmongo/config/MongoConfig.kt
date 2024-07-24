@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 @Configuration
 class MongoConfig {
-
     @Bean
     fun mongoTemplate(): MongoTemplate {
         val factory = SimpleMongoClientDatabaseFactory("mongodb://localhost:27017/test")

@@ -154,7 +154,6 @@ class Field<T, R>(
 
     infix fun containsNotIgnoreCase(value: R): Document {
         return document.append(name, Document("\$not", Document("\$regex", getValue(value)).append("\$options", "i")))
-
     }
 
     infix fun startsWith(value: R): Document {
