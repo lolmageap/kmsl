@@ -31,4 +31,4 @@ fun BasicQuery.sumOf(
 
 fun BasicQuery.orderBy(
     key: KProperty1<*, *>,
-) =  Order(this, key)
+) = Order(this, key)

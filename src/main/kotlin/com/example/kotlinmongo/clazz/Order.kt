@@ -1,5 +1,6 @@
 package com.example.kotlinmongo.clazz
 
+import com.example.kotlinmongo.extension.copy
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KProperty1
@@ -9,12 +10,38 @@ data class Order(
     val key: KProperty1<*, *>,
 ) {
     fun asc(): BasicQuery {
-        basicQuery.with(Sort.by(Sort.Direction.ASC, key.name))
-        return basicQuery
+        val document = basicQuery.queryObject.copy()
+        val existingSort = basicQuery.extractSortObject()
+        val newSort = Sort.by(Sort.Direction.ASC, key.name)
+        val combinedSort = existingSort.and(newSort)
+        val newBasicQuery = BasicQuery(document)
+        newBasicQuery.with(combinedSort)
+        return newBasicQuery
     }
 
     fun desc(): BasicQuery {
-        basicQuery.with(Sort.by(Sort.Direction.DESC, key.name))
-        return basicQuery
+        val document = basicQuery.queryObject.copy()
+        val existingSort = basicQuery.extractSortObject()
+        val newSort = Sort.by(Sort.Direction.DESC, key.name)
+        val combinedSort = existingSort.and(newSort)
+        val newBasicQuery = BasicQuery(document)
+        newBasicQuery.with(combinedSort)
+        return newBasicQuery
+    }
+
+    private fun BasicQuery.extractSortObject() =
+        Sort.by(
+            basicQuery.sortObject.entries.map {
+                val sort = when (it.value) {
+                    IS_ASC -> Sort.Direction.ASC
+                    else -> Sort.Direction.DESC
+                }
+                Sort.Order(sort, it.key)
+            }
+        )
+
+    companion object {
+        private const val IS_DESC = "-1"
+        private const val IS_ASC = "1"
     }
 }
