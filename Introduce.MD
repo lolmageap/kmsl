@@ -102,8 +102,7 @@ fun findAuthors(
 #### MongoDB DSL
 
 바로 위의 코드를 MongoDB DSL로 변경하면 아래와 같이 됩니다.  
-가독성과 타입 안정성 챙길 수 있게 만들었으며 불변성을 지키기 위해 copy() 함수를 구현했습니다.  
-copy() 함수를 만들지 않았을 때 발생한 문제점도 마지막 섹션인 `문제점 및 현재 구조를 선택한 이유`에서 설명하겠습니다.
+가독성과 타입 안정성 챙길 수 있게 만들었으며 between 연산을 사용할 때 to 연산자를 사용하여 가독성을 높였습니다.  
 
 ```kotlin
 fun findAuthors(
@@ -146,7 +145,7 @@ val basicQuery = document {
         {
             and(
                 { field(Author::name) eq "정원희" },
-                { field(Author::age) eq 30 },
+                { field(Author::age) eq 23 },
                 { field(Author::phone) eq "010-5678-1234" },
             )
         },
@@ -155,9 +154,9 @@ val basicQuery = document {
 
 basicQuery shouldBe BasicQuery(
     "{ \"\$or\" : [ " +
-            "{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"age\" : 25 }, { \"phone\" : \"010-1234-5678\" } ] }, " +
-            "{ \"\$and\" : [ { \"name\" : \"정원희\" }, { \"age\" : 30 }, { \"phone\" : \"010-5678-1234\" } ] } " +
-            "] }"
+        "{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"age\" : 25 }, { \"phone\" : \"010-1234-5678\" } ] }, " +
+        "{ \"\$and\" : [ { \"name\" : \"정원희\" }, { \"age\" : 23 }, { \"phone\" : \"010-5678-1234\" } ] } " +
+    "] }"
 )
 
 /**
@@ -171,8 +170,8 @@ basicQuery shouldBe BasicQuery(
 
 ![img_1.png](image/Document.png)
 
-Document 객체는 Map을 상속받은 클래스이기 때문에 동일한 key가 중복되면 덮어씌워지게 됩니다.  
-그래서 하나의 함수 스코프 내에서 동일한 key를 사용하면 덮어씌워지는 문제가 발생합니다.
+Document 객체는 Map을 상속받은 클래스이기 때문에 동일한 key가 중복되면 덮어 씌워지게 됩니다.  
+그래서 하나의 함수 스코프 내에서 동일한 key(document property 명)를 사용하면 덮어씌워지는 문제가 발생합니다.  
 
 ```kotlin
 val basicQuery = document {
@@ -232,8 +231,9 @@ class DocumentOperatorBuilder(
 }
 ```
 
-함수식을 하나 넘길 때 마다 새로운 Document 객체를 생성하고 그 객체를 참조하도록 수정했습니다.  
-이렇게 하면 함수 스코프 내부에서 동일한 키를 사용해도 기존 값을 덮어쓰지 않고 새 Document 객체에 추가하여 이어붙일 수 있습니다.
+함수식을 하나 넘길 때 마다 새로운 Document 객체를 생성하고 그 객체를 참조하도록 수정했습니다.
+이렇게 하면 함수 스코프 내부에서 동일한 키를 사용해도 기존 값을 덮어쓰지 않고 새 Document 객체에 추가하여 이어붙일 수 있습니다.  
+참고로 kotlin에서는 함수도 디컴파일 시 익명 클래스로 변환되기 때문에 제네릭에 함수를 넘기는 것도 가능합니다.  
 
 #### 타입 안정성
 
@@ -444,9 +444,8 @@ firstBasicQuery shouldBe BasicQuery(
 ) // success
 ```
 
-Q. 왜 위와 같은 문제가 발생할까요?
-
-A. 해당 문제는 BasicQuery 클래스 내부에서 fieldsObject와 sortObject가 Document 클래스 동일하게 바라보고 있기 때문에 발생했습니다.
+Q. 왜 위와 같은 문제가 발생할까요?  
+A. 해당 문제는 BasicQuery 클래스 내부에서 fieldsObject와 sortObject가 Document 클래스 동일하게 바라보고 있기 때문에 발생했습니다.  
 
 ![img.png](image/BasicQuery.png)
 
@@ -463,5 +462,5 @@ firstBasicQuery의 sortObject도 함께 변경되는 문제가 발생합니다.
 ## 회고
 
 기능 자체는 저희 회사 프로젝트에 맞춰서 필요한 부분만 구현했지만 조금 더 다양한 기능을 구현해보고 싶다는 생각을 하고 있습니다.  
-혼자 만든 DSL이지만 컨벤션에 일관성이 없는 부분이나 불필요한 코드가 많은 부분이 있어서 조금 더 리팩토링이 필요하다고 생각합니다.    
-특히 aggregation 부분을 좀 더 다양하게 구현해보고 싶은 욕심이 있습니다.
+혼자 만든 DSL이지만 컨벤션에 일관성이 없는 부분이나 불필요한 코드가 많은 부분이 있어서 조금 더 리팩토링이 필요하다고 생각합니다.  
+특히 aggregation 부분을 좀 더 다양하게 구현해보고 싶은 욕심이 있습니다.  
