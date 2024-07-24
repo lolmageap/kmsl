@@ -78,7 +78,7 @@ fun findAuthors(
         predicate = predicate.and(author.nickname.contains(it))
     }
 
-    return authorRepository.findAll(predicate) as List<Author>
+    return authorRepository.findAll(predicate)
 }
 ```
 
