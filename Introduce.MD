@@ -17,7 +17,7 @@
 가장 먼저 MongoDB DSL을 만들게 된 계기와 목적을 설명하겠습니다.  
 제가 있는 비유바움이라는 회사는 정산을 위한 결제 데이터를 MongoDB에 저장하고 있는데 저를 포함한 대부분의 팀원들이 MongoDB에 대한 이해도가 다소 부족하다고 생각했습니다.  
 그래서 `MongoDB를 RDBMS ORM처럼 사용할 수 있을까?`라는 고민과 평소 DSL을 만들어보고 싶다는 생각이 겹쳐 MongoDB DSL을 만들게 되었습니다.    
-코틀린의 불변성과 고차 함수를 접목하면 정말 재미있겠다는 생각이 들어서 무작정 만들어서 기능과 코드베이스적으로 많이 부족하지만 작은 도전이라고 생각하여 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
+코틀린의 불변성, 중위 함수, 고차 함수를 접목하면 정말 재밌겠다는 생각이 들어서 무작정 만들어서 기능과 코드베이스적으로 많이 부족하지만 작은 도전이라고 생각하여 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
 이번 발표를 통해 동적으로 MongoDB의 쿼리를 가독성과 타입 안정성을 가진 DSL로 작성하는 방법을 소개하고자 합니다.  
 
 ### QueryDSL Mongo, Criteria API 와 비교
@@ -27,9 +27,9 @@
 
 #### QueryDSL Mongo
 
-QueryDSL Mongo는 많은 기능을 제공하지만 설정이 복잡하고 레퍼런스가 생각보다 적었으며 별도의 의존성을 추가해야 한다는 점이 마음에 들지 않았습니다.  
+QueryDSL Mongo는 많은 기능을 제공하지만 설정이 복잡하고 레퍼런스가 생각보다 적었으며 Q파일 생성, 별도의 의존성을 추가해야 한다는 점이 마음에 들지 않았습니다.  
 또한 아주 복잡한 쿼리를 만들 때와 동적으로 쿼리를 만들 때 가독성이 떨어지기도 했습니다.  
-일단 QueryDSL Mongo는 predicate를 만들어서 재할당 해야하는데 불변성을 강조하는 Kotlin과 잘 어울리지 않았습니다.
+일단 QueryDSL Mongo는 predicate를 만들어서 재할당하는 방식을 사용하는데 불변성을 강조하는 Kotlin과 잘 어울리지 않다고 생각했습니다.  
 
 ```kotlin
 fun findAuthors(
@@ -101,8 +101,7 @@ fun findAuthors(
 
 #### MongoDB DSL
 
-바로 위의 코드를 MongoDB DSL로 변경하면 아래와 같이 됩니다.  
-가독성과 타입 안정성 챙길 수 있게 만들었으며 between 연산을 사용할 때 to 연산자를 사용하여 가독성을 높였습니다.  
+바로 위에서 소개했던 코드를 Custom한 MongoDB DSL로 변환하면 아래와 같습니다.   
 
 ```kotlin
 fun findAuthors(
@@ -123,117 +122,13 @@ fun findAuthors(
 }
 ```
 
+가독성과 타입 안정성 챙길 수 있게 KProperty1을 사용했으며 between 연산을 사용할 때 to 연산자를 사용했습니다.  
+
 ### 사용법 및 특징
 
 DSL의 구조는 생각보다 정말 단순합니다.  
-`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수
-있습니다.  
-복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내부에서도 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.
-
-#### 가독성
-
-```kotlin
-val basicQuery = document {
-    or(
-        {
-            and(
-                { field(Author::name) eq "정철희" },
-                { field(Author::age) eq 25 },
-                { field(Author::phone) eq "010-1234-5678" },
-            )
-        },
-        {
-            and(
-                { field(Author::name) eq "정원희" },
-                { field(Author::age) eq 23 },
-                { field(Author::phone) eq "010-5678-1234" },
-            )
-        },
-    )
-}
-
-basicQuery shouldBe BasicQuery(
-    "{ \"\$or\" : [ " +
-        "{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"age\" : 25 }, { \"phone\" : \"010-1234-5678\" } ] }, " +
-        "{ \"\$and\" : [ { \"name\" : \"정원희\" }, { \"age\" : 23 }, { \"phone\" : \"010-5678-1234\" } ] } " +
-    "] }"
-)
-
-/**
- * ( 이름 == 정철희 and 나이 == 25 and 번호 == 010-1234-5678 )
- * or
- * ( 이름 == 정원희 and 나이 == 30 and 번호 == 010-5678-1234 )
- */
-```
-
-##### 사용시 주의할 점
-
-![img_1.png](image/Document.png)
-
-Document 객체는 Map을 상속받은 클래스이기 때문에 동일한 key가 중복되면 덮어 씌워지게 됩니다.  
-그래서 하나의 함수 스코프 내에서 동일한 key(document property 명)를 사용하면 덮어씌워지는 문제가 발생합니다.  
-
-```kotlin
-val basicQuery = document {
-    and(
-        {
-            field(Author::name) eq "정철희"
-            field(Author::name) eq "정철희 아님"
-        },
-    )
-}
-
-// 예상
-basicQuery shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"name\" : \"정철희 아님\" } ] }")
-
-// 결과
-basicQuery shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"정철희 아님\" } ] }")
-```
-
-이러한 문제를 해결하기 위해 아래처럼 별도의 조건을 넘길 때 항상 함수 스코프를 넘겨서 새로운 객체를 생성하도록 컨벤션을 수정했습니다.
-
-```kotlin
-val basicQuery = document {
-    and(
-        { field(Author::name) eq "정철희" },
-        { field(Author::name) eq "정철희 아님" },
-    )
-}
-
-// success
-basicQuery shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"name\" : \"정철희 아님\" } ] }")
-```
-
-내부 코드를 보면 이해가 되실거라고 생각합니다.
-
-```kotlin
-class DocumentOperatorBuilder(
-    val document: Document,
-) {
-    fun and(
-        vararg block: Document.() -> (Document),
-    ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        if (nonEmptyBlocks.isNotEmpty()) {
-            document.append("\$and", nonEmptyBlocks)
-        }
-
-        return document
-    }
-
-    private fun applyNotEmptyFunctions(
-        block: Array<out Document.() -> Document>,
-    ): List<Document> = block.mapNotNull {
-        val doc = Document().it()
-        doc.ifEmpty { null }
-    }
-}
-```
-
-함수식을 하나 넘길 때 마다 새로운 Document 객체를 생성하고 그 객체를 참조하도록 수정했습니다.
-이렇게 하면 함수 스코프 내부에서 동일한 키를 사용해도 기존 값을 덮어쓰지 않고 새 Document 객체에 추가하여 이어붙일 수 있습니다.  
-참고로 kotlin에서는 함수도 디컴파일 시 익명 클래스로 변환되기 때문에 제네릭에 함수를 넘기는 것도 가능합니다.  
+`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수 있습니다.  
+복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내에서 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.  
 
 #### 타입 안정성
 
@@ -275,6 +170,107 @@ val basicQuery = document {
         { field(Author::weight) eq 70.0 },
         { field(Author::height) eq 180.0f },
     )
+}
+```
+
+#### 가독성
+이름이 정철희이고 나이가 25살 이상이며 번호가 010-1234-5678이거나 이름이 정원희이고 나이가 30살 이상이며 번호가 010-5678-1234인 사람을 찾는 쿼리를 작성하면 아래와 같습니다.  
+
+( 이름 == 정철희 and 나이 == 25 and 번호 == 010-1234-5678 ) or ( 이름 == 정원희 and 나이 == 30 and 번호 == 010-5678-1234 )
+
+```kotlin
+val basicQuery = document {
+    or(
+        {
+            and(
+                { field(Author::name) eq "정철희" },
+                { field(Author::age) eq 25 },
+                { field(Author::phone) eq "010-1234-5678" },
+            )
+        },
+        {
+            and(
+                { field(Author::name) eq "정원희" },
+                { field(Author::age) eq 23 },
+                { field(Author::phone) eq "010-5678-1234" },
+            )
+        },
+    )
+}
+
+basicQuery shouldBe BasicQuery(
+    "{ \"\$or\" : [ " +
+        "{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"age\" : 25 }, { \"phone\" : \"010-1234-5678\" } ] }, " +
+        "{ \"\$and\" : [ { \"name\" : \"정원희\" }, { \"age\" : 23 }, { \"phone\" : \"010-5678-1234\" } ] } " +
+    "] }"
+)
+```
+
+##### 사용시 주의할 점
+
+![img_1.png](image/Document.png)
+
+위 코드를 보면 아시겠지만 Document 객체는 Map을 상속받은 클래스이기 때문에 동일한 key가 중복되면 덮어 씌워지게 됩니다.  
+그래서 하나의 함수 스코프 내에서 동일한 key(document property 명)를 사용하면 이후 값으로 덮어씌워지는 문제가 발생합니다.  
+
+```kotlin
+val basicQuery = document {
+    and(
+        {
+            field(Author::name) eq "정철희"
+            field(Author::name) eq "정철희 아님"
+        },
+    )
+}
+
+// expected
+basicQuery shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"name\" : \"정철희 아님\" } ] }")
+
+// actual
+basicQuery shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"정철희 아님\" } ] }")
+```
+
+이러한 문제를 해결하기 위해 아래처럼 별도의 조건을 넘길 때 항상 함수 스코프를 넘겨서 새로운 객체를 생성하도록 컨벤션을 수정했습니다.  
+
+```kotlin
+val basicQuery = document {
+    and(
+        { field(Author::name) eq "정철희" },
+        { field(Author::name) eq "정철희 아님" },
+    )
+}
+
+// success
+basicQuery shouldBe BasicQuery("{ \"\$and\" : [ { \"name\" : \"정철희\" }, { \"name\" : \"정철희 아님\" } ] }")  
+```
+
+내부 코드를 보면 이해가 되시겠지만 조금 상세하게 설명하겠습니다.
+함수식을 하나 넘길 때 마다 새로운 Document 객체를 생성하고 그 객체를 참조하도록 수정했습니다.
+이렇게 하면 함수 스코프 내부에서 동일한 키를 사용해도 기존 값을 덮어쓰지 않고 새 Document 객체에 추가하여 이어붙일 수 있습니다.  
+참고로 kotlin에서는 함수도 디컴파일 시 익명 클래스로 변환되기 때문에 제네릭에 함수를 넘기는 것도 가능합니다.
+
+```kotlin
+class DocumentOperatorBuilder(
+    val document: Document,
+) {
+    fun and(
+        vararg block: Document.() -> (Document),
+    ): Document {
+        val nonEmptyBlocks = applyNotEmptyFunctions(block)
+
+        if (nonEmptyBlocks.isNotEmpty()) {
+            document.append("\$and", nonEmptyBlocks)
+        }
+
+        return document
+    }
+
+    private fun applyNotEmptyFunctions(
+        block: Array<out Document.() -> Document>,
+    ): List<Document> = block.mapNotNull {
+        val doc = Document().it()
+        doc.ifEmpty { null }
+    }
 }
 ```
 
@@ -353,8 +349,8 @@ val basicQuery = document {
     .orderBy(Author::phone).asc()
 ```
 
-Order 객체 내부 소스 코드입니다.
-정렬 부분에 소스 코드도 불변성을 지키기 위해 노력했습니다.
+Order 객체 내부 소스 코드입니다.  
+정렬 부분에 소스 코드도 불변성을 지키기 위해 노력했습니다.  
 
 ```kotlin
 data class Order(
@@ -399,8 +395,8 @@ data class Order(
 }
 ```
 
-만약 불변성을 지키지 않았다면 어떤 문제가 있었을까요?  
-문제가 발생했던 이전 소스코드이며 예시 테스트 코드도 함께 준비했습니다.
+만약 불변성을 지키지 않았다면 어떤 문제가 있었을까요?   
+문제가 발생했던 이전 소스 코드 예시도 함께 준비했습니다.  
 
 > 문제가 발생한 이전 코드
 > Basic Query를 받으면 그 Query에 새로운 Sort를 추가하는 방식으로 구현했습니다.
