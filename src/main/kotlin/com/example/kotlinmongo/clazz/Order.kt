@@ -33,7 +33,7 @@ data class Order(
         Sort.by(
             this.sortObject.entries.map {
                 val sort = when (it.value) {
-                    IS_ASC -> Sort.Direction.ASC
+                    ASC -> Sort.Direction.ASC
                     else -> Sort.Direction.DESC
                 }
                 Sort.Order(sort, it.key)
@@ -41,7 +41,7 @@ data class Order(
         )
 
     companion object {
-        private const val IS_DESC = "-1"
-        private const val IS_ASC = "1"
+        private const val DESC = "-1"
+        private const val ASC = "1"
     }
 }
