@@ -1,5 +1,20 @@
 package com.example.kotlinmongo.clazz
 
+import com.example.kotlinmongo.clazz.DocumentOperator.ALL
+import com.example.kotlinmongo.clazz.DocumentOperator.CASE_INSENSITIVE
+import com.example.kotlinmongo.clazz.DocumentOperator.EXISTS
+import com.example.kotlinmongo.clazz.DocumentOperator.GREATER_THAN
+import com.example.kotlinmongo.clazz.DocumentOperator.GREATER_THAN_EQUAL
+import com.example.kotlinmongo.clazz.DocumentOperator.IN
+import com.example.kotlinmongo.clazz.DocumentOperator.LESS_THAN
+import com.example.kotlinmongo.clazz.DocumentOperator.LESS_THAN_EQUAL
+import com.example.kotlinmongo.clazz.DocumentOperator.MATCH
+import com.example.kotlinmongo.clazz.DocumentOperator.NOT
+import com.example.kotlinmongo.clazz.DocumentOperator.NOT_EQUAL
+import com.example.kotlinmongo.clazz.DocumentOperator.NOT_IN
+import com.example.kotlinmongo.clazz.DocumentOperator.OPTIONS
+import com.example.kotlinmongo.clazz.DocumentOperator.REGEX
+import com.example.kotlinmongo.clazz.DocumentOperator.SIZE
 import org.bson.Document
 import org.bson.types.ObjectId
 import kotlin.reflect.KProperty1
@@ -8,32 +23,28 @@ class Field<T, R>(
     val key: KProperty1<T, R>,
     private val document: Document,
 ) {
-    operator fun not(): Field<T, R> {
-        return Field(key, document.append(name, Document("\$not", Document())))
-    }
-
     infix fun eq(value: R): Document {
         return document.append(name, getValue(value))
     }
 
     infix fun ne(value: R): Document {
-        return document.append(name, Document("\$ne", getValue(value)))
+        return document.append(name, Document(NOT_EQUAL, getValue(value)))
     }
 
     infix fun lt(value: R): Document {
-        return document.append(name, Document("\$lt", getValue(value)))
+        return document.append(name, Document(LESS_THAN, getValue(value)))
     }
 
     infix fun lte(value: R): Document {
-        return document.append(name, Document("\$lte", getValue(value)))
+        return document.append(name, Document(LESS_THAN_EQUAL, getValue(value)))
     }
 
     infix fun gt(value: R): Document {
-        return document.append(name, Document("\$gt", getValue(value)))
+        return document.append(name, Document(GREATER_THAN, getValue(value)))
     }
 
     infix fun gte(value: R): Document {
-        return document.append(name, Document("\$gte", getValue(value)))
+        return document.append(name, Document(GREATER_THAN_EQUAL, getValue(value)))
     }
 
     infix fun between(values: Pair<R?, R?>): Document {
@@ -43,17 +54,17 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document("\$lt", values.second?.let { getValue(it) }))
+                document.append(name, Document(LESS_THAN, values.second?.let { getValue(it) }))
             }
 
             values.second == null -> {
-                document.append(name, Document("\$gt", values.first?.let { getValue(it) }))
+                document.append(name, Document(GREATER_THAN, values.first?.let { getValue(it) }))
             }
 
             else -> {
                 document.append(
-                    name, Document("\$gt", values.first?.let { getValue(it) })
-                        .append("\$lt", values.second?.let { getValue(it) })
+                    name, Document(GREATER_THAN, values.first?.let { getValue(it) })
+                        .append(LESS_THAN, values.second?.let { getValue(it) })
                 )
             }
         }
@@ -66,18 +77,18 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document("\$not", Document("\$lte", values.second?.let { getValue(it) })))
+                document.append(name, Document(NOT, Document(LESS_THAN_EQUAL, values.second?.let { getValue(it) })))
             }
 
             values.second == null -> {
-                document.append(name, Document("\$not", Document("\$gte", values.first?.let { getValue(it) })))
+                document.append(name, Document(NOT, Document(GREATER_THAN_EQUAL, values.first?.let { getValue(it) })))
             }
 
             else -> {
                 document.append(
                     name, Document(
-                        "\$not", Document("\$gte", values.first?.let { getValue(it) })
-                            .append("\$lte", values.second?.let { getValue(it) })
+                        NOT, Document(GREATER_THAN_EQUAL, values.first?.let { getValue(it) })
+                            .append(LESS_THAN_EQUAL, values.second?.let { getValue(it) })
                     )
                 )
             }
@@ -91,17 +102,17 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document("\$gte", values.second?.let { getValue(it) }))
+                document.append(name, Document(GREATER_THAN_EQUAL, values.second?.let { getValue(it) }))
             }
 
             values.second == null -> {
-                document.append(name, Document("\$lte", values.first?.let { getValue(it) }))
+                document.append(name, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) }))
             }
 
             else -> {
                 document.append(
-                    name, Document("\$lte", values.first?.let { getValue(it) })
-                        .append("\$gte", values.second?.let { getValue(it) })
+                    name, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) })
+                        .append(GREATER_THAN_EQUAL, values.second?.let { getValue(it) })
                 )
             }
         }
@@ -114,18 +125,18 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document("\$not", Document("\$gte", values.second?.let { getValue(it) })))
+                document.append(name, Document(NOT, Document(GREATER_THAN_EQUAL, values.second?.let { getValue(it) })))
             }
 
             values.second == null -> {
-                document.append(name, Document("\$not", Document("\$lte", values.first?.let { getValue(it) })))
+                document.append(name, Document(NOT, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) })))
             }
 
             else -> {
                 document.append(
                     name, Document(
-                        "\$not", Document("\$lte", values.first?.let { getValue(it) })
-                            .append("\$gte", values.second?.let { getValue(it) })
+                        NOT, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) })
+                            .append(GREATER_THAN_EQUAL, values.second?.let { getValue(it) })
                     )
                 )
             }
@@ -133,51 +144,52 @@ class Field<T, R>(
     }
 
     infix fun `in`(values: Iterable<R>): Document {
-        return document.append(name, Document("\$in", values.map { getValue(it) }))
+        return document.append(name, Document(IN, values.map { getValue(it) }))
     }
 
     infix fun nin(values: Iterable<R>): Document {
-        return document.append(name, Document("\$nin", values.map { getValue(it) }))
+        return document.append(name, Document(NOT_IN, values.map { getValue(it) }))
     }
 
     infix fun contains(value: R): Document {
-        return document.append(name, Document("\$regex", getValue(value)))
+        return document.append(name, Document(REGEX, getValue(value)))
     }
 
     infix fun containsIgnoreCase(value: R): Document {
-        return document.append(name, Document("\$regex", getValue(value)).append("\$options", "i"))
+        return document.append(name, Document(REGEX, getValue(value)).append(OPTIONS, CASE_INSENSITIVE))
     }
 
     infix fun containsNot(value: R): Document {
-        return document.append(name, Document("\$not", Document("\$regex", getValue(value))))
+        return document.append(name, Document(NOT, Document(REGEX, getValue(value))))
     }
 
     infix fun containsNotIgnoreCase(value: R): Document {
-        return document.append(name, Document("\$not", Document("\$regex", getValue(value)).append("\$options", "i")))
+        return document.append(name, Document(NOT, Document(REGEX, getValue(value)).append(OPTIONS, CASE_INSENSITIVE)))
     }
 
     infix fun startsWith(value: R): Document {
-        return document.append(name, Document("\$regex", "^${getValue(value)}"))
+        return document.append(name, Document(REGEX, "^${getValue(value)}"))
     }
 
     infix fun endsWith(value: R): Document {
-        return document.append(name, Document("\$regex", "${getValue(value)}$"))
+        return document.append(name, Document(REGEX, "${getValue(value)}$"))
     }
 
     infix fun match(value: R): Document {
-        return document.append(name, Document("\$match", getValue(value)))
+        return document.append(name, Document(MATCH, getValue(value)))
     }
 
+    // 이 아래 3개의 operator는 테스트가 더 필요하다.
     infix fun all(value: Iterable<R>): Document {
-        return document.append(name, Document("\$all", value.map { getValue(it) }))
+        return document.append(name, Document(ALL, value.map { getValue(it) }))
     }
 
     infix fun size(value: Int): Document {
-        return document.append(name, Document("\$size", value))
+        return document.append(name, Document(SIZE, value))
     }
 
     infix fun exists(value: Boolean): Document {
-        return document.append(name, Document("\$exists", value))
+        return document.append(name, Document(EXISTS, value))
     }
 
     private val name: String

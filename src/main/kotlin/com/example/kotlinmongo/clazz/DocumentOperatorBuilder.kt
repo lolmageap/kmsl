@@ -1,5 +1,11 @@
 package com.example.kotlinmongo.clazz
 
+import com.example.kotlinmongo.clazz.DocumentOperator.AND
+import com.example.kotlinmongo.clazz.DocumentOperator.ELEM_MATCH
+import com.example.kotlinmongo.clazz.DocumentOperator.NOR
+import com.example.kotlinmongo.clazz.DocumentOperator.NOT
+import com.example.kotlinmongo.clazz.DocumentOperator.OR
+import com.example.kotlinmongo.extension.copy
 import org.bson.Document
 
 class DocumentOperatorBuilder(
@@ -11,7 +17,7 @@ class DocumentOperatorBuilder(
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
-            document.append("\$and", nonEmptyBlocks)
+            document.append(AND, nonEmptyBlocks)
         }
 
         return document
@@ -22,11 +28,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            document.append("\$or", nonEmptyBlocks)
-        }
-
-        return document
+        return if (nonEmptyBlocks.isNotEmpty()) document.copy().append(OR, nonEmptyBlocks)
+        else document
     }
 
     fun nor(
@@ -34,11 +37,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            document.append("\$nor", nonEmptyBlocks)
-        }
-
-        return document
+        return if (nonEmptyBlocks.isNotEmpty()) document.copy().append(NOR, nonEmptyBlocks)
+        else document
     }
 
     fun not(
@@ -46,11 +46,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            document.append("\$not", nonEmptyBlocks)
-        }
-
-        return document
+        return if (nonEmptyBlocks.isNotEmpty()) document.copy().append(NOT, nonEmptyBlocks)
+        else document
     }
 
     fun Document.and(
@@ -58,11 +55,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$and", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(AND, nonEmptyBlocks)
+        else this
     }
 
     fun Document.or(
@@ -70,11 +64,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$or", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(OR, nonEmptyBlocks)
+        else this
     }
 
     fun Document.nor(
@@ -82,11 +73,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$nor", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOR, nonEmptyBlocks)
+        else this
     }
 
     fun Document.not(
@@ -94,94 +82,63 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$not", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOT, nonEmptyBlocks)
+        else this
     }
 
-
+    // elemMatch 는 아직 테스트를 해보지 않았습니다.
     fun Document.elemMatch(
-        block: Document.() -> (Document),
+        vararg block: Document.() -> (Document),
     ): Document {
-        val doc = Document()
-        val result = doc.block()
-        if (result.isNotEmpty()) {
-            this.append("\$elemMatch", result)
-        }
-
-        return this
+        val nonEmptyBlocks = applyNotEmptyFunctions(block)
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(ELEM_MATCH, nonEmptyBlocks)
+        else this
     }
 
     fun Document.and(
         block: List<Document.() -> (Document)>,
     ): Document {
-        if (block.isEmpty()) return this
-
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$and", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(AND, nonEmptyBlocks)
+        else this
     }
 
     fun Document.or(
         block: List<Document.() -> (Document)>,
     ): Document {
-        if (block.isEmpty()) return this
-
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$or", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(OR, nonEmptyBlocks)
+        else this
     }
 
     fun Document.nor(
         block: List<Document.() -> (Document)>,
     ): Document {
-        if (block.isEmpty()) return this
-
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$nor", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOR, nonEmptyBlocks)
+        else this
     }
 
     fun Document.not(
         block: List<Document.() -> (Document)>,
     ): Document {
-        if (block.isEmpty()) return this
-
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$not", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOT, nonEmptyBlocks)
+        else this
     }
 
+    // elemMatch 는 아직 테스트를 해보지 않았습니다.
     fun Document.elemMatch(
         block: List<Document.() -> (Document)>,
     ): Document {
-        if (block.isEmpty()) return this
-
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            this.append("\$elemMatch", nonEmptyBlocks)
-        }
-
-        return this
+        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(ELEM_MATCH, nonEmptyBlocks)
+        else this
     }
 
     private fun applyNotEmptyFunctions(
