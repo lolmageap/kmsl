@@ -17,7 +17,10 @@ import com.example.kotlinmongo.clazz.DocumentOperator.REGEX
 import com.example.kotlinmongo.clazz.DocumentOperator.SIZE
 import org.bson.Document
 import org.bson.types.ObjectId
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Field
 import kotlin.reflect.KProperty1
+import kotlin.reflect.jvm.javaField
 
 class Field<T, R>(
     val key: KProperty1<T, R>,
@@ -194,14 +197,23 @@ class Field<T, R>(
 
     private val name: String
         get() {
-            return if (key.name == "id") "_id"
-            else key.name
+            val javaField = key.javaField!!
+            javaField.isAccessible = true
+
+            val isId = javaField.annotations.any { it is Id }
+            return if (isId) {
+                val isField = javaField.annotations.any { it is Field }
+                if (isField) javaField.annotations.filterIsInstance<Field>().first().value
+                else "_id"
+            } else key.name
         }
 
     private fun getValue(value: R): Any? {
-        if (key.name == "id") {
-            return ObjectId(value.toString())
-        }
-        return value
+        val javaField = key.javaField!!
+        javaField.isAccessible = true
+
+        val isId = javaField.annotations.any { it is Id }
+        return if (isId) ObjectId(value.toString())
+        else value
     }
 }
