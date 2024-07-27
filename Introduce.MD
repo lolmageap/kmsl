@@ -463,11 +463,11 @@ originalBasicQuery에 정렬을 추가해서 firstBasicQuery와 secondBasicQuery
 그런데 secondBasicQuery를 생성할 때 firstBasicQuery의 sortObject도 함께 변경되는 문제가 발생했습니다.  
 
 Q. 왜 위와 같은 문제가 발생할까요?  
-A. 해당 문제는 BasicQuery 클래스 내부에서 fieldsObject와 sortObject가 Document 클래스 동일하게 바라보고 있기 때문에 발생했습니다.  
+A. 해당 문제는 BasicQuery 클래스 내부에서 queryObject, fieldsObject와 sortObject가 Document 클래스 동일하게 바라보고 있기 때문에 발생했습니다.  
 
 ![img.png](image/BasicQuery.png)
 
-이로 인해 secondBasicQuery를 orderBy 함수로 생성할 때 originalBasicQuery 인스턴스 내부의 fieldsObject와 sortObject가 동일한 메모리 주소를 참조하게 되어 firstBasicQuery의 sortObject도 함께 변경되는 문제가 발생합니다.  
+이로 인해 secondBasicQuery를 orderBy 함수로 생성할 때 originalBasicQuery 인스턴스 내부의 sortObject가 동일한 메모리 주소를 참조하게 되어 firstBasicQuery의 sortObject도 함께 변경되는 문제가 발생합니다.  
 그림으로 보면 아래처럼 originalBasicQuery, firstBasicQuery, secondBasicQuery 가 동일한 메모리 주소를 참조하게 되는 문제가 발생합니다.  
 
 // TODO: 여기 그림 그려서 넣어야함.
@@ -478,4 +478,4 @@ A. 해당 문제는 BasicQuery 클래스 내부에서 fieldsObject와 sortObject
 
 혼자 만든 DSL이지만 컨벤션에 일관성이 없는 부분이나 불필요한 코드가 많은 부분이 있어서 조금 더 리팩토링이 필요하다고 생각합니다.  
 아직 기능적으로 많이 부족해서 aggregate 관련된 기능을 더 많이 지원해보고 싶다는 생각을 하고 있습니다.  
-마무리로 `왜 JVM 진영은 MongoDB에 대한 ORM이나 DSL이 별로 없고 있어도 왜 지원을 잘 안해줄까?` 라는 생각으로 시작했지만 개발 중간에 `아 없을만 하다` 라는 생각으로 바뀌었습니다....!!!  
+마무리로 `왜 JVM, SPRING 진영은 MongoDB에 대한 ORM이나 DSL이 별로 없고 있어도 왜 지원을 잘 안해줄까?` 라는 생각으로 시작했지만 개발 중간에 `아 없을만 하다` 라는 생각으로 바뀌었습니다....!!!  
