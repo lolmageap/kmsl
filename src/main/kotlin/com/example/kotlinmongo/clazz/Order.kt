@@ -9,20 +9,15 @@ data class Order(
     val basicQuery: BasicQuery,
     val key: KProperty1<*, *>,
 ) {
-    fun asc(): BasicQuery {
-        val document = basicQuery.queryObject.copy()
-        val existingSort = basicQuery.extractSortObject()
-        val newSort = Sort.by(Sort.Direction.ASC, key.name)
-        val combinedSort = existingSort.and(newSort)
-        val newBasicQuery = BasicQuery(document)
-        newBasicQuery.with(combinedSort)
-        return newBasicQuery
-    }
+    fun asc() = basicQuery.sorting(Sort.Direction.ASC)
+    fun desc() = basicQuery.sorting(Sort.Direction.DESC)
 
-    fun desc(): BasicQuery {
-        val document = basicQuery.queryObject.copy()
-        val existingSort = basicQuery.extractSortObject()
-        val newSort = Sort.by(Sort.Direction.DESC, key.name)
+    private fun BasicQuery.sorting(
+        direction: Sort.Direction,
+    ): BasicQuery {
+        val document = this.queryObject.copy()
+        val existingSort = this.extractSortObject()
+        val newSort = Sort.by(direction, key.name)
         val combinedSort = existingSort.and(newSort)
         val newBasicQuery = BasicQuery(document)
         newBasicQuery.with(combinedSort)
