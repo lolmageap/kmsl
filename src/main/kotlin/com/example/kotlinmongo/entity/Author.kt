@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field
 import java.io.Serializable
 
 @Document
-class Author(
+data class Author(
     @Id @Field("_id")
     val id: String,
     val name: String,
