@@ -1,10 +1,29 @@
 # 유스콘'24 발표자 오리엔테이션
 
+목차 
+1. [발표자 소개](#발표자-소개)
+2. [발표 주제 : Kotlin으로 맞춤형 Mongo DSL 개발](#발표-주제--kotlin으로-맞춤형-mongo-dsl-개발)
+    1. [발표 자료](#발표-자료)
+    2. [개요](#개요)
+    3. [QueryDSL Mongo, Criteria API 와 비교](#querydsl-mongo-criteria-api-와-비교)
+        1. [QueryDSL Mongo](#querydsl-mongo)
+        2. [Criteria API](#criteria-api)
+        3. [MongoDB DSL](#mongodb-dsl)
+    4. [사용법 및 특징](#사용법-및-특징)
+        1. [타입 안정성](#타입-안정성)
+        2. [가독성](#가독성)
+           - [사용시 주의할 점](#사용시-주의할-점)
+        3. [재사용성](#재사용성)
+        4. [통계 쿼리 생성](#통계 쿼리 생성)
+        5. [정렬](#정렬)
+           - [정렬 문제 해결](#정렬-문제-해결)
+3. [회고](#회고)
+
 ## 발표자 소개
 
 안녕하세요. **개선**하는 것을 좋아하는 2년차 개발자 **정철희**입니다.  
 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.    
-저는 현재 **비유바움**에서 백엔드 개발자로 일하고 있으며 주로 **Kotlin**과 **Spring Boot**를 사용하여 정산 서비스를 개발, 운영하고 있습니다.
+저는 현재 **비유바움**이라는 회사에서 백엔드 개발자로 일하고 있으며 주로 **Kotlin**과 **Spring Boot**를 사용하여 정산 서비스를 개발, 운영하고 있습니다.  
 
 ## 발표 주제 : Kotlin으로 맞춤형 Mongo DSL 개발
 
@@ -17,14 +36,14 @@
 가장 먼저 MongoDB DSL을 만들게 된 계기와 목적을 설명하겠습니다.  
 제가 있는 비유바움이라는 회사는 정산을 위한 결제 데이터를 MongoDB에 저장하고 있는데 저를 포함한 대부분의 팀원들이 MongoDB에 대한 이해도가 다소 부족했습니다.  
 그래서 `MongoDB를 RDBMS ORM처럼 사용할 수 있을까?`라는 고민과 평소 DSL을 만들어보고 싶다는 생각이 겹쳐 MongoDB DSL을 만들게 되었습니다.  
-또한 코틀린의 불변성, 중위 함수, 고차 함수를 접목하면 재밌겠다는 생각이 들어 무작정 만들었습니다.
-기능 자체는 저희 회사 프로젝트 성향에 맞춰서 필요한 부분만 구현했고 코드베이스적으로 많이 부족하지만 작은 도전이라고 생각하여 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
-이번 발표를 통해 동적으로 MongoDB의 쿼리를 가독성과 타입 안정성을 가진 DSL로 작성하는 방법을 소개하고자 합니다.  
+또한 코틀린의 불변성, 중위 함수, 고차 함수를 접목하면 재밌겠다는 생각이 들어 무작정 만들었습니다.  
+기능 자체는 저희 회사 프로젝트 성향에 맞춰서 필요한 부분만 구현했고 코드베이스적으로 많이 부족하지만 작은 도전이라고 생각하여 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.    
+이번 발표를 통해 동적으로 MongoDB의 쿼리를 가독성과 타입 안정성을 가진 DSL로 작성하는 방법과 만들면서 발생했던 문제를 어떻게 해결 했는지 대해 소개하고자 합니다.  
 
 ### QueryDSL Mongo, Criteria API 와 비교
 
-먼저 QueryDSL Mongo와 Criteria API를 소개하고 왜 이 두 라이브러리를 사용하지 않고 직접 DSL을 만들었는지에 대해 설명하겠습니다.  
-예제로 사용할 코드는 Author Collection의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산`하는 코드입니다.
+먼저 QueryDSL Mongo와 Criteria API를 소개하고 왜 이 두 라이브러리를 사용하지 않고 직접 DSL을 만들었는지에 대해 설명하겠습니다.   
+예제로 사용할 코드는 Author Collection의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산`하는 코드입니다.  
 
 #### QueryDSL Mongo
 
@@ -62,7 +81,7 @@ fun findAuthors(
 
 #### Criteria API
 
-QueryDSL Mongo에 이런 문제들 때문에 Criteria API를 사용하려고 했습니다.
+QueryDSL Mongo에 이런 문제들 때문에 Criteria API를 사용하려고 했습니다.  
 Criteria API는 복잡한 연산을 아주 잘 지원해주지만 타입 안정성과 가독성이 떨어진다는 문제가 있었습니다.  
 
 ```kotlin
@@ -103,7 +122,7 @@ fun findAuthors(
 
 #### MongoDB DSL
 
-위 두 라이브러리를 사용하면서 느낀 단점들을 **개선**하고자 아래 예시처럼 직접 DSL을 구현했습니다.
+위 두 라이브러리를 사용하면서 느낀 단점들을 **개선**하고자 아래 예시처럼 직접 DSL을 구현했습니다.  
 바로 위에서 소개했던 코드를 MongoDB DSL로 변환하면 아래와 같습니다.   
 
 ```kotlin
@@ -178,7 +197,7 @@ val basicQuery = document {
 ```
 
 #### 가독성
-이름이 정철희이고 나이가 25살 이상이며 번호가 010-1234-5678인 조건을 모두 만족하거나 이름이 정원희이고 나이가 30살 이상이며 번호가 010-5678-1234인 조건을 만족하는 쿼리를 작성하면 아래와 같이 작성할 수 있습니다.
+이름이 정철희이고 나이가 25살 이상이며 번호가 010-1234-5678인 조건을 모두 만족하거나 이름이 정원희이고 나이가 30살 이상이며 번호가 010-5678-1234인 조건을 만족하는 쿼리를 작성하면 아래와 같이 작성할 수 있습니다.  
 보기 쉽게 : ( 이름 == 정철희 and 나이 == 25 and 번호 == 010-1234-5678 ) or ( 이름 == 정원희 and 나이 == 30 and 번호 == 010-5678-1234 )
 
 ```kotlin
@@ -263,7 +282,7 @@ class DocumentOperatorBuilder(
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
         if (nonEmptyBlocks.isNotEmpty()) {
-            document.append("\$and", nonEmptyBlocks)
+            document.append(AND, nonEmptyBlocks)
         }
 
         return document
@@ -298,7 +317,7 @@ weightQuery shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"정철희\"}, { \
 heightQuery shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"정철희\"}, { \"age\" : 25}, { \"height\" : {\"\$lt\" : 170.0}}]}")
 ```
 
-#### grouping
+#### 통계 쿼리 생성
 
 grouping을 사용하면 sum, avg, min, max, count 등 다양한 통계 쿼리를 생성할 수 있습니다.  
 아래 코드는 grouping 대상을 명시하진 않아 조건에 맞는 Author 나이의 전체 합을 구하는 코드입니다.  
@@ -397,6 +416,8 @@ data class Order(
 }
 ```
 
+##### 정렬 문제 해결
+
 만약 불변성을 지키지 않았다면 어떤 문제가 있었을까요?   
 문제가 발생했던 이전 소스 코드 예시도 함께 준비했습니다.  
 
@@ -457,4 +478,4 @@ A. 해당 문제는 BasicQuery 클래스 내부에서 fieldsObject와 sortObject
 
 혼자 만든 DSL이지만 컨벤션에 일관성이 없는 부분이나 불필요한 코드가 많은 부분이 있어서 조금 더 리팩토링이 필요하다고 생각합니다.  
 아직 기능적으로 많이 부족해서 aggregate 관련된 기능을 더 많이 지원해보고 싶다는 생각을 하고 있습니다.  
-마무리로 `왜 JVM 진영은 MongoDB에 대한 ORM이나 DSL이 별로 없고 있어도 왜 지원을 잘 안해줄까?` 라는 생각으로 시작했지만 개발 중간에 `아 없을만 하다` 라는 생각으로 바뀌었습니다.  
+마무리로 `왜 JVM 진영은 MongoDB에 대한 ORM이나 DSL이 별로 없고 있어도 왜 지원을 잘 안해줄까?` 라는 생각으로 시작했지만 개발 중간에 `아 없을만 하다` 라는 생각으로 바뀌었습니다....!!!  
