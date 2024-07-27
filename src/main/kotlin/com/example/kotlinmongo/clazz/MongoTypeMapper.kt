@@ -4,8 +4,10 @@ import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 
-object MongoAggregateTypeFactory {
-    fun <T : Any> exchange(type: KClass<T>) =
+object MongoTypeMapper {
+    fun <T : Any> exchange(
+        type: KClass<T>,
+    ) =
         when (type) {
             Long::class -> "\$toLong"
             BigDecimal::class -> "\$toDecimal"

@@ -17,7 +17,7 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = sumField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
@@ -35,7 +35,7 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = avgField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
@@ -53,7 +53,7 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = maxField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
@@ -71,7 +71,7 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = minField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()

@@ -23,7 +23,7 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = sumField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
@@ -41,7 +41,7 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = avgField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
@@ -59,7 +59,7 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = maxField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
@@ -77,7 +77,7 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = minField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoAggregateTypeFactory.exchange(type), "\$$fieldName")
+            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
