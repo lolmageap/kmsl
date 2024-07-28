@@ -5,7 +5,6 @@ import com.example.kotlinmongo.clazz.DocumentOperator.ELEM_MATCH
 import com.example.kotlinmongo.clazz.DocumentOperator.NOR
 import com.example.kotlinmongo.clazz.DocumentOperator.NOT
 import com.example.kotlinmongo.clazz.DocumentOperator.OR
-import com.example.kotlinmongo.extension.copy
 import org.bson.Document
 
 class DocumentOperatorBuilder(
@@ -16,11 +15,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            document.append(AND, nonEmptyBlocks)
-        }
-
-        return document
+        return if (nonEmptyBlocks.isNotEmpty()) document.append(AND, nonEmptyBlocks)
+        else document
     }
 
     fun or(
@@ -28,7 +24,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) document.copy().append(OR, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) document.append(OR, nonEmptyBlocks)
         else document
     }
 
@@ -37,7 +33,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) document.copy().append(NOR, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) document.append(NOR, nonEmptyBlocks)
         else document
     }
 
@@ -46,7 +42,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) document.copy().append(NOT, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) document.append(NOT, nonEmptyBlocks)
         else document
     }
 
@@ -55,7 +51,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(AND, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(AND, nonEmptyBlocks)
         else this
     }
 
@@ -64,7 +60,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(OR, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(OR, nonEmptyBlocks)
         else this
     }
 
@@ -73,7 +69,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOR, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOR, nonEmptyBlocks)
         else this
     }
 
@@ -82,7 +78,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOT, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOT, nonEmptyBlocks)
         else this
     }
 
@@ -91,7 +87,7 @@ class DocumentOperatorBuilder(
         vararg block: Document.() -> (Document),
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(ELEM_MATCH, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, nonEmptyBlocks)
         else this
     }
 
@@ -100,7 +96,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(AND, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(AND, nonEmptyBlocks)
         else this
     }
 
@@ -109,7 +105,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(OR, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(OR, nonEmptyBlocks)
         else this
     }
 
@@ -118,7 +114,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOR, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOR, nonEmptyBlocks)
         else this
     }
 
@@ -127,7 +123,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(NOT, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOT, nonEmptyBlocks)
         else this
     }
 
@@ -137,7 +133,7 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        return if (nonEmptyBlocks.isNotEmpty()) this.copy().append(ELEM_MATCH, nonEmptyBlocks)
+        return if (nonEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, nonEmptyBlocks)
         else this
     }
 
