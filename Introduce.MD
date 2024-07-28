@@ -19,6 +19,14 @@
            - [정렬 문제 해결](#정렬-문제-해결)
 3. [회고](#회고)
 
+추가해야 할지 고민 되는 목차
+- KotlinDSL에 대한 간단한 설명
+- Kotlin Reflection API에 대한 간단한 설명
+- 확장 함수 (extension method)에 대한 설명 및 간단한 예시
+- 프록시에 대한 정말 정말 간단한 설명
+
+지금 너무 정리가 잘 안되고 주절주절 되는 느낌이라 자연스럽게 흘러가도록 수정이 필요.
+
 ## 발표자 소개
 
 안녕하세요. **개선**하는 것을 좋아하는 2년차 개발자 **정철희**입니다.  
@@ -39,6 +47,8 @@
 또한 코틀린의 불변성, 중위 함수, 고차 함수를 접목하면 재밌겠다는 생각이 들어 무작정 만들었습니다.  
 기능 자체는 저희 회사 프로젝트 성향에 맞춰서 필요한 부분만 구현했고 코드베이스적으로 많이 부족하지만 작은 도전이라고 생각하여 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.    
 이번 발표를 통해 동적으로 MongoDB의 쿼리를 가독성과 타입 안정성을 가진 DSL로 작성하는 방법과 만들면서 발생했던 문제를 어떻게 해결 했는지 대해 소개하고자 합니다.  
+
+### TODO: KotlinDSL에 대해 간단하게라도 설명을 해야할지 고민 중...
 
 ### QueryDSL Mongo, Criteria API 와 비교
 
@@ -145,6 +155,8 @@ fun findAuthors(
 ```
 
 가독성과 타입 안정성 챙길 수 있게 KProperty1을 사용했으며 between 연산을 사용할 때 to 연산자를 사용했습니다.  
+그리고 Kotlin에서 지원해주는 확장 함수 (extension method)을 활용해서 mongoTemplate에 java class를 넘기지 않고 Kotlin class를 넘길 수 있게 구현했습니다.  
+TODO: KClass, KFunction, KProperty1과 같은 Kotlin Reflection API에 대한 설명을 간단하게 추가할지 고민 중...
 
 ### 사용법 및 특징
 
@@ -170,7 +182,7 @@ class Author(
 ```
 
 아래와 같이 쿼리를 작성 할 때 타입 안정성을 챙길 수 있습니다.  
-criteria API를 사용할 때처럼 문자열로 필드명을 작성할 필요가 없고 KProperty1을 사용하여 타입 안정성을 챙길 수 있습니다.  
+criteria API를 사용할 때처럼 문자열로 필드명을 작성할 필요가 없고 KProperty1을 사용하여 타입 안정성을 챙길 수 있습니다.
 
 ```kotlin
 val basicQuery = document {
@@ -199,6 +211,7 @@ val basicQuery = document {
 #### 가독성
 이름이 정철희이고 나이가 25살 이상이며 번호가 010-1234-5678인 조건을 모두 만족하거나 이름이 정원희이고 나이가 30살 이상이며 번호가 010-5678-1234인 조건을 만족하는 쿼리를 작성하면 아래와 같이 작성할 수 있습니다.  
 보기 쉽게 : ( 이름 == 정철희 and 나이 == 25 and 번호 == 010-1234-5678 ) or ( 이름 == 정원희 and 나이 == 30 and 번호 == 010-5678-1234 )
+TODO: 그림 그려서 설명해도 괜찮을듯?
 
 ```kotlin
 val basicQuery = document {
@@ -281,11 +294,8 @@ class DocumentOperatorBuilder(
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
-        if (nonEmptyBlocks.isNotEmpty()) {
-            document.append(AND, nonEmptyBlocks)
-        }
-
-        return document
+        return if (nonEmptyBlocks.isNotEmpty()) document.append(AND, nonEmptyBlocks)
+        else document
     }
 
     private fun applyNotEmptyFunctions(
@@ -371,27 +381,22 @@ val basicQuery = document {
 ```
 
 Order 객체 내부 소스 코드입니다.  
-정렬 부분에 소스 코드도 불변성을 지키기 위해 노력했습니다.  
+정렬 부분에 소스 코드도 **불변성**을 지키기 위해 노력하면서 구현했습니다.  
 
 ```kotlin
 data class Order(
     val basicQuery: BasicQuery,
     val key: KProperty1<*, *>,
 ) {
-    fun asc(): BasicQuery {
-        val document = basicQuery.queryObject.copy()
-        val existingSort = basicQuery.extractSortObject()
-        val newSort = Sort.by(Sort.Direction.ASC, key.name)
-        val combinedSort = existingSort.and(newSort)
-        val newBasicQuery = BasicQuery(document)
-        newBasicQuery.with(combinedSort)
-        return newBasicQuery
-    }
+    fun asc() = basicQuery.sorting(Sort.Direction.ASC)
+    fun desc() = basicQuery.sorting(Sort.Direction.DESC)
 
-    fun desc(): BasicQuery {
-        val document = basicQuery.queryObject.copy()
-        val existingSort = basicQuery.extractSortObject()
-        val newSort = Sort.by(Sort.Direction.DESC, key.name)
+    private fun BasicQuery.sorting(
+        direction: Sort.Direction,
+    ): BasicQuery {
+        val document = this.queryObject.copy()
+        val existingSort = this.extractSortObject()
+        val newSort = Sort.by(direction, key.name)
         val combinedSort = existingSort.and(newSort)
         val newBasicQuery = BasicQuery(document)
         newBasicQuery.with(combinedSort)
@@ -416,10 +421,10 @@ data class Order(
 }
 ```
 
-##### 정렬 문제 해결
+##### 정렬 문제 // 정렬 시 문제를 먼저 설명하고 해결한 방법을 설명할지 고민...
 
-만약 불변성을 지키지 않았다면 어떤 문제가 있었을까요?   
-문제가 발생했던 이전 소스 코드 예시도 함께 준비했습니다.  
+만약 불변성을 지키지 않았다면 어떤 문제가 있었을까요?  // TODO: 프록시 개념에 대한 설명 추가 고민 중... 
+문제가 발생했던 이전 소스 코드 예시도 함께 준비했습니다.
 
 > 문제가 발생한 이전 소스 코드
 ```kotlin
@@ -428,12 +433,16 @@ data class Order(
     val key: KProperty1<*, *>,
 ) {
     fun asc(): BasicQuery {
-        basicQuery.with(Sort.by(Sort.Direction.ASC, key.name))
+        basicQuery.with(
+            Sort.by(Sort.Direction.ASC, key.name)
+        )
         return basicQuery
     }
 
     fun desc(): BasicQuery {
-        basicQuery.with(Sort.by(Sort.Direction.DESC, key.name))
+        basicQuery.with(
+            Sort.by(Sort.Direction.DESC, key.name)
+        )
         return basicQuery
     }
 }
