@@ -27,27 +27,27 @@ class Field<T, R>(
     private val document: Document,
 ) {
     infix fun eq(value: R): Document {
-        return document.append(name, getValue(value))
+        return document.append(key.getName(), value.convertIfId())
     }
 
     infix fun ne(value: R): Document {
-        return document.append(name, Document(NOT_EQUAL, getValue(value)))
+        return document.append(key.getName(), Document(NOT_EQUAL, value.convertIfId()))
     }
 
     infix fun lt(value: R): Document {
-        return document.append(name, Document(LESS_THAN, getValue(value)))
+        return document.append(key.getName(), Document(LESS_THAN, value.convertIfId()))
     }
 
     infix fun lte(value: R): Document {
-        return document.append(name, Document(LESS_THAN_EQUAL, getValue(value)))
+        return document.append(key.getName(), Document(LESS_THAN_EQUAL, value.convertIfId()))
     }
 
     infix fun gt(value: R): Document {
-        return document.append(name, Document(GREATER_THAN, getValue(value)))
+        return document.append(key.getName(), Document(GREATER_THAN, value.convertIfId()))
     }
 
     infix fun gte(value: R): Document {
-        return document.append(name, Document(GREATER_THAN_EQUAL, getValue(value)))
+        return document.append(key.getName(), Document(GREATER_THAN_EQUAL, value.convertIfId()))
     }
 
     infix fun between(values: Pair<R?, R?>): Document {
@@ -57,17 +57,17 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document(LESS_THAN, values.second?.let { getValue(it) }))
+                document.append(key.getName(), Document(LESS_THAN, values.second?.let { it.convertIfId() }))
             }
 
             values.second == null -> {
-                document.append(name, Document(GREATER_THAN, values.first?.let { getValue(it) }))
+                document.append(key.getName(), Document(GREATER_THAN, values.first?.let { it.convertIfId() }))
             }
 
             else -> {
                 document.append(
-                    name, Document(GREATER_THAN, values.first?.let { getValue(it) })
-                        .append(LESS_THAN, values.second?.let { getValue(it) })
+                    key.getName(), Document(GREATER_THAN, values.first?.let { it.convertIfId() })
+                        .append(LESS_THAN, values.second?.let { it.convertIfId() })
                 )
             }
         }
@@ -80,18 +80,18 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document(NOT, Document(LESS_THAN_EQUAL, values.second?.let { getValue(it) })))
+                document.append(key.getName(), Document(NOT, Document(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() })))
             }
 
             values.second == null -> {
-                document.append(name, Document(NOT, Document(GREATER_THAN_EQUAL, values.first?.let { getValue(it) })))
+                document.append(key.getName(), Document(NOT, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() })))
             }
 
             else -> {
                 document.append(
-                    name, Document(
-                        NOT, Document(GREATER_THAN_EQUAL, values.first?.let { getValue(it) })
-                            .append(LESS_THAN_EQUAL, values.second?.let { getValue(it) })
+                    key.getName(), Document(
+                        NOT, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() })
+                            .append(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() })
                     )
                 )
             }
@@ -105,17 +105,17 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document(GREATER_THAN_EQUAL, values.second?.let { getValue(it) }))
+                document.append(key.getName(), Document(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
             }
 
             values.second == null -> {
-                document.append(name, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) }))
+                document.append(key.getName(), Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
             }
 
             else -> {
                 document.append(
-                    name, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) })
-                        .append(GREATER_THAN_EQUAL, values.second?.let { getValue(it) })
+                    key.getName(), Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })
+                        .append(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })
                 )
             }
         }
@@ -128,18 +128,18 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(name, Document(NOT, Document(GREATER_THAN_EQUAL, values.second?.let { getValue(it) })))
+                document.append(key.getName(), Document(NOT, Document(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })))
             }
 
             values.second == null -> {
-                document.append(name, Document(NOT, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) })))
+                document.append(key.getName(), Document(NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })))
             }
 
             else -> {
                 document.append(
-                    name, Document(
-                        NOT, Document(LESS_THAN_EQUAL, values.first?.let { getValue(it) })
-                            .append(GREATER_THAN_EQUAL, values.second?.let { getValue(it) })
+                    key.getName(), Document(
+                        NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })
+                            .append(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })
                     )
                 )
             }
@@ -147,73 +147,72 @@ class Field<T, R>(
     }
 
     infix fun `in`(values: Iterable<R>): Document {
-        return document.append(name, Document(IN, values.map { getValue(it) }))
+        return document.append(key.getName(), Document(IN, values.map { it.convertIfId() }))
     }
 
     infix fun nin(values: Iterable<R>): Document {
-        return document.append(name, Document(NOT_IN, values.map { getValue(it) }))
+        return document.append(key.getName(), Document(NOT_IN, values.map { it.convertIfId() }))
     }
 
     infix fun contains(value: R): Document {
-        return document.append(name, Document(REGEX, getValue(value)))
+        return document.append(key.getName(), Document(REGEX, value.convertIfId()))
     }
 
     infix fun containsIgnoreCase(value: R): Document {
-        return document.append(name, Document(REGEX, getValue(value)).append(OPTIONS, CASE_INSENSITIVE))
+        return document.append(key.getName(), Document(REGEX, value.convertIfId()).append(OPTIONS, CASE_INSENSITIVE))
     }
 
     infix fun containsNot(value: R): Document {
-        return document.append(name, Document(NOT, Document(REGEX, getValue(value))))
+        return document.append(key.getName(), Document(NOT, Document(REGEX, value.convertIfId())))
     }
 
     infix fun containsNotIgnoreCase(value: R): Document {
-        return document.append(name, Document(NOT, Document(REGEX, getValue(value)).append(OPTIONS, CASE_INSENSITIVE)))
+        return document.append(key.getName(), Document(NOT, Document(REGEX, value.convertIfId()).append(OPTIONS, CASE_INSENSITIVE)))
     }
 
     infix fun startsWith(value: R): Document {
-        return document.append(name, Document(REGEX, "^${getValue(value)}"))
+        return document.append(key.getName(), Document(REGEX, "^${value.convertIfId()}"))
     }
 
     infix fun endsWith(value: R): Document {
-        return document.append(name, Document(REGEX, "${getValue(value)}$"))
+        return document.append(key.getName(), Document(REGEX, "${value.convertIfId()}$"))
     }
 
     infix fun match(value: R): Document {
-        return document.append(name, Document(MATCH, getValue(value)))
+        return document.append(key.getName(), Document(MATCH, value.convertIfId()))
     }
 
     // 이 아래 3개의 operator는 테스트가 더 필요하다.
     infix fun all(value: Iterable<R>): Document {
-        return document.append(name, Document(ALL, value.map { getValue(it) }))
+        return document.append(key.getName(), Document(ALL, value.map { it.convertIfId() }))
     }
 
     infix fun size(value: Int): Document {
-        return document.append(name, Document(SIZE, value))
+        return document.append(key.getName(), Document(SIZE, value))
     }
 
     infix fun exists(value: Boolean): Document {
-        return document.append(name, Document(EXISTS, value))
+        return document.append(key.getName(), Document(EXISTS, value))
     }
 
-    private val name: String
-        get() {
-            val javaField = key.javaField!!
-            javaField.isAccessible = true
+    private fun KProperty1<T, R>.getName(): String {
+        val javaField = this.javaField!!
+        javaField.isAccessible = true
 
-            val isId = javaField.annotations.any { it is Id }
-            return if (isId) {
-                val isField = javaField.annotations.any { it is Field }
-                if (isField) javaField.annotations.filterIsInstance<Field>().first().value
-                else "_id"
-            } else key.name
-        }
+        val isId = javaField.annotations.any { it is Id }
+        return if (isId) {
+            val isField = javaField.annotations.any { it is Field }
+            if (isField) javaField.annotations.filterIsInstance<Field>().first().value
+            else "_id"
+        } else this.name
+    }
 
-    private fun getValue(value: R): Any? {
+    private fun R.convertIfId(): Any? {
         val javaField = key.javaField!!
         javaField.isAccessible = true
 
         val isId = javaField.annotations.any { it is Id }
-        return if (isId) ObjectId(value.toString())
-        else value
+        return if (isId) ObjectId(this.toString())
+        else this
     }
 }
