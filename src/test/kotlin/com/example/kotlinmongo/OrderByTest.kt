@@ -1,12 +1,15 @@
-package com.example.kotlinmongo.extension
+package com.example.kotlinmongo
 
 import com.example.kotlinmongo.entity.Author
+import com.example.kotlinmongo.extension.document
+import com.example.kotlinmongo.extension.field
+import com.example.kotlinmongo.extension.orderBy
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.query.BasicQuery
 
-class BasicQueryExtensionKtTest: StringSpec({
+class OrderByTest: StringSpec({
     "단일 orderBy 정렬 테스트" {
         val result = document {
             and(
