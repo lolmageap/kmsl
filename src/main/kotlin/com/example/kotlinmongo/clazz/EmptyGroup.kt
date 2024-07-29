@@ -17,14 +17,14 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = sumField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group().sum(expression).`as`(alias)
+            Aggregation.group().sum(expression).`as`(alias),
         )
     }
 
@@ -35,14 +35,14 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = avgField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group().avg(expression).`as`(alias)
+            Aggregation.group().avg(expression).`as`(alias),
         )
     }
 
@@ -53,14 +53,14 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = maxField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group().max(expression).`as`(alias)
+            Aggregation.group().max(expression).`as`(alias),
         )
     }
 
@@ -71,14 +71,14 @@ class EmptyGroup(
     ): Aggregation {
         val fieldName = minField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group().min(expression).`as`(alias)
+            Aggregation.group().min(expression).`as`(alias),
         )
     }
 
@@ -88,7 +88,7 @@ class EmptyGroup(
         val matchStage = matchOperation()
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group().count().`as`(alias)
+            Aggregation.group().count().`as`(alias),
         )
     }
 

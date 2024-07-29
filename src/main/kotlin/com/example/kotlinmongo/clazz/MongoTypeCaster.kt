@@ -4,8 +4,8 @@ import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 
-object MongoTypeMapper {
-    fun <T : Any> exchange(
+object MongoTypeCaster {
+    fun <T : Any> cast(
         type: KClass<T>,
     ) =
         when (type) {

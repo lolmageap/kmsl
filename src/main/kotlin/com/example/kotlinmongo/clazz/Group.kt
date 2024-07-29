@@ -23,14 +23,14 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = sumField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group(key.name).sum(expression).`as`(alias)
+            Aggregation.group(key.name).sum(expression).`as`(alias),
         )
     }
 
@@ -41,14 +41,14 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = avgField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group(key.name).avg(expression).`as`(alias)
+            Aggregation.group(key.name).avg(expression).`as`(alias),
         )
     }
 
@@ -59,14 +59,14 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = maxField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group(key.name).max(expression).`as`(alias)
+            Aggregation.group(key.name).max(expression).`as`(alias),
         )
     }
 
@@ -77,14 +77,14 @@ class Group<T, R>(
     ): Aggregation {
         val fieldName = minField.invoke(Document()).key.name
         val expression = AggregationExpression {
-            Document(MongoTypeMapper.exchange(type), "\$$fieldName")
+            Document(MongoTypeCaster.cast(type), "\$$fieldName")
         }
 
         val matchStage = matchOperation()
 
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group(key.name).min(expression).`as`(alias)
+            Aggregation.group(key.name).min(expression).`as`(alias),
         )
     }
 
@@ -94,7 +94,7 @@ class Group<T, R>(
         val matchStage = matchOperation()
         return Aggregation.newAggregation(
             matchStage,
-            Aggregation.group(key.name).count().`as`(alias)
+            Aggregation.group(key.name).count().`as`(alias),
         )
     }
 
