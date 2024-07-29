@@ -468,7 +468,7 @@ originalBasicQuery에 정렬을 추가해서 firstBasicQuery와 secondBasicQuery
 그런데 secondBasicQuery를 생성할 때 firstBasicQuery의 sortObject도 함께 변경되는 문제가 발생했습니다.  
 
 Q. 왜 위와 같은 문제가 발생할까요?  
-A. 해당 문제는 BasicQuery 클래스 내부에서 queryObject, fieldsObject와 sortObject가 Document 클래스 동일하게 바라보고 있기 때문에 발생했습니다.  
+A. 해당 문제는 originalBasicQuery, firstBasicQuery, secondBasicQuery가 BasicQuery 클래스 내부에 있는 Document 객체의 동일한 메모리 주소를 바라보고 있기 때문에 발생했습니다.  
 
 ![img.png](image/BasicQuery.png)
 
