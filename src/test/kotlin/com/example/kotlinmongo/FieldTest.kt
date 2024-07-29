@@ -124,7 +124,7 @@ class FieldTest : StringSpec({
     "not in 연산 테스트" {
         val document = document {
             and(
-                { field(Author::age) nin listOf(18, 19, 20) },
+                { field(Author::age) notIn listOf(18, 19, 20) },
             )
         }
 

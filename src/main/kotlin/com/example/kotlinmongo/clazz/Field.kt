@@ -150,7 +150,7 @@ class Field<T, R>(
         return document.append(key.getName(), Document(IN, values.map { it.convertIfId() }))
     }
 
-    infix fun nin(values: Iterable<R>): Document {
+    infix fun notIn(values: Iterable<R>): Document {
         return document.append(key.getName(), Document(NOT_IN, values.map { it.convertIfId() }))
     }
 
