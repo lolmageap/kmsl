@@ -1,8 +1,8 @@
 # 유스콘'24 발표자 오리엔테이션
 
-타겟 : RDBMS ORM을 사용해본 경험이 있거나 Kotlin에 대해 관심이 있는 개발자
+타겟 : RDBMS ORM을 사용해본 경험이 있거나 Kotlin에 대해 관심이 있는 개발자  
 들어가기전에 : 유스콘은 Kotlin 컨퍼런스, MongoDB 컨퍼런스가 아니다.  
-Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 작성할 수 있다는 것을 보여줘야한다.
+Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 작성할 수 있다는 것을 보여줘야한다.  
 
 ## 시간 분배
 
@@ -43,7 +43,11 @@ Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 �
 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
 이번 발표를 통해 MongoDB의 쿼리를 RDBMS의 ORM처럼 가독성과 타입 안정성을 가진 DSL로 작성하는 방법을 소개하고 같이 코드를 작성해보려합니다.
 
-### Kotlin DSL에 대해 간단하게 설명
+### MongoDB란
+mongo 에 대해 소개
+
+
+### DSL이란
 
 DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언어를 말합니다.  
 제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific
