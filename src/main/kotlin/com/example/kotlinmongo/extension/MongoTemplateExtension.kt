@@ -10,43 +10,130 @@ fun <T : Any> MongoTemplate.find(
     query: BasicQuery,
     pageable: Pageable,
     entityClass: KClass<T>,
-): List<T> {
-    return find(
+): List<T> =
+    find(
         query.limit(pageable.pageSize)
             .skip(pageable.offset)
             .with(pageable.sort),
         entityClass.java,
     )
-}
 
 fun <T : Any> MongoTemplate.find(
     query: BasicQuery,
     entityClass: KClass<T>,
-): List<T> {
-    return find(query, entityClass.java)
-}
+): List<T> = find(query, entityClass.java)
 
 fun <T : Any> MongoTemplate.count(
     query: BasicQuery,
     entityClass: KClass<T>,
 ) = count(query, entityClass.java)
 
-fun MongoTemplate.sumOfSingle(
+inline fun <reified T : Any> MongoTemplate.sumOfSingle(
     aggregation: Aggregation,
-    inputType: KClass<*>,
+    inputType: KClass<T>,
     alias: String = "total",
 ) = aggregate(aggregation, inputType.java, Map::class.java)
     .uniqueMappedResult?.let { result ->
-        (result[alias] as? Number)?.toLong() ?: 0L
-    } ?: 0L
+        T::class.java.cast(
+            result[alias],
+        )
+    }
 
 fun MongoTemplate.sumOfGroup(
     aggregation: Aggregation,
     inputType: KClass<*>,
     alias: String = "total",
+) =
+    aggregate(aggregation, inputType.java, Map::class.java)
+        .mappedResults.associate { result ->
+            val key = result["_id"] as String
+            val value = inputType.java.cast(
+                result[alias],
+            )
+            key to value
+        }
+
+inline fun <reified T : Any> MongoTemplate.avgOfSingle(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "avg",
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .uniqueMappedResult?.let { result ->
+        T::class.java.cast(
+            result[alias],
+        )
+    }
+
+inline fun <reified T : Any> MongoTemplate.avgOfGroup(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "avg",
 ) = aggregate(aggregation, inputType.java, Map::class.java)
     .mappedResults.associate { result ->
         val key = result["_id"] as String
-        val value = (result[alias] as? Number)?.toLong() ?: 0L
+        val value = T::class.java.cast(
+            result[alias],
+        )
+        key to value
+    }
+
+inline fun <reified T : Any> MongoTemplate.maxOfSingle(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "max",
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .uniqueMappedResult?.let { result ->
+        T::class.java.cast(
+            result[alias],
+        )
+    }
+
+inline fun <reified T : Any> MongoTemplate.maxOfGroup(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "max",
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .mappedResults.associate { result ->
+        val key = result["_id"] as String
+        val value = T::class.java.cast(
+            result[alias],
+        )
+        key to value
+    }
+
+inline fun <reified T : Any> MongoTemplate.minOfSingle(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "min",
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .uniqueMappedResult?.let { result ->
+        T::class.java.cast(
+            result[alias],
+        )
+    }
+
+inline fun <reified T : Any> MongoTemplate.minOfGroup(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "min",
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .mappedResults.associate { result ->
+        val key = result["_id"] as String
+        val value = T::class.java.cast(
+            result[alias],
+        )
+        key to value
+    }
+
+inline fun <reified T : Any> MongoTemplate.countOfGroup(
+    aggregation: Aggregation,
+    inputType: KClass<T>,
+    alias: String = "count",
+) = aggregate(aggregation, inputType.java, Map::class.java)
+    .mappedResults.associate { result ->
+        val key = result["_id"] as String
+        val value = T::class.java.cast(
+            result[alias],
+        )
         key to value
     }
