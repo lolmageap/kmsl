@@ -35,6 +35,27 @@ fun BasicQuery.sumOf(
         this.queryObject.copy()
     ).sumOf { sumField.invoke(Document()) }
 
+fun BasicQuery.avgOf(
+    avgField: Document.() -> Field<*, *>,
+) =
+    EmptyGroup(
+        this.queryObject.copy()
+    ).avgOf { avgField.invoke(Document()) }
+
+fun BasicQuery.maxOf(
+    maxField: Document.() -> Field<*, *>,
+) =
+    EmptyGroup(
+        this.queryObject.copy()
+    ).maxOf { maxField.invoke(Document()) }
+
+fun <T, R> BasicQuery.minOf(
+    minField: Document.() -> Field<T, R>,
+) =
+    EmptyGroup(
+        this.queryObject.copy()
+    ).minOf { minField.invoke(Document()) }
+
 fun BasicQuery.orderBy(
     key: KProperty1<*, *>,
 ) = Order(this, key)
