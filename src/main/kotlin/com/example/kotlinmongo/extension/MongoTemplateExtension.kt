@@ -28,7 +28,7 @@ fun <T : Any> MongoTemplate.count(
     entityClass: KClass<T>,
 ) = count(query, entityClass.java)
 
-inline fun <reified T : Any> MongoTemplate.sumOfSingle(
+inline fun <reified T : Any> MongoTemplate.sum(
     aggregation: Aggregation,
     inputType: KClass<T>,
     alias: String = "total",
@@ -53,7 +53,7 @@ fun MongoTemplate.sumOfGroup(
             key to value
         }
 
-inline fun <reified T : Any> MongoTemplate.avgOfSingle(
+inline fun <reified T : Any> MongoTemplate.avg(
     aggregation: Aggregation,
     inputType: KClass<T>,
     alias: String = "avg",
@@ -77,7 +77,7 @@ inline fun <reified T : Any> MongoTemplate.avgOfGroup(
         key to value
     }
 
-inline fun <reified T : Any> MongoTemplate.maxOfSingle(
+inline fun <reified T : Any> MongoTemplate.max(
     aggregation: Aggregation,
     inputType: KClass<T>,
     alias: String = "max",
@@ -101,7 +101,7 @@ inline fun <reified T : Any> MongoTemplate.maxOfGroup(
         key to value
     }
 
-inline fun <reified T : Any> MongoTemplate.minOfSingle(
+inline fun <reified T : Any> MongoTemplate.min(
     aggregation: Aggregation,
     inputType: KClass<T>,
     alias: String = "min",
