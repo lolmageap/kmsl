@@ -213,6 +213,7 @@ class Field<T, R>(
 
         val isId = javaField.annotations.any { it is Id }
         return if (isId) ObjectId(this.toString())
+        else if(this is Enum<*>) this.name
         else this
     }
 }
