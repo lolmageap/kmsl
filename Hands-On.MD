@@ -2,7 +2,7 @@
 
 타겟 : RDBMS ORM을 사용해본 경험이 있거나 Kotlin에 대해 관심이 있는 개발자  
 들어가기전에 : 유스콘은 Kotlin 컨퍼런스, MongoDB 컨퍼런스가 아니다.  
-Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 작성할 수 있다는 것을 보여줘야한다.  
+Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 작성할 수 있다는 것을 보여줘야한다.
 
 ## 시간 분배
 
@@ -20,17 +20,17 @@ Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 �
 ## 목차
 
 - 자기 소개
-- DSL을 만들게 된 이유에 대해 설명한다.
-- DSL 정의에 대한 간단한 설명한다.
-- 기본적인 MongoDSL의 문법을 가르쳐준다.
-- 연산, 정렬, 통계 쿼리, 페이지 네이션, 동적 쿼리 등등 다양한 DSL을 작성하고 실행해본다.
-- 마무리 멘트를 날리고 Q&A를 진행한다.
+- DSL을 만들게 된 계기
+- MongoDB, DSL 정의에 대한 간단한 설명
+- 기본적인 MongoDSL의 문법 학습
+- 연산, 정렬, 통계 쿼리, 페이지 네이션, 동적 쿼리 등등 다양한 DSL을 작성하고 실행
+- 회고 및 Q&A
 
 ## 발표자 소개
 
 안녕하세요. **개선**하는 것을 좋아하는 2년차 개발자 **정철희**입니다.  
 현재 **비유바움**이라는 회사에서 백엔드 개발자로 일하고 있으며 주로 **Kotlin**과 **Spring Boot**를 사용하여 정산 서비스를 개발, 운영하고 있습니다.  
-저는 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.  
+저는 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.
 
 ## 발표 주제 : Kotlin으로 맞춤형 Mongo DSL 개발
 
@@ -44,15 +44,16 @@ Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 �
 이번 발표를 통해 MongoDB의 쿼리를 RDBMS의 ORM처럼 가독성과 타입 안정성을 가진 DSL로 작성하는 방법을 소개하고 같이 코드를 작성해보려합니다.
 
 ### MongoDB란
-mongo 에 대해 소개
 
+MongoDB는 RDBMS와 다르게 Schemaless한 NoSQL 비관계형 데이터베이스입니다.  
+MongoDB는 Document를 사용하여 데이터를 저장하며 Document는 JSON과 비슷한 형태인 BSON(Binary JSON) 형태로 저장됩니다.  
+이러한 특징으로 인해 MongoDB는 RDBMS와 다르게 Join, Transaction, Schema 등의 기능이 부족하지만 대신 확장성이 뛰어나고 데이터를 저장, 조회 시 성능이 뛰어나다는 장점이 있습니다.
 
 ### DSL이란
 
 DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언어를 말합니다.  
-제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific
-Language입니다.  
-제가 사용한 언어인 Kotlin 이라는 언어는 이런 DSL을 만들기에 매우 쉽고 재밌는 매력적인 언어입니다.
+제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific Language입니다.  
+제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.  
 
 #### MongoDB DSL
 
@@ -84,77 +85,78 @@ DSL의 구조는 생각보다 정말 단순합니다.
 복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내에서 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.
 
 #### 연산
+
 ```kotlin
     "같은 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::name) eq "John" },
-                { field(Author::age) eq 18 },
-            )
-        }
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
+    val document = document {
+        and(
+            { field(Author::name) eq "John" },
+            { field(Author::age) eq 18 },
+        )
+    }
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
+}
+
+"같지 않은 값을 조회합니다." {
+    val document = document {
+        and(
+            { field(Author::name) ne "John" },
+            { field(Author::age) ne 18 }
+        )
     }
 
-    "같지 않은 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::name) ne "John" },
-                { field(Author::age) ne 18 }
-            )
-        }
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$ne\" : \"John\"}}, { \"age\" : {\"\$ne\" : 18}}]}")
+}
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$ne\" : \"John\"}}, { \"age\" : {\"\$ne\" : 18}}]}")
+"큰 값을 조회합니다." {
+    val document = document {
+        and(
+            { field(Author::age) gt 18 },
+        )
     }
 
-    "큰 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::age) gt 18 },
-            )
-        }
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gt\" : 18}}]}")
+}
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gt\" : 18}}]}")
+"작은 값을 조회합니다." {
+    val document = document {
+        and(
+            { field(Author::age) lt 18 },
+        )
     }
 
-    "작은 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::age) lt 18 },
-            )
-        }
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18}}]}")
+}
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18}}]}")
+"배열에서 포함하는 값을 조회합니다." {
+    val document = document {
+        and(
+            { field(Author::age) `in` listOf(18, 19, 20) },
+        )
     }
 
-    "배열에서 포함하는 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::age) `in` listOf(18, 19, 20) },
-            )
-        }
-    
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$in\" : [18, 19, 20]}}]}")
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$in\" : [18, 19, 20]}}]}")
+}
+
+"배열에서 포함하지 않는 값을 조회합니다." {
+    val document = document {
+        and(
+            { field(Author::age) notIn listOf(18, 19, 20) },
+        )
     }
 
-    "배열에서 포함하지 않는 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::age) notIn listOf(18, 19, 20) },
-            )
-        }
-    
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$nin\" : [18, 19, 20]}}]}")
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$nin\" : [18, 19, 20]}}]}")
+}
+
+"문자열에서 포함하는 값을 조회합니다." {
+    val document = document {
+        and(
+            { field(Author::name) contains "John" },
+        )
     }
 
-    "문자열에서 포함하는 값을 조회합니다." {
-        val document = document {
-            and(
-                { field(Author::name) contains "John" },
-            )
-        }
-        
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$regex\" : \"John\"}}]}")
-    }
+    document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$regex\" : \"John\"}}]}")
+}
 ```
 
 #### 통계 쿼리 생성
@@ -174,7 +176,7 @@ mongoTemplate.sumOfSingle(basicQuery, Author::class)
 ```
 
 grouping을 명시하면 아래와 같이 group 별로 통계 쿼리를 생성할 수 있습니다.  
-그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.  
+그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.
 
 ```kotlin
 val basicQuery = document {
