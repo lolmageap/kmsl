@@ -14,6 +14,7 @@ data class Author(
     val age: Int,
     val weight: Double,
     val height: Float,
+    val status: Status,
 
     @DBRef
     val books: List<Book>,
@@ -22,6 +23,11 @@ data class Author(
     val company: Company,
     val birthday: String,
 )
+
+enum class Status {
+    ACTIVE,
+    INACTIVE,
+}
 
 @Document
 data class Address(
