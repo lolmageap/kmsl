@@ -52,13 +52,16 @@ MongoDB는 Document를 사용하여 데이터를 저장하며 Document는 JSON�
 ### DSL이란
 
 DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언어를 말합니다.  
-제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific Language입니다.  
-제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.  
+제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific
+Language입니다.  
+제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.
 
 #### MongoDB DSL
 
 예시로 볼 코드는 Author의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산` 하는 코드입니다.  
 풀어서 말하면 저자의 이름이 `정철희`이거나 `정원희`이고, 별명에 `코틀린`라는 단어가 들어가고, 나이가 25살 이상 30살 이하인 사람을 조회할 수 있는 코드입니다.
+
+// 여기에 QueryDSL, Criteria API와 문법 비교 및 사용하지 않은 이유를 작성할지 고민중입니다.
 
 ```kotlin
 fun findAuthors(
@@ -162,7 +165,7 @@ DSL의 구조는 생각보다 정말 단순합니다.
 #### 통계 쿼리 생성
 
 grouping을 사용하면 sum, avg, min, max, count 등 다양한 통계 쿼리를 생성할 수 있습니다.  
-아래 코드는 grouping 대상을 명시하진 않아 조건에 맞는 Author 나이의 전체 합을 구하는 코드입니다.  
+아래 코드는 grouping 대상을 명시하진 않아 조건에 맞는 Author 나이의 전체 합을 구하는 코드입니다.
 
 ```kotlin
 val basicQuery = document {
@@ -204,8 +207,8 @@ val basicQuery = document {
 
 ## Hands-On 실습
 
-TODO: 간단한 로직들 eq, in, like, gt, lt와 같은 연산자들을 사용하여 MongoDB에 조회를 해볼 예정.  
-TODO: 정렬, 통계 쿼리, 페이지 네이션, 동적 쿼리를 생성해 볼 예정.
+TODO: 간단한 연산(eq, in, like, gt, lt)을 사용하여 MongoDB를 조회 해볼 예정.  
+TODO: 정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동적 쿼리를 생성해 볼 예정.
 
 ## 마무리
 
