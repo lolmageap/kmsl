@@ -1,9 +1,5 @@
 # 유스콘'24 발표자 오리엔테이션
 
-타겟 : RDBMS ORM을 사용해본 경험이 있거나 Kotlin에 대해 관심이 있는 개발자  
-들어가기전에 : 유스콘은 Kotlin 컨퍼런스, MongoDB 컨퍼런스가 아니다.  
-Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 작성할 수 있다는 것을 보여줘야한다.
-
 ## 시간 분배
 
 - 자기 소개, 개요 5분
@@ -39,15 +35,14 @@ Kotlin과 MongoDB를 잘 모르더라도 DSL을 사용하면 쉽게 쿼리를 �
 가장 먼저 MongoDB DSL을 만들게 된 계기와 목적을 설명하겠습니다.  
 제가 있는 비유바움이라는 회사는 정산을 위한 결제 데이터를 MongoDB에 저장하고 있는데 저를 포함한 대부분의 팀원들이 MongoDB에 대한 이해도가 다소 부족했습니다.  
 그래서 `MongoDB를 RDBMS ORM처럼 사용할 수 있을까?`라는 고민과 평소 DSL을 만들어보고 싶다는 생각이 겹쳐 MongoDB DSL을 만들게 되었습니다.  
-기능 자체는 저희 회사 프로젝트 성향에 맞춰서 개발 했기에 소수의 부분만 구현했으며 코드베이스적으로도 많이 부족하지만 작은 도전이라고 생각하여 이렇게
-유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
+코드베이스적으로도 많이 부족하지만 작은 도전이라고 생각하여 이렇게 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
 이번 발표를 통해 MongoDB의 쿼리를 RDBMS의 ORM처럼 가독성과 타입 안정성을 가진 DSL로 작성하는 방법을 소개하고 같이 코드를 작성해보려합니다.
 
 ### MongoDB란
 
 MongoDB는 RDBMS와 다르게 Schemaless한 NoSQL 비관계형 데이터베이스입니다.  
 MongoDB는 Document를 사용하여 데이터를 저장하며 Document는 JSON과 비슷한 형태인 BSON(Binary JSON) 형태로 저장됩니다.  
-이러한 특징으로 인해 MongoDB는 RDBMS와 다르게 Join, Transaction, Schema 등의 기능이 부족하지만 대신 확장성이 뛰어나고 데이터를 저장, 조회 시 성능이 뛰어나다는 장점이 있습니다.
+이러한 특징으로 인해 MongoDB는 RDBMS와 다르게 Join, Transaction 등의 기능이 부족하지만 대신 확장성이 뛰어나고 데이터를 저장, 조회 시 성능이 뛰어나다는 장점이 있습니다.
 
 ### DSL이란
 
@@ -56,35 +51,25 @@ DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언�
 Language입니다.  
 제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.
 
+### QueryDSL Mongo, Criteria API 와 비교
+
+먼저 QueryDSL Mongo와 Criteria API를 소개하고 왜 이 두 라이브러리를 사용하지 않고 직접 DSL을 만들었는지에 대해 설명하겠습니다.   
+
+#### QueryDSL Mongo
+
+QueryDSL Mongo는 많은 기능을 제공해주지만 설정이 복잡하고 레퍼런스가 생각보다 적었으며 Q파일 생성, 별도의 의존성을 추가해야 한다는 단점이 마음에 들지 않았습니다.  
+또한 아주 복잡한 쿼리를 만들 때와 동적으로 쿼리를 만들 때 가독성이 떨어지기도 했습니다.  
+QueryDSL Mongo는 predicate를 만들어서 재할당하는 방식을 사용하는데 불변성을 강조하는 Kotlin과 잘 어울리지 않다고 생각했습니다.
+
+#### Criteria API
+
+QueryDSL Mongo에 이런 문제들 때문에 Criteria API를 사용하려고 했습니다.  
+Criteria API는 복잡한 연산을 아주 잘 지원해주지만 타입 안정성과 가독성이 떨어진다는 문제가 있었습니다.  
+
 #### MongoDB DSL
 
-예시로 볼 코드는 Author의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산` 하는 코드입니다.  
-풀어서 말하면 저자의 이름이 `정철희`이거나 `정원희`이고, 별명에 `코틀린`라는 단어가 들어가고, 나이가 25살 이상 30살 이하인 사람을 조회할 수 있는 코드입니다.
-
-// 여기에 QueryDSL, Criteria API와 문법 비교 및 사용하지 않은 이유를 작성할지 고민중입니다.
-
-```kotlin
-fun findAuthors(
-    names: List<String>,
-    nickname: String?,
-    minAge: Int?,
-    maxAge: Int?,
-): List<Author> {
-    val document = document {
-        and(
-            { field(Author::name) `in` names },
-            { field(Author::age) between (minAge to maxAge) },
-            { nickname?.let { field(Author::nickname) contains it } },
-        )
-    }
-
-    return mongoTemplate.find(document, Author::class)
-}
-```
-
 DSL의 구조는 생각보다 정말 단순합니다.  
-`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수
-있습니다.  
+`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수 있습니다.  
 복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내에서 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.
 
 #### 연산
@@ -179,7 +164,7 @@ mongoTemplate.sumOfSingle(basicQuery, Author::class)
 ```
 
 grouping을 명시하면 아래와 같이 group 별로 통계 쿼리를 생성할 수 있습니다.  
-그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.
+그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.  
 
 ```kotlin
 val basicQuery = document {
@@ -213,5 +198,5 @@ TODO: 정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동
 ## 마무리
 
 성장을 원하는 주니어 개발자라면 간단한 나만의 DSL을 만들어본다면 정말 정말 재미있고 성장에 큰 도움이 되는것 같습니다.  
-아직 기능적으로 많이 부족해서 join과 같은 aggregate 기능들을 더 많이 지원해보고 싶다는 생각을 하고 있습니다.  
+아직 기능적으로 많이 부족해서 join과 같은 aggregate 기능들을 더 많이 추가해보고 싶다는 생각을 하고 있습니다.  
 마무리로 `왜 JVM, SPRING 진영은 MongoDB에 대한 ORM이나 DSL이 별로 없고 있어도 왜 지원을 잘 안해줄까?` 라는 생각으로 시작했지만 개발 중간에 `아 없을만 하다` 라는 생각으로 바뀌었습니다!  
