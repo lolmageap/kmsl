@@ -26,7 +26,7 @@
 
 안녕하세요. **개선**하는 것을 좋아하는 2년차 개발자 **정철희**입니다.  
 현재 **비유바움**이라는 회사에서 백엔드 개발자로 일하고 있으며 주로 **Kotlin**과 **Spring Boot, Ktor** 프레임워크를 사용하여 정산 서비스를 개발, 운영하고 있습니다.  
-저는 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.  
+저는 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.
 
 ## 발표 주제 : Kotlin으로 맞춤형 Mongo DSL 개발
 
@@ -51,31 +51,32 @@ DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언�
 Language입니다.  
 제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.
 
-### QueryDSL Mongo, Criteria API 와 비교
+## MongoDB DSL
 
-먼저 QueryDSL Mongo와 Criteria API를 소개하고 왜 이 두 라이브러리를 사용하지 않고 직접 DSL을 만들었는지에 대해 설명하겠습니다.   
+먼저 QueryDSL Mongo와 Criteria API 같은 이미 존재하는 기술을 사용하지 않은 이유에 대해 설명하겠습니다.  
 
 #### QueryDSL Mongo
 
 QueryDSL Mongo는 많은 기능을 제공해주지만 설정이 복잡하고 레퍼런스가 생각보다 적었으며 Q파일 생성, 별도의 의존성을 추가해야 한다는 단점이 마음에 들지 않았습니다.  
 또한 아주 복잡한 쿼리를 만들 때와 동적으로 쿼리를 만들 때 가독성이 떨어지기도 했습니다.  
-QueryDSL Mongo는 predicate를 만들어서 재할당하는 방식을 사용하는데 불변성을 강조하는 Kotlin과 잘 어울리지 않다고 생각했습니다.
+QueryDSL Mongo는 predicate를 만들어서 재할당하는 방식을 사용하는데 불변성을 강조하는 Kotlin과 잘 어울리지 않다고 생각했습니다.  
 
 #### Criteria API
 
 QueryDSL Mongo에 이런 문제들 때문에 Criteria API를 사용하려고 했습니다.  
 Criteria API는 복잡한 연산을 아주 잘 지원해주지만 타입 안정성과 가독성이 떨어진다는 문제가 있었습니다.  
 
-#### MongoDB DSL
+### 사용법
 
 DSL의 구조는 생각보다 정말 단순합니다.  
-`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수 있습니다.  
+`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수
+있습니다.  
 복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내에서 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.
 
 #### 연산
 
 ```kotlin
-    "같은 값을 조회합니다." {
+"같은 값을 조회합니다." {
     val document = document {
         and(
             { field(Author::name) eq "John" },
@@ -164,7 +165,7 @@ mongoTemplate.sumOfSingle(basicQuery, Author::class)
 ```
 
 grouping을 명시하면 아래와 같이 group 별로 통계 쿼리를 생성할 수 있습니다.  
-그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.  
+그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.
 
 ```kotlin
 val basicQuery = document {
@@ -197,6 +198,5 @@ TODO: 정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동
 
 ## 마무리
 
-성장을 원하는 주니어 개발자라면 간단한 나만의 DSL을 만들어본다면 정말 정말 재미있고 성장에 큰 도움이 되는것 같습니다.  
-아직 기능적으로 많이 부족해서 join과 같은 aggregate 기능들을 더 많이 추가해보고 싶다는 생각을 하고 있습니다.  
-마무리로 `왜 JVM, SPRING 진영은 MongoDB에 대한 ORM이나 DSL이 별로 없고 있어도 왜 지원을 잘 안해줄까?` 라는 생각으로 시작했지만 개발 중간에 `아 없을만 하다` 라는 생각으로 바뀌었습니다!  
+저는 이번 DSL을 만들면서 MongoDB에 대한 이해도가 높아지고 Kotlin이라는 언어에 대한 이해도가 더 높아졌습니다.  
+성장을 원하는 주니어 개발자라면 간단한 나만의 DSL을 만들어본다면 어떨까요?   
