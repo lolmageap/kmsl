@@ -13,9 +13,10 @@ object MongoTypeCaster {
             BigDecimal::class -> "\$toDecimal"
             Int::class -> "\$toInt"
             Double::class -> "\$toDouble"
+            Float::class -> "\$toFloat"
             String::class -> "\$toString"
             Date::class -> "\$toDate"
             Boolean::class -> "\$toBool"
-            else -> "\$toLong"
+            else -> throw IllegalArgumentException("Unsupported type: $type")
         }
 }
