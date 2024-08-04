@@ -1,5 +1,10 @@
 # 유스콘'24 발표자 오리엔테이션
 
+## TODO
+1. kotest가 아닌 더 대중적인 junit으로 테스트를 진행하는 것이 어떤지
+2. QueryDSL로 작성된 before default 코드를 DSL로 리팩토링하는 방식으로 진행하는 것도 좋을 것 같다.
+3. MongoDSL을 언제 사용해야 하는지 공감대를 형성하는 것이 중요한 것 같다. 빌드업 과정이 필요하다.
+
 ## 시간 분배
 
 - 자기 소개, 개요 5분
@@ -161,7 +166,7 @@ val basicQuery = document {
 }
 
 val aggregate = basicQuery.sumOf { field(Author::age) }
-mongoTemplate.sumOfSingle(basicQuery, Author::class)
+mongoTemplate.sum(basicQuery, Author::class)
 ```
 
 grouping을 명시하면 아래와 같이 group 별로 통계 쿼리를 생성할 수 있습니다.  
@@ -174,8 +179,8 @@ val basicQuery = document {
     )
 }
 
-val aggregate = basicQuery.groupBy(Author::age).sumOf(Double::class) { field(Author::phone) }
-mongoTemplate.sumOfGroup(basicQuery, Author::class)
+val groupByStatus = basicQuery.groupBy(Author::status)
+mongoTemplate.sum(groupByStatus, Author::age)
 ```
 
 #### 정렬
