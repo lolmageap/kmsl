@@ -75,9 +75,9 @@ class GroupTest(
             )
         }
 
-        val nameGroup = document.groupBy(Author::status)
-        val count = mongoTemplate.count(nameGroup, Author::class)
-        count shouldBe mapOf(ACTIVE to 3, INACTIVE to 1)
+        val statusGroup = document.groupBy(Author::status)
+        val countOfGroup = mongoTemplate.count(statusGroup, Author::class)
+        countOfGroup shouldBe mapOf(ACTIVE to 3, INACTIVE to 1)
     }
 
     "전체에 대한 합을 구할 수 있다" {
@@ -98,8 +98,8 @@ class GroupTest(
             )
         }
 
-        val nameGroup = document.groupBy(Author::status)
-        val sumOfGroup = mongoTemplate.sum(nameGroup, Author::age)
+        val statusGroup = document.groupBy(Author::status)
+        val sumOfGroup = mongoTemplate.sum(statusGroup, Author::age)
         sumOfGroup shouldBe mapOf(ACTIVE to 90, INACTIVE to 10)
     }
 
@@ -121,8 +121,8 @@ class GroupTest(
             )
         }
 
-        val aggregation = document.groupBy(Author::status)
-        val avgOfAge = mongoTemplate.avg(aggregation, Author::age)
+        val statusGroup = document.groupBy(Author::status)
+        val avgOfAge = mongoTemplate.avg(statusGroup, Author::age)
         avgOfAge shouldBe mapOf(ACTIVE to 30, INACTIVE to 10)
     }
 
@@ -144,8 +144,8 @@ class GroupTest(
             )
         }
 
-        val ageGroup = document.groupBy(Author::name)
-        val maxOfAge = mongoTemplate.max(ageGroup, Author::age)
+        val nameGroup = document.groupBy(Author::name)
+        val maxOfAge = mongoTemplate.max(nameGroup, Author::age)
         maxOfAge shouldBe mapOf("John" to 40)
     }
 
@@ -172,7 +172,7 @@ class GroupTest(
         minOfAge shouldBe mapOf("John" to 10)
     }
 
-    "mongoDB에 데이터를 다른 타입으로 컨버팅하고 연산을 할 수 있다." {
+    "mongoDB에 데이터를 다른 타입으로 컨버팅 하고 연산을 할 수 있다." {
         val document = document {
             and(
                 { field(Author::name) eq "John" },
