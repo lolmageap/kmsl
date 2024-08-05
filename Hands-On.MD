@@ -2,8 +2,8 @@
 
 ## TODO
 1. kotest가 아닌 더 대중적인 junit으로 테스트를 진행하는 것이 어떤지
-2. QueryDSL로 작성된 before default 코드를 DSL로 리팩토링하는 방식으로 진행하는 것도 좋을 것 같다.
-3. MongoDSL을 언제 사용해야 하는지 공감대를 형성하는 것이 중요한 것 같다. 빌드업 과정이 필요하다.
+2. MongoDSL을 언제 사용해야 하는지 공감대를 형성하는 것이 중요한 것 같다. 빌드업 과정이 필요하다.
+3. QueryDSL로 작성된 before default 코드를 DSL로 리팩토링하는 방식으로 진행하는 것도 좋을 것 같다.
 
 ## 시간 분배
 
@@ -56,9 +56,10 @@ DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언�
 Language입니다.  
 제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.
 
-## MongoDB DSL
+### QueryDSL Mongo, Criteria API 와 비교
 
-먼저 QueryDSL Mongo와 Criteria API 같은 이미 존재하는 기술을 사용하지 않은 이유에 대해 설명하겠습니다.  
+먼저 QueryDSL Mongo와 Criteria API를 소개하고 왜 이 두 라이브러리를 사용하지 않고 직접 DSL을 만들었는지에 대해 설명하겠습니다.   
+예제로 사용할 코드는 Author Collection의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산`하는 코드입니다.
 
 #### QueryDSL Mongo
 
@@ -66,10 +67,98 @@ QueryDSL Mongo는 많은 기능을 제공해주지만 설정이 복잡하고 레
 또한 아주 복잡한 쿼리를 만들 때와 동적으로 쿼리를 만들 때 가독성이 떨어지기도 했습니다.  
 QueryDSL Mongo는 predicate를 만들어서 재할당하는 방식을 사용하는데 불변성을 강조하는 Kotlin과 잘 어울리지 않다고 생각했습니다.  
 
+```kotlin
+fun findAuthors(
+    names: List<String>,
+    minAge: Int?,
+    maxAge: Int?,
+    nickname: String?,
+): List<Author> {
+    var predicate = author.name.`in`(names)
+
+    if (minAge != null && maxAge != null) {
+        predicate = predicate.and(author.age.gt(minAge).and(author.age.lt(maxAge)))
+    } else {
+        minAge?.let {
+            predicate = predicate.and(author.age.gt(it))
+        }
+        maxAge?.let {
+            predicate = predicate.and(author.age.lt(it))
+        }
+    }
+
+    nickname?.let {
+        predicate = predicate.and(author.nickname.contains(it))
+    }
+
+    return authorRepository.findAll(predicate)
+}
+```
+
 #### Criteria API
 
 QueryDSL Mongo에 이런 문제들 때문에 Criteria API를 사용하려고 했습니다.  
 Criteria API는 복잡한 연산을 아주 잘 지원해주지만 타입 안정성과 가독성이 떨어진다는 문제가 있었습니다.  
+
+```kotlin
+fun findAuthors(
+    names: List<String>,
+    minAge: Int?,
+    maxAge: Int?,
+    nickname: String?,
+): List<Author> {
+    val criteriaList = mutableListOf<Criteria>()
+
+    criteriaList.add(Criteria.where("name").`in`(names))
+
+    if (minAge != null && maxAge != null) {
+        criteriaList.add(Criteria.where("age").gt(minAge).lt(maxAge))
+    } else {
+        minAge?.let {
+            criteriaList.add(Criteria.where("age").gt(it))
+        }
+        maxAge?.let {
+            criteriaList.add(Criteria.where("age").lt(it))
+        }
+    }
+
+    nickname?.let {
+        criteriaList.add(Criteria.where("nickname").regex(it, "i"))
+    }
+    val query = if (criteriaList.isNotEmpty()) {
+        val criteria = Criteria().andOperator(*criteriaList.toTypedArray())
+        Query(criteria)
+    } else {
+        Query()
+    }
+
+    return mongoTemplate.find(query, Author::class.java)
+}
+```
+
+#### MongoDB DSL
+
+위 두 라이브러리를 사용하면서 느낀 단점들을 **개선**하고자 아래 예시처럼 직접 DSL을 구현했습니다.  
+바로 위에서 소개했던 코드를 MongoDB DSL로 변환하면 아래와 같습니다.  
+
+```kotlin
+fun findAuthors(
+    names: List<String>,
+    nickname: String?,
+    minAge: Int?,
+    maxAge: Int?,
+): List<Author> {
+    val document = document {
+        and(
+            { field(Author::name) `in` names },
+            { field(Author::age) between (minAge to maxAge) },
+            { nickname?.let { field(Author::nickname) contains it } },
+        )
+    }
+
+    return mongoTemplate.find(document, Author::class)
+}
+```
 
 ### 사용법
 
@@ -156,7 +245,7 @@ DSL의 구조는 생각보다 정말 단순합니다.
 #### 통계 쿼리 생성
 
 grouping을 사용하면 sum, avg, min, max, count 등 다양한 통계 쿼리를 생성할 수 있습니다.  
-아래 코드는 grouping 대상을 명시하진 않아 조건에 맞는 Author 나이의 전체 합을 구하는 코드입니다.
+아래 코드는 grouping 대상을 명시하진 않아 조건에 맞는 Author 나이의 전체 합을 구하는 코드입니다.  
 
 ```kotlin
 val basicQuery = document {
@@ -165,12 +254,12 @@ val basicQuery = document {
     )
 }
 
-val aggregate = basicQuery.sumOf { field(Author::age) }
-mongoTemplate.sum(basicQuery, Author::class)
+val sumOfAge = mongoTemplate.sum(basicQuery, Author::age)
+sumOfAge shouldBe 100
 ```
 
 grouping을 명시하면 아래와 같이 group 별로 통계 쿼리를 생성할 수 있습니다.  
-그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.
+그리고 만약 mongodb collection에 field가 string 타입이어도 숫자로 형변환하여 계산하는 것도 가능합니다.  
 
 ```kotlin
 val basicQuery = document {
@@ -179,8 +268,9 @@ val basicQuery = document {
     )
 }
 
-val groupByStatus = basicQuery.groupBy(Author::status)
-mongoTemplate.sum(groupByStatus, Author::age)
+val statusGroup = document.groupBy(Author::status)
+val sumOfGroup = mongoTemplate.sum(statusGroup, Author::age)
+sumOfGroup shouldBe mapOf(ACTIVE to 90, INACTIVE to 10)
 ```
 
 #### 정렬
@@ -194,12 +284,16 @@ val basicQuery = document {
     )
 }.orderBy(Author::age).desc()
     .orderBy(Author::phone).asc()
+
+basicQuery shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}]}")
+    .with(Sort.by(Sort.Direction.DESC, "age")
+        .and(Sort.by(Sort.Direction.ASC, "phone")))
 ```
 
 ## Hands-On 실습
 
 TODO: 간단한 연산(eq, in, like, gt, lt)을 사용하여 MongoDB를 조회 해볼 예정.  
-TODO: 정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동적 쿼리를 생성해 볼 예정.
+TODO: 정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동적 쿼리를 생성해 볼 예정.  
 
 ## 마무리
 
