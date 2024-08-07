@@ -1,6 +1,6 @@
 package com.example.kotlinmongo
 
-import com.example.kotlinmongo.entity.Author
+import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.field
 import com.example.kotlinmongo.extension.orderBy
