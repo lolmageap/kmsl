@@ -1,8 +1,8 @@
 package com.example.kotlinmongo
 
-import com.example.kotlinmongo.entity.Author
-import com.example.kotlinmongo.entity.Status.ACTIVE
-import com.example.kotlinmongo.entity.Status.INACTIVE
+import com.example.kotlinmongo.collection.Author
+import com.example.kotlinmongo.collection.Status.ACTIVE
+import com.example.kotlinmongo.collection.Status.INACTIVE
 import com.example.kotlinmongo.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -23,6 +23,10 @@ class GroupTest(
                 weight = 70.0,
                 height = 170f,
                 status = INACTIVE,
+                books = listOf(
+                    "book1",
+                    "book2",
+                ),
             )
         )
         mongoTemplate.insert(
@@ -32,6 +36,10 @@ class GroupTest(
                 weight = 80.0,
                 height = 180f,
                 status = ACTIVE,
+                books = listOf(
+                    "book3",
+                    "book4",
+                ),
             )
         )
         mongoTemplate.insert(
@@ -41,6 +49,10 @@ class GroupTest(
                 weight = 90.0,
                 height = 190f,
                 status = ACTIVE,
+                books = listOf(
+                    "book5",
+                    "book6",
+                ),
             )
         )
         mongoTemplate.insert(
@@ -50,6 +62,10 @@ class GroupTest(
                 weight = 100.0,
                 height = 200f,
                 status = ACTIVE,
+                books = listOf(
+                    "book7",
+                    "book8",
+                ),
             )
         )
     }
