@@ -3,7 +3,7 @@ package com.example.kotlinmongo.extension
 import com.example.kotlinmongo.clazz.Group
 import com.example.kotlinmongo.clazz.cast
 import com.example.kotlinmongo.clazz.castIfEnum
-import jakarta.persistence.Id
+import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.mapping.Field
