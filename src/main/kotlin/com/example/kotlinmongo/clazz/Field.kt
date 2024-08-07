@@ -15,9 +15,9 @@ import com.example.kotlinmongo.clazz.DocumentOperator.NOT_IN
 import com.example.kotlinmongo.clazz.DocumentOperator.OPTIONS
 import com.example.kotlinmongo.clazz.DocumentOperator.REGEX
 import com.example.kotlinmongo.clazz.DocumentOperator.SIZE
-import jakarta.persistence.Id
 import org.bson.Document
 import org.bson.types.ObjectId
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Field
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
@@ -162,8 +162,16 @@ class Field<T, R>(
         return document.append(key.fieldName, Document(IN, values.map { it.convertIfId() }))
     }
 
+    infix fun `in`(values: R): Document {
+        return document.append(key.fieldName, Document(IN, values.convertIfId()))
+    }
+
     infix fun notIn(values: Iterable<R>): Document {
         return document.append(key.fieldName, Document(NOT_IN, values.map { it.convertIfId() }))
+    }
+
+    infix fun notIn(values: R): Document {
+        return document.append(key.fieldName, Document(NOT_IN, values.convertIfId()))
     }
 
     infix fun contains(value: R): Document {
