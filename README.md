@@ -216,7 +216,7 @@ val basicQuery = document {
 }
 
 val ageGroup = basicQuery.groupBy(Author::age)
-mongoTemplate.sum(ageGroup, Author::phone)
+mongoTemplate.sum(ageGroup, Author::phone, Double::class)
 ```
 
 ## TODO
