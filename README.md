@@ -7,11 +7,11 @@ kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.
 조건이 많고 mongodb 의 조건, 연산이 필요할 때 사용 하고 있습니다.  
 
 spring data jpa와 spring data mongo를 같이 사용할 때 querydsl을 호환성 문제 때문에 사용할 수 없어 criteria, bson을 사용해야 했습니다.  
-하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제가 있어 이를 해결하려 만들었습니다.
+하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제가 있어 이를 해결하려 만들었습니다.  
 
 ### Criteria, QueryDSL Mongo와 Custom MongoDB DSL의 비교
 
-아래는 Author의 name을 in 연산, nickname을 like 연산, age는 between 연산하는 코드입니다.
+아래는 Author의 name을 in 연산, nickname을 like 연산, age는 between 연산하는 코드입니다.  
 
 **Criteria**
 ```kotlin
@@ -201,8 +201,7 @@ val basicQuery = document {
     )
 }
 
-val aggregate = basicQuery.sumOf { field(Author::age) }
-mongoTemplate.sumOfSingle(basicQuery, Author::class)
+mongoTemplate.sum(basicQuery, Author::age)
 ```
 
 만약 mongodb에 field가 string 타입이어도 숫자로 형변환하여 계산할 수 있습니다. 숫자의 타입이 Int 인지, Long 인지, Double 인지에 설정도 가능합니다.  
@@ -216,12 +215,12 @@ val basicQuery = document {
     )
 }
 
-val aggregate = basicQuery.groupBy(Author::age).sumOf(Double::class) { field(Author::phone) }
-mongoTemplate.sumOfGroup(basicQuery, Author::class)
+val ageGroup = basicQuery.groupBy(Author::age)
+mongoTemplate.sum(ageGroup, Author::phone)
 ```
 
 ## TODO
 - [x] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
 - [x] and operator 와 or operator 와 document scope 를 하나로 합치자.
 - [x] 정렬을 구현하여 사용할 수 있도록 하자.
-- [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
+- [x] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
