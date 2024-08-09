@@ -11,7 +11,7 @@ class DocumentOperatorBuilder(
     val document: Document,
 ) {
     fun and(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -20,7 +20,7 @@ class DocumentOperatorBuilder(
     }
 
     fun or(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -29,7 +29,7 @@ class DocumentOperatorBuilder(
     }
 
     fun nor(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -38,7 +38,7 @@ class DocumentOperatorBuilder(
     }
 
     fun not(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -47,7 +47,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.and(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -56,7 +56,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.or(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -65,7 +65,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.nor(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -84,7 +84,7 @@ class DocumentOperatorBuilder(
 
     // elemMatch 는 아직 테스트를 해보지 않았습니다.
     fun Document.elemMatch(
-        vararg block: Document.() -> Document,
+        vararg block: Document.() -> Document?,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
         return if (nonEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, nonEmptyBlocks)
@@ -92,7 +92,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.and(
-        block: List<Document.() -> Document>,
+        block: List<Document.() -> Document?>,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -101,7 +101,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.or(
-        block: List<Document.() -> Document>,
+        block: List<Document.() -> Document?>,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -110,7 +110,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.nor(
-        block: List<Document.() -> Document>,
+        block: List<Document.() -> Document?>,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -119,7 +119,7 @@ class DocumentOperatorBuilder(
     }
 
     fun Document.not(
-        block: List<Document.() -> Document>,
+        block: List<Document.() -> Document?>,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -129,7 +129,7 @@ class DocumentOperatorBuilder(
 
     // elemMatch 는 아직 테스트를 해보지 않았습니다.
     fun Document.elemMatch(
-        block: List<Document.() -> Document>,
+        block: List<Document.() -> Document?>,
     ): Document {
         val nonEmptyBlocks = applyNotEmptyFunctions(block)
 
@@ -138,17 +138,17 @@ class DocumentOperatorBuilder(
     }
 
     private fun applyNotEmptyFunctions(
-        block: Array<out Document.() -> Document>,
+        block: Array<out Document.() -> Document?>,
     ) = block.mapNotNull {
         val doc = Document().it()
-        doc.ifEmpty { null }
+        doc?.ifEmpty { null }
     }
 
     private fun applyNotEmptyFunctions(
-        block: List<Document.() -> Document>,
+        block: List<Document.() -> Document?>,
     ) = block.mapNotNull {
         val doc = Document().it()
-        doc.ifEmpty { null }
+        doc?.ifEmpty { null }
     }
 
     private fun run(
