@@ -4,6 +4,8 @@ import com.example.kotlinmongo.clazz.Group
 import com.example.kotlinmongo.clazz.cast
 import com.example.kotlinmongo.clazz.castIfEnum
 import org.springframework.data.annotation.Id
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.mapping.Field
@@ -27,6 +29,21 @@ fun <T : Any> MongoTemplate.find(
     query: BasicQuery,
     entityClass: KClass<T>,
 ): List<T> = find(query, entityClass.java)
+
+fun <T : Any> MongoTemplate.findAll(
+    query: BasicQuery,
+    pageable: Pageable,
+    entityClass: KClass<T>,
+): Page<T> {
+    val data = find(
+        query.limit(pageable.pageSize)
+            .skip(pageable.offset)
+            .with(pageable.sort),
+        entityClass.java,
+    )
+    val count = count(query, entityClass.java)
+    return PageImpl(data, pageable, count)
+}
 
 fun <T : Any> MongoTemplate.count(
     query: BasicQuery,
