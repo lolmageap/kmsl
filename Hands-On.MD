@@ -1,9 +1,7 @@
 # 유스콘'24 발표자 오리엔테이션
 
 ## TODO
-1. kotest가 아닌 더 대중적인 junit으로 테스트를 진행하는 것이 어떤지
-2. MongoDSL을 언제 사용해야 하는지 공감대를 형성하는 것이 중요한 것 같다. 빌드업 과정이 필요하다.
-3. QueryDSL로 작성된 before default 코드를 DSL로 리팩토링하는 방식으로 진행하는 것도 좋을 것 같다.
+ - kotest가 아닌 더 대중적인 junit으로 테스트를 진행하는 것이 어떤지
 
 ## 시간 분배
 
@@ -31,35 +29,35 @@
 
 안녕하세요. **개선**하는 것을 좋아하는 2년차 개발자 **정철희**입니다.  
 현재 **비유바움**이라는 회사에서 백엔드 개발자로 일하고 있으며 주로 **Kotlin**과 **Spring Boot, Ktor** 프레임워크를 사용하여 정산 서비스를 개발, 운영하고 있습니다.  
-저는 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.
+저는 **꾸준함**이라는 좋은 습관을 가지기 위해 퇴근 후에도 매일 코드를 작성하며 개선할 부분들을 찾아 리팩토링하는 것을 좋아합니다.  
+오늘은 그 과정 중에 하나였던 'Kotlin Custom MongoDSL'에 대하여 발표를 진행할 예정입니다.  
 
 ## 발표 주제 : Kotlin으로 맞춤형 Mongo DSL 개발
 
 ### 개요
 
-가장 먼저 MongoDB DSL을 만들게 된 계기와 목적을 설명하겠습니다.  
-제가 있는 비유바움이라는 회사는 정산을 위한 결제 데이터를 MongoDB에 저장하고 있는데 저를 포함한 대부분의 팀원들이 MongoDB에 대한 이해도가 다소 부족했습니다.  
-그래서 `MongoDB를 RDBMS ORM처럼 사용할 수 있을까?`라는 고민과 평소 DSL을 만들어보고 싶다는 생각이 겹쳐 MongoDB DSL을 만들게 되었습니다.  
-코드베이스적으로도 많이 부족하지만 작은 도전이라고 생각하여 이렇게 유스콘에 `Kotlin으로 커스텀 MongoDB DSL 만들어서 적용하기`라는 주제로 발표를 준비했습니다.  
-이번 발표를 통해 MongoDB의 쿼리를 RDBMS의 ORM처럼 가독성과 타입 안정성을 가진 DSL로 작성하는 방법을 소개하고 같이 코드를 작성해보려합니다.
+저는 비유바움이라는 회사에서 정산 솔루션을 개발 할 때 결제 데이터는 MongoDB에 저장하여 관리하도록 설계하였습니다.  
+기존에는 쿼리 빌더를 criteria와 queryDSL을 사용하려 했지만 개발 과정에서 여러 문제점이 나타났습니다.  
+QueryDSL Mongo는 RDBMS에 비해 지원이 현저히 적었고 Criteria를 직접 사용하자니 타입 안정성과 가독성이 떨어진다는 문제가 있었습니다.  
+그러던 와중 평소 dsl을 만들어보고 싶다는 생각이 겹쳐 직접 bson 기반으로 dsl을 만들게 되었습니다.  
+많이 부족하지만 작은 도전이라고 생각하여 이렇게 유스콘에서 `kotlin mongodb dsl`을 주제로 발표하게 되었고 간단한 브리핑 이후에 같이 코드를 작성해보면서 발표를 진행하도록 하겠습니다.  
 
 ### MongoDB란
 
 MongoDB는 RDBMS와 다르게 Schemaless한 NoSQL 비관계형 데이터베이스입니다.  
 MongoDB는 Document를 사용하여 데이터를 저장하며 Document는 JSON과 비슷한 형태인 BSON(Binary JSON) 형태로 저장됩니다.  
-이러한 특징으로 인해 MongoDB는 RDBMS와 다르게 Join, Transaction 등의 기능이 부족하지만 대신 확장성이 뛰어나고 데이터를 저장, 조회 시 성능이 뛰어나다는 장점이 있습니다.
+이러한 특징으로 인해 MongoDB는 RDBMS와 다르게 Join, Transaction 등의 기능이 부족하지만 대신 확장성이 뛰어나고 데이터를 저장, 조회 시 성능이 뛰어나다는 장점이 있습니다.  
 
 ### DSL이란
 
 DSL은 Domain Specific Language의 약자로 특정 도메인에 특화된 언어를 말합니다.  
-제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific
-Language입니다.  
-제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.
+제가 이번에 만들어본 MongoDB DSL은 MongoDB의 문법을 모르더라도 RDBMS의 ORM처럼 쉽게 사용하기 위해 Kotlin 문법으로 만든 MongoDB Domain Specific Language입니다.  
+제가 사용한 언어인 Kotlin은 DSL을 만들기 유용한 언어입니다.  
 
 ### QueryDSL Mongo, Criteria API 와 비교
 
 먼저 QueryDSL Mongo와 Criteria API를 소개하고 왜 이 두 라이브러리를 사용하지 않고 직접 DSL을 만들었는지에 대해 설명하겠습니다.   
-예제로 사용할 코드는 Author Collection의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산`하는 코드입니다.
+예제로 사용할 코드는 Author Collection의 `name을 in 연산`, `nickname을 like 연산`, `age는 between 연산`하는 코드입니다.  
 
 #### QueryDSL Mongo
 
@@ -163,9 +161,8 @@ fun findAuthors(
 ### 사용법
 
 DSL의 구조는 생각보다 정말 단순합니다.  
-`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수
-있습니다.  
-복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내에서 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.
+`document` 함수를 호출하면 `DocumentScope`가 생성되고 `DocumentScope` 내부에서 `and`, `or`, `not`, `nor` 함수를 호출하여 `Document`를 만들 수 있습니다.  
+복잡한 조건 연산을 수행할 수 있게 `and`, `or`, `not`, `nor` 함수 내에서 또 다른 `and`, `or`, `not`, `nor` 함수를 호출할 수도 있습니다.  
 
 #### 연산
 
@@ -292,8 +289,11 @@ basicQuery shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}]}")
 
 ## Hands-On 실습
 
-TODO: 간단한 연산(eq, in, like, gt, lt)을 사용하여 MongoDB를 조회 해볼 예정.  
-TODO: 정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동적 쿼리를 생성해 볼 예정.  
+TODO {
+    QueryDSL로 작성된 before default 코드를 DSL로 리팩토링하는 방식으로 진행할 예정.  
+    간단한 연산(eq, in, like, gt, lt)을 사용하여 MongoDB를 조회 해볼 예정.  
+    정렬, 통계 쿼리(min, max, sum, count, avg), 페이지 네이션, 동적 쿼리를 생성해 볼 예정.  
+}
 
 ## 마무리
 
