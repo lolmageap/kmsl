@@ -13,72 +13,64 @@ class DocumentOperatorBuilder(
     fun and(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) document.append(AND, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) document.append(AND, notEmptyBlocks)
         else document
     }
 
     fun or(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) document.append(OR, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) document.append(OR, notEmptyBlocks)
         else document
     }
 
     fun nor(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) document.append(NOR, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) document.append(NOR, notEmptyBlocks)
         else document
     }
 
     fun not(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) document.append(NOT, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) document.append(NOT, notEmptyBlocks)
         else document
     }
 
     fun Document.and(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(AND, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(AND, notEmptyBlocks)
         else this
     }
 
     fun Document.or(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(OR, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(OR, notEmptyBlocks)
         else this
     }
 
     fun Document.nor(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOR, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(NOR, notEmptyBlocks)
         else this
     }
 
     fun Document.not(
         vararg block: Document.() -> Document,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOT, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(NOT, notEmptyBlocks)
         else this
     }
 
@@ -86,44 +78,40 @@ class DocumentOperatorBuilder(
     fun Document.elemMatch(
         vararg block: Document.() -> Document?,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, notEmptyBlocks)
         else this
     }
 
     fun Document.and(
         block: List<Document.() -> Document?>,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(AND, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(AND, notEmptyBlocks)
         else this
     }
 
     fun Document.or(
         block: List<Document.() -> Document?>,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(OR, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(OR, notEmptyBlocks)
         else this
     }
 
     fun Document.nor(
         block: List<Document.() -> Document?>,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOR, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(NOR, notEmptyBlocks)
         else this
     }
 
     fun Document.not(
         block: List<Document.() -> Document?>,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(NOT, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(NOT, notEmptyBlocks)
         else this
     }
 
@@ -131,25 +119,22 @@ class DocumentOperatorBuilder(
     fun Document.elemMatch(
         block: List<Document.() -> Document?>,
     ): Document {
-        val nonEmptyBlocks = applyNotEmptyFunctions(block)
-
-        return if (nonEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, nonEmptyBlocks)
+        val notEmptyBlocks = block.invokeIfNotEmpty()
+        return if (notEmptyBlocks.isNotEmpty()) this.append(ELEM_MATCH, notEmptyBlocks)
         else this
     }
 
-    private fun applyNotEmptyFunctions(
-        block: Array<out Document.() -> Document?>,
-    ) = block.mapNotNull {
-        val doc = Document().it()
-        doc?.ifEmpty { null }
-    }
+    private fun Array<out Document.() -> Document?>.invokeIfNotEmpty() =
+        this.mapNotNull {
+            val doc = Document().it()
+            doc?.ifEmpty { null }
+        }
 
-    private fun applyNotEmptyFunctions(
-        block: List<Document.() -> Document?>,
-    ) = block.mapNotNull {
-        val doc = Document().it()
-        doc?.ifEmpty { null }
-    }
+    private fun List<Document.() -> Document?>.invokeIfNotEmpty() =
+        this.mapNotNull {
+            val doc = Document().it()
+            doc?.ifEmpty { null }
+        }
 
     private fun run(
         block: DocumentOperatorBuilder.() -> Unit,
