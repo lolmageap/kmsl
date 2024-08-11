@@ -1,6 +1,7 @@
 package com.example.kotlinmongo
 
 import com.example.kotlinmongo.collection.Author
+import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status.ACTIVE
 import com.example.kotlinmongo.collection.Status.INACTIVE
 import com.example.kotlinmongo.extension.*
@@ -16,59 +17,62 @@ class GroupTest(
     @Autowired private val mongoTemplate: MongoTemplate,
 ) : StringSpec({
     beforeTest {
+        mongoTemplate.dropCollection(Author::class.java)
+
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 10,
                 weight = 70.0,
                 height = 170f,
                 status = INACTIVE,
-                books = listOf(
-                    "book1",
-                    "book2",
+                books = mutableListOf(
+                    createBook("book1"),
+                    createBook("book2"),
                 ),
             )
         )
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 20,
                 weight = 80.0,
                 height = 180f,
                 status = ACTIVE,
-                books = listOf(
-                    "book3",
-                    "book4",
+                books = mutableListOf(
+                    createBook("book3"),
+                    createBook("book4"),
                 ),
             )
         )
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 30,
                 weight = 90.0,
                 height = 190f,
                 status = ACTIVE,
-                books = listOf(
-                    "book5",
-                    "book6",
+                books = mutableListOf(
+                    createBook("book5"),
+                    createBook("book6"),
                 ),
             )
         )
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 40,
                 weight = 100.0,
                 height = 200f,
                 status = ACTIVE,
-                books = listOf(
-                    "book7",
-                    "book8",
+                books = mutableListOf(
+                    createBook("book7"),
+                    createBook("book8"),
                 ),
             )
         )
     }
+
     afterTest {
         mongoTemplate.dropCollection(Author::class.java)
     }
@@ -202,3 +206,16 @@ class GroupTest(
 
 private val BigDecimal.roundOff: BigDecimal
     get() = this.setScale(0)
+
+private fun createBook(
+    title: String,
+    price: Long = 10000L,
+    isbn: String = "isbn",
+    description: String? = null,
+) =
+    Book.of(
+        title,
+        price,
+        isbn,
+        description,
+    )

@@ -16,13 +16,13 @@ class IdTest(
 ): StringSpec({
     "id 값으로 조회" {
         val author = mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "Test",
                 age = 100,
                 weight = 170.0,
                 height = 70f,
                 status = Status.INACTIVE,
-                books = emptyList(),
+                books = mutableListOf(),
             )
         )
 
