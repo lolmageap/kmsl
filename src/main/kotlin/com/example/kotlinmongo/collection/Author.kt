@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 
 @Document(collection = "author")
-data class Author(
+data class Author private constructor(
     @Id @Field("_id")
     val id: String? = ObjectId.get().toHexString(),
     val name: String,
@@ -14,8 +14,28 @@ data class Author(
     val weight: Double,
     val height: Float,
     val status: Status,
-    val books: List<String>,
-)
+    val books: MutableList<Book>,
+) {
+    companion object {
+        fun of(
+            name: String,
+            age: Int,
+            weight: Double,
+            height: Float,
+            status: Status,
+            books: MutableList<Book>,
+        ): Author {
+            return Author(
+                name = name,
+                age = age,
+                weight = weight,
+                height = height,
+                status = status,
+                books = books,
+            )
+        }
+    }
+}
 
 enum class Status {
     ACTIVE,

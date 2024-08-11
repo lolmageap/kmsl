@@ -1,7 +1,9 @@
 package com.example.kotlinmongo
 
 import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Status
+import com.example.kotlinmongo.collection.Book
+import com.example.kotlinmongo.collection.Status.ACTIVE
+import com.example.kotlinmongo.collection.Status.INACTIVE
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.field
 import com.example.kotlinmongo.extension.find
@@ -18,54 +20,54 @@ class ArrayTest(
 ) : StringSpec({
     beforeTest {
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 10,
                 weight = 70.0,
                 height = 170f,
-                status = Status.INACTIVE,
-                books = listOf(
-                    "book1",
-                    "book2",
+                status = INACTIVE,
+                books = mutableListOf(
+                    createBook("book1"),
+                    createBook("book2"),
                 ),
             )
         )
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 20,
                 weight = 80.0,
                 height = 180f,
-                status = Status.ACTIVE,
-                books = listOf(
-                    "book3",
-                    "book4",
+                status = ACTIVE,
+                books = mutableListOf(
+                    createBook("book3"),
+                    createBook("book4"),
                 ),
             )
         )
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 30,
                 weight = 90.0,
                 height = 190f,
-                status = Status.ACTIVE,
-                books = listOf(
-                    "book5",
-                    "book6",
+                status = ACTIVE,
+                books = mutableListOf(
+                    createBook("book5"),
+                    createBook("book6"),
                 ),
             )
         )
         mongoTemplate.insert(
-            Author(
+            Author.of(
                 name = "John",
                 age = 40,
                 weight = 100.0,
                 height = 200f,
-                status = Status.ACTIVE,
-                books = listOf(
-                    "book7",
-                    "book8",
+                status = ACTIVE,
+                books = mutableListOf(
+                    createBook("book7"),
+                    createBook("book8"),
                 ),
             )
         )
@@ -76,9 +78,14 @@ class ArrayTest(
     }
 
     "배열 필드에 대한 equal 연산 테스트" {
+        val books = mutableListOf(
+            createBook("book1"),
+            createBook("book2"),
+        )
+
         val document = document {
             and(
-                { field(Author::books) eq listOf("book1", "book2") },
+                { field(Author::books) eq books },
             )
         }
 
@@ -88,9 +95,11 @@ class ArrayTest(
     }
 
     "배열 필드에 대한 in 연산 테스트" {
+        val book = mutableListOf(createBook("book1"))
+
         val document = document {
             and(
-                { field(Author::books) `in` listOf("book1") },
+                { field(Author::books) `in` book },
             )
         }
 
@@ -99,3 +108,16 @@ class ArrayTest(
         author.books shouldBe listOf("book1", "book2")
     }
 })
+
+private fun createBook(
+    title: String,
+    price: Long = 10000L,
+    isbn: String = "isbn",
+    description: String? = null,
+) =
+    Book.of(
+        title,
+        price,
+        isbn,
+        description,
+    )
