@@ -66,8 +66,8 @@ class Field<T, R>(
 
             else -> {
                 document.append(
-                    key.fieldName, Document(GREATER_THAN, values.first?.let { it.convertIfId() })
-                        .append(LESS_THAN, values.second?.let { it.convertIfId() })
+                    key.fieldName, Document(LESS_THAN, values.first?.let { it.convertIfId() })
+                        .append(GREATER_THAN, values.second?.let { it.convertIfId() })
                 )
             }
         }
@@ -96,8 +96,8 @@ class Field<T, R>(
             else -> {
                 document.append(
                     key.fieldName, Document(
-                        NOT, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() })
-                            .append(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() })
+                        NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })
+                            .append(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })
                     )
                 )
             }
@@ -111,11 +111,11 @@ class Field<T, R>(
             }
 
             values.first == null -> {
-                document.append(key.fieldName, Document(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                document.append(key.fieldName, Document(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() }))
             }
 
             values.second == null -> {
-                document.append(key.fieldName, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                document.append(key.fieldName, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() }))
             }
 
             else -> {
@@ -136,14 +136,14 @@ class Field<T, R>(
             values.first == null -> {
                 document.append(
                     key.fieldName,
-                    Document(NOT, Document(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                    Document(NOT, Document(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() }))
                 )
             }
 
             values.second == null -> {
                 document.append(
                     key.fieldName,
-                    Document(NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                    Document(NOT, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() }))
                 )
             }
 

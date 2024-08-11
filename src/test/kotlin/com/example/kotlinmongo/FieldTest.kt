@@ -15,6 +15,7 @@ class FieldTest : StringSpec({
                 { field(Author::age) eq 18 },
             )
         }
+
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
     }
 
@@ -76,7 +77,7 @@ class FieldTest : StringSpec({
             )
         }
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gt\" : 18, \"\$lt\" : 30}}]}")
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18, \"\$gt\" : 30}}]}")
     }
 
     "between inclusive 연산 테스트" {
