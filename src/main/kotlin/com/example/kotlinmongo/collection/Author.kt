@@ -24,16 +24,14 @@ data class Author private constructor(
             height: Float,
             status: Status,
             books: MutableList<Book>,
-        ): Author {
-            return Author(
-                name = name,
-                age = age,
-                weight = weight,
-                height = height,
-                status = status,
-                books = books,
-            )
-        }
+        ) = Author(
+            name = name,
+            age = age,
+            weight = weight,
+            height = height,
+            status = status,
+            books = books,
+        )
     }
 }
 
