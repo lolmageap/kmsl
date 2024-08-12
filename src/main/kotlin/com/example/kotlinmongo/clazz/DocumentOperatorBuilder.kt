@@ -10,9 +10,17 @@ import org.bson.Document
 class DocumentOperatorBuilder(
     val document: Document,
 ) {
+    private var rootAndOperatorChecks = 0
+    private var rootOrOperatorChecks = 0
+    private var rootNorOperatorChecks = 0
+    private var rootNotOperatorChecks = 0
+
     fun and(
         vararg block: Document.() -> Document?,
     ): Document {
+        if (rootAndOperatorChecks > 0) throw IllegalStateException("Root and operator can only be used once")
+        rootAndOperatorChecks++
+
         val notEmptyBlocks = block.invokeIfNotEmpty()
         return if (notEmptyBlocks.isNotEmpty()) document.append(AND, notEmptyBlocks)
         else document
@@ -21,6 +29,9 @@ class DocumentOperatorBuilder(
     fun or(
         vararg block: Document.() -> Document?,
     ): Document {
+        if (rootOrOperatorChecks > 0) throw IllegalStateException("Root or operator can only be used once")
+        rootOrOperatorChecks++
+
         val notEmptyBlocks = block.invokeIfNotEmpty()
         return if (notEmptyBlocks.isNotEmpty()) document.append(OR, notEmptyBlocks)
         else document
@@ -29,6 +40,9 @@ class DocumentOperatorBuilder(
     fun nor(
         vararg block: Document.() -> Document?,
     ): Document {
+        if (rootNorOperatorChecks > 0) throw IllegalStateException("Root nor operator can only be used once")
+        rootNorOperatorChecks++
+
         val notEmptyBlocks = block.invokeIfNotEmpty()
         return if (notEmptyBlocks.isNotEmpty()) document.append(NOR, notEmptyBlocks)
         else document
@@ -37,6 +51,9 @@ class DocumentOperatorBuilder(
     fun not(
         vararg block: Document.() -> Document?,
     ): Document {
+        if(rootNotOperatorChecks > 0) throw IllegalStateException("Root not operator can only be used once")
+        rootNotOperatorChecks++
+
         val notEmptyBlocks = block.invokeIfNotEmpty()
         return if (notEmptyBlocks.isNotEmpty()) document.append(NOT, notEmptyBlocks)
         else document
