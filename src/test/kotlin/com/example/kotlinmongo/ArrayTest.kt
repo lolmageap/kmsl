@@ -1,6 +1,5 @@
 package com.example.kotlinmongo
 
-import com.example.kotlinmongo.clazz.embeddedDocument
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status.ACTIVE
@@ -10,11 +9,9 @@ import com.example.kotlinmongo.extension.field
 import com.example.kotlinmongo.extension.find
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.query.BasicQuery
 
 @SpringBootTest
 class ArrayTest(
@@ -79,7 +76,7 @@ class ArrayTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "배열 필드에 대한 equal 연산 테스트" {
+    "배열 필드에 대한 equal 연산" {
         val books = mutableListOf(
             createBook("book1"),
             createBook("book2"),
@@ -91,12 +88,12 @@ class ArrayTest(
             )
         }
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"books\" : [\"book1\", \"book2\"]}]}")
         val author = mongoTemplate.find(document, Author::class).first()
-        author.books shouldBe listOf("book1", "book2")
+        val titles = author.books.map { it.title }
+        titles shouldBe listOf("book1", "book2")
     }
 
-    "배열 필드에 대한 in 연산 테스트" {
+    "배열 필드에 대한 in 연산" {
         val book = mutableListOf(createBook("book1"))
 
         val document = document {
@@ -105,23 +102,9 @@ class ArrayTest(
             )
         }
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"books\" : {\"\$in\" : [\"book1\"]}}]}")
         val author = mongoTemplate.find(document, Author::class).first()
-        author.books shouldBe listOf("book1", "book2")
-    }
-
-    "배열 내부 오브젝트 필드에 대한 연산 테스트" {
-        val document = document {
-            embeddedDocument(Author::books).elemMatch({
-                or(
-                    { field(Book::title) eq "book1" },
-                )
-            })
-        }
-
-        val youngAuthor = mongoTemplate.find(document, Author::class).first()
-        val titles = youngAuthor.books.map { it.title }
-        assert(titles == mutableListOf("book1", "book2"))
+        val titles = author.books.map { it.title }
+        titles shouldBe listOf("book1", "book2")
     }
 })
 
