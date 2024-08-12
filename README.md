@@ -204,8 +204,8 @@ val basicQuery = document {
 mongoTemplate.sum(basicQuery, Author::age)
 ```
 
-만약 mongodb에 field가 string 타입이어도 숫자로 형변환하여 계산할 수 있습니다. 숫자의 타입이 Int 인지, Long 인지, Double 인지에 설정도 가능합니다.  
-기본적으로 Long 타입으로 변환되게 설정되어 있습니다.  
+만약 mongodb에 field가 string 타입이어도 숫자로 형변환하여 계산할 수 있습니다.  
+숫자의 타입이 Int 인지, Long 인지, Double 인지에 설정도 가능합니다.  
 ```kotlin
 // 이름이 정철희인 사람들의 나이별로 그룹합니다.
 // 이 그룹의 핸드폰 번호를 숫자(Double Type)로 형변환한 값의 합 
@@ -223,4 +223,4 @@ mongoTemplate.sum(ageGroup, Author::phone, Double::class)
 - [x] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
 - [x] and operator 와 or operator 와 document scope 를 하나로 합치자.
 - [x] 정렬을 구현하여 사용할 수 있도록 하자.
-- [x] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
+- [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
