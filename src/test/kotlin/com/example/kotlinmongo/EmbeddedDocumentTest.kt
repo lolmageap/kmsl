@@ -24,7 +24,7 @@ class EmbeddedDocumentTest(
                 age = 10,
                 weight = 70.0,
                 height = 170f,
-                status = Status.INACTIVE,
+                status = Status.RETIREMENT,
                 books = mutableListOf(
                     createBook("book1"),
                     createBook("book2"),
@@ -105,12 +105,12 @@ class EmbeddedDocumentTest(
             })
             and(
                 { field(Author::age) eq 10 },
-                { field(Author::status) eq Status.INACTIVE },
+                { field(Author::status) eq Status.RETIREMENT },
             )
         }
 
         val authors = mongoTemplate.find(document, Author::class)
-        authors.size shouldBe 1
+        authors.size shouldBe 2
 
         val author = authors.first()
         val titles = author.books.map { it.title }
@@ -125,8 +125,8 @@ private fun createBook(
     description: String? = null,
 ) =
     Book.of(
-        title,
-        price,
-        isbn,
-        description,
+        title = title,
+        price = price,
+        isbn = isbn,
+        description = description,
     )

@@ -3,7 +3,7 @@ package com.example.kotlinmongo
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status.ACTIVE
-import com.example.kotlinmongo.collection.Status.INACTIVE
+import com.example.kotlinmongo.collection.Status.RETIREMENT
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.field
 import com.example.kotlinmongo.extension.find
@@ -24,7 +24,7 @@ class ArrayTest(
                 age = 10,
                 weight = 70.0,
                 height = 170f,
-                status = INACTIVE,
+                status = RETIREMENT,
                 books = mutableListOf(
                     createBook("book1"),
                     createBook("book2"),

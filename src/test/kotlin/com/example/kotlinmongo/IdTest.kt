@@ -21,7 +21,7 @@ class IdTest(
                 age = 100,
                 weight = 170.0,
                 height = 70f,
-                status = Status.INACTIVE,
+                status = Status.RETIREMENT,
                 books = mutableListOf(),
             )
         )

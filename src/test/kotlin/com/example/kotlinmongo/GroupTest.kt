@@ -3,7 +3,7 @@ package com.example.kotlinmongo
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status.ACTIVE
-import com.example.kotlinmongo.collection.Status.INACTIVE
+import com.example.kotlinmongo.collection.Status.RETIREMENT
 import com.example.kotlinmongo.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -25,7 +25,7 @@ class GroupTest(
                 age = 10,
                 weight = 70.0,
                 height = 170f,
-                status = INACTIVE,
+                status = RETIREMENT,
                 books = mutableListOf(
                     createBook("book1"),
                     createBook("book2"),
@@ -97,7 +97,7 @@ class GroupTest(
 
         val statusGroup = document.groupBy(Author::status)
         val countOfGroup = mongoTemplate.count(statusGroup, Author::class)
-        countOfGroup shouldBe mapOf(ACTIVE to 3, INACTIVE to 1)
+        countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
     }
 
     "전체에 대한 합을 구할 수 있다" {
@@ -120,7 +120,7 @@ class GroupTest(
 
         val statusGroup = document.groupBy(Author::status)
         val sumOfGroup = mongoTemplate.sum(statusGroup, Author::age)
-        sumOfGroup shouldBe mapOf(ACTIVE to 90, INACTIVE to 10)
+        sumOfGroup shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
     }
 
     "전체에 대한 평균을 구할 수 있다" {
@@ -143,7 +143,7 @@ class GroupTest(
 
         val statusGroup = document.groupBy(Author::status)
         val avgOfAge = mongoTemplate.avg(statusGroup, Author::age)
-        avgOfAge shouldBe mapOf(ACTIVE to 30, INACTIVE to 10)
+        avgOfAge shouldBe mapOf(ACTIVE to 30, RETIREMENT to 10)
     }
 
     "전체에 대한 최대값을 구할 수 있다" {

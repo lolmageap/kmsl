@@ -37,5 +37,6 @@ data class Author private constructor(
 
 enum class Status {
     ACTIVE,
-    INACTIVE,
+    REST,
+    RETIREMENT,
 }
