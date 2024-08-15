@@ -79,9 +79,7 @@ class GroupTest(
 
     "전체에 대한 count 를 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val count = mongoTemplate.count(document, Author::class)
@@ -90,9 +88,7 @@ class GroupTest(
 
     "grouping 된 count 를 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val statusGroup = document.groupBy(Author::status)
@@ -102,9 +98,7 @@ class GroupTest(
 
     "전체에 대한 합을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val sumOfAge = mongoTemplate.sum(document, Author::age)
@@ -113,9 +107,7 @@ class GroupTest(
 
     "grouping 된 필드에 대한 합을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val statusGroup = document.groupBy(Author::status)
@@ -125,9 +117,7 @@ class GroupTest(
 
     "전체에 대한 평균을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val avgOfAge = mongoTemplate.avg(document, Author::age)
@@ -136,9 +126,7 @@ class GroupTest(
 
     "grouping 된 평균을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val statusGroup = document.groupBy(Author::status)
@@ -148,9 +136,7 @@ class GroupTest(
 
     "전체에 대한 최대값을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val maxOfAge = mongoTemplate.max(document, Author::age)
@@ -159,9 +145,7 @@ class GroupTest(
 
     "grouping 된 최대값을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val nameGroup = document.groupBy(Author::name)
@@ -171,9 +155,7 @@ class GroupTest(
 
     "전체에 대한 최소값을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val minOfAge = mongoTemplate.min(document, Author::age)
@@ -182,9 +164,7 @@ class GroupTest(
 
     "grouping 된 최소값을 구할 수 있다" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val nameGroup = document.groupBy(Author::name)
@@ -194,9 +174,7 @@ class GroupTest(
 
     "mongoDB에 데이터를 다른 타입으로 컨버팅 하고 연산을 할 수 있다." {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-            )
+            and { field(Author::name) eq "John" }
         }
 
         val totalHeight = mongoTemplate.sum(document, Author::height, BigDecimal::class)

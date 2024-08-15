@@ -27,9 +27,7 @@ class IdTest(
         )
 
         val document = document {
-            and(
-                { field(Author::id) eq author.id },
-            )
+            and { field(Author::id) eq author.id }
         }
 
         val result = mongoTemplate.find(document, Author::class).first()

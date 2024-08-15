@@ -26,6 +26,17 @@ class DocumentOperatorBuilder(
         else document
     }
 
+    fun and(
+        block: Document.() -> Document?,
+    ) : Document {
+        if (rootAndOperatorChecks > 0) throw IllegalStateException("Root and operator can only be used once")
+        rootAndOperatorChecks++
+
+        val notEmptyBlock = invokeIfNotEmpty(block)
+        return if (notEmptyBlock != null) document.append(AND, notEmptyBlock)
+        else document
+    }
+
     fun or(
         vararg block: Document.() -> Document?,
     ): Document {
@@ -34,6 +45,17 @@ class DocumentOperatorBuilder(
 
         val notEmptyBlocks = block.invokeIfNotEmpty()
         return if (notEmptyBlocks.isNotEmpty()) document.append(OR, notEmptyBlocks)
+        else document
+    }
+
+    fun or(
+        block: Document.() -> Document?,
+    ): Document {
+        if (rootOrOperatorChecks > 0) throw IllegalStateException("Root or operator can only be used once")
+        rootOrOperatorChecks++
+
+        val notEmptyBlock = invokeIfNotEmpty(block)
+        return if (notEmptyBlock != null) document.append(OR, notEmptyBlock)
         else document
     }
 
@@ -48,6 +70,17 @@ class DocumentOperatorBuilder(
         else document
     }
 
+    fun nor(
+        block: Document.() -> Document?,
+    ): Document {
+        if(rootNorOperatorChecks > 0) throw IllegalStateException("Root nor operator can only be used once")
+        rootNorOperatorChecks++
+
+        val notEmptyBlock = invokeIfNotEmpty(block)
+        return if (notEmptyBlock != null) document.append(NOR, notEmptyBlock)
+        else document
+    }
+
     fun not(
         vararg block: Document.() -> Document?,
     ): Document {
@@ -56,6 +89,17 @@ class DocumentOperatorBuilder(
 
         val notEmptyBlocks = block.invokeIfNotEmpty()
         return if (notEmptyBlocks.isNotEmpty()) document.append(NOT, notEmptyBlocks)
+        else document
+    }
+
+    fun not(
+        block: Document.() -> Document?,
+    ): Document {
+        if(rootNotOperatorChecks > 0) throw IllegalStateException("Root not operator can only be used once")
+        rootNotOperatorChecks++
+
+        val notEmptyBlock = invokeIfNotEmpty(block)
+        return if (notEmptyBlock != null) document.append(NOT, notEmptyBlock)
         else document
     }
 
@@ -70,6 +114,14 @@ class DocumentOperatorBuilder(
 
             document.append(this.name, Document().append(ELEM_MATCH, mergedDocument))
         } else document
+    }
+
+    fun EmbeddedDocument.elemMatch(
+        block: Document.() -> Document?,
+    ): Document {
+        val notEmptyBlock = invokeIfNotEmpty(block)
+        return if (notEmptyBlock != null) document.append(this.name, Document().append(ELEM_MATCH, notEmptyBlock))
+        else document
     }
 
     fun Document.and(
@@ -147,6 +199,13 @@ class DocumentOperatorBuilder(
             val doc = Document().it()
             doc?.ifEmpty { null }
         }
+
+    private fun invokeIfNotEmpty(
+        block: Document.() -> Document?,
+    ): Document? {
+        val doc = Document().block()
+        return doc?.ifEmpty { null }
+    }
 
     private fun run(
         block: DocumentOperatorBuilder.() -> Unit,

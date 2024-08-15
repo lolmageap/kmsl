@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 @SpringBootTest
 class EmbeddedDocumentTest(
     private val mongoTemplate: MongoTemplate,
-): StringSpec({
+) : StringSpec({
     beforeTest {
         mongoTemplate.insert(
             Author.of(
@@ -78,12 +78,12 @@ class EmbeddedDocumentTest(
 
     "내부 오브젝트 필드에 대한 연산" {
         val document = document {
-            embeddedDocument(Author::books).elemMatch({
+            embeddedDocument(Author::books).elemMatch {
                 or(
                     { field(Book::title) eq "book1" },
                     { field(Book::title) eq "book3" },
                 )
-            })
+            }
         }.orderBy(Author::id).asc()
 
         val authors = mongoTemplate.find(document, Author::class)
@@ -97,12 +97,12 @@ class EmbeddedDocumentTest(
 
     "일반 필드와 내부 오브젝트 필드에 대한 연산" {
         val document = document {
-            embeddedDocument(Author::books).elemMatch({
+            embeddedDocument(Author::books).elemMatch {
                 and(
                     { field(Book::title) `in` mutableListOf("book1", "book3") },
                     { field(Book::price) eq 10000L },
                 )
-            })
+            }
             and(
                 { field(Author::age) eq 10 },
                 { field(Author::status) eq Status.RETIREMENT },
