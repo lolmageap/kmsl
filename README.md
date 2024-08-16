@@ -195,7 +195,7 @@ val basicQuery = document {
     and { field(Author::name) eq "정철희" }
 }
 
-mongoTemplate.sum(basicQuery, Author::age)
+val sumOfAge: Long = mongoTemplate.sum(basicQuery, Author::age)
 ```
 
 만약 mongodb에 field가 string 타입이어도 숫자로 형변환하여 계산할 수 있습니다.  
@@ -207,8 +207,8 @@ val basicQuery = document {
     and { field(Author::name) eq "정철희" }
 }
 
-val ageGroup = basicQuery.groupBy(Author::age)
-mongoTemplate.sum(ageGroup, Author::phone, Double::class)
+val statusGroup = basicQuery.groupBy(Author::status)
+val statusToSumOfGroup: Map<Status, Double> = mongoTemplate.sum(statusGroup, Author::phone, Double::class)
 ```
 
 ## TODO
