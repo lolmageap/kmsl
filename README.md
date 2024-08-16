@@ -174,18 +174,14 @@ mongoTemplate.find(basicQuery, Author::class)
 정렬은 orderBy 함수를 사용하면 됩니다.
 ```kotlin
 val basicQuery = document {
-    and(
-        { field(Author::name) eq "정철희" },
-    )
+    and { field(Author::name) eq "정철희" }
 }.orderBy(Author::age).desc()
 ```
 
 아래처럼 여러 필드를 정렬할 수도 있습니다.
 ```kotlin
 val basicQuery = document {
-    and(
-        { field(Author::name) eq "정철희" },
-    )
+    and { field(Author::name) eq "정철희" }
 }.orderBy(Author::age).desc()
     .orderBy(Author::phone).asc()
 ```
@@ -196,9 +192,7 @@ grouping을 사용하면 간단한 통계 쿼리를 생성할 수 있습니다.
 ```kotlin
 // 이름이 정철희인 사람들의 나이의 합
 val basicQuery = document {
-    and(
-        { field(Author::name) eq "정철희" },
-    )
+    and { field(Author::name) eq "정철희" }
 }
 
 mongoTemplate.sum(basicQuery, Author::age)
@@ -210,9 +204,7 @@ mongoTemplate.sum(basicQuery, Author::age)
 // 이름이 정철희인 사람들의 나이별로 그룹합니다.
 // 이 그룹의 핸드폰 번호를 숫자(Double Type)로 형변환한 값의 합 
 val basicQuery = document {
-    and(
-        { field(Author::name) eq "정철희" },
-    )
+    and { field(Author::name) eq "정철희" }
 }
 
 val ageGroup = basicQuery.groupBy(Author::age)
