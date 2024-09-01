@@ -24,51 +24,70 @@ import kotlin.reflect.jvm.javaField
 
 class Field<T, R>(
     val key: KProperty1<T, R>,
-    private val document: Document,
+    private val documents: MutableList<Document>,
 ) {
     infix fun eq(value: R): Document {
-        return document.append(key.fieldName, value.convertIfId())
+        val document = Document(key.fieldName, value.convertIfId())
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun ne(value: R): Document {
-        return document.append(key.fieldName, Document(NOT_EQUAL, value.convertIfId()))
+        val document = Document(key.fieldName, Document(NOT_EQUAL, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun lt(value: R): Document {
-        return document.append(key.fieldName, Document(LESS_THAN, value.convertIfId()))
+        val document = Document(key.fieldName, Document(LESS_THAN, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun lte(value: R): Document {
-        return document.append(key.fieldName, Document(LESS_THAN_EQUAL, value.convertIfId()))
+        val document = Document(key.fieldName, Document(LESS_THAN_EQUAL, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun gt(value: R): Document {
-        return document.append(key.fieldName, Document(GREATER_THAN, value.convertIfId()))
+        val document = Document(key.fieldName, Document(GREATER_THAN, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun gte(value: R): Document {
-        return document.append(key.fieldName, Document(GREATER_THAN_EQUAL, value.convertIfId()))
+        val document = Document(key.fieldName, Document(GREATER_THAN_EQUAL, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun between(values: Pair<R?, R?>): Document {
         return when {
             values.first == null && values.second == null -> {
-                document
+                Document()
             }
 
             values.first == null -> {
-                document.append(key.fieldName, Document(LESS_THAN, values.second?.let { it.convertIfId() }))
+                val document = Document(key.fieldName, Document(GREATER_THAN, values.second?.let { it.convertIfId() }))
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
 
             values.second == null -> {
-                document.append(key.fieldName, Document(GREATER_THAN, values.first?.let { it.convertIfId() }))
+                val document = Document(key.fieldName, Document(LESS_THAN, values.first?.let { it.convertIfId() }))
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
 
             else -> {
-                document.append(
-                    key.fieldName, Document(LESS_THAN, values.first?.let { it.convertIfId() })
-                        .append(GREATER_THAN, values.second?.let { it.convertIfId() })
+                val document = Document(key.fieldName,
+                    Document(LESS_THAN, values.first?.let { it.convertIfId() }).append(
+                        GREATER_THAN,
+                        values.second?.let { it.convertIfId() })
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
         }
     }
@@ -76,30 +95,34 @@ class Field<T, R>(
     infix fun notBetween(values: Pair<R?, R?>): Document {
         return when {
             values.first == null && values.second == null -> {
-                document
+                Document()
             }
 
             values.first == null -> {
-                document.append(
-                    key.fieldName,
-                    Document(NOT, Document(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                val document = Document(
+                    key.fieldName, Document(NOT, Document(GREATER_THAN, values.second?.let { it.convertIfId() }))
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
 
             values.second == null -> {
-                document.append(
-                    key.fieldName,
-                    Document(NOT, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() }))
-                )
+                val document =
+                    Document(key.fieldName, Document(NOT, Document(LESS_THAN, values.first?.let { it.convertIfId() })))
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
 
             else -> {
-                document.append(
-                    key.fieldName, Document(
-                        NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })
-                            .append(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })
+                val document = Document(
+                    key.fieldName, Document(NOT,
+                        Document(LESS_THAN, values.first?.let { it.convertIfId() }).append(
+                            GREATER_THAN,
+                            values.second?.let { it.convertIfId() })
                     )
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
         }
     }
@@ -107,22 +130,31 @@ class Field<T, R>(
     infix fun betweenInclusive(values: Pair<R?, R?>): Document {
         return when {
             values.first == null && values.second == null -> {
-                document
+                Document()
             }
 
             values.first == null -> {
-                document.append(key.fieldName, Document(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                val document =
+                    Document(key.fieldName, Document(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                if (document.isNotEmpty()) documents.add(document)
+                return document
             }
 
             values.second == null -> {
-                document.append(key.fieldName, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                val document =
+                    Document(key.fieldName, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                if (document.isNotEmpty()) documents.add(document)
+                return document
             }
 
             else -> {
-                document.append(
-                    key.fieldName, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })
-                        .append(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })
+                val document = Document(key.fieldName,
+                    Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }).append(
+                        GREATER_THAN_EQUAL,
+                        values.second?.let { it.convertIfId() })
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                return document
             }
         }
     }
@@ -130,92 +162,124 @@ class Field<T, R>(
     infix fun notBetweenInclusive(values: Pair<R?, R?>): Document {
         return when {
             values.first == null && values.second == null -> {
-                document
+                Document()
             }
 
             values.first == null -> {
-                document.append(
-                    key.fieldName,
-                    Document(NOT, Document(LESS_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                val document = Document(
+                    key.fieldName, Document(NOT, Document(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
 
             values.second == null -> {
-                document.append(
-                    key.fieldName,
-                    Document(NOT, Document(GREATER_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                val document = Document(
+                    key.fieldName, Document(NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
 
             else -> {
-                document.append(
-                    key.fieldName, Document(
-                        NOT, Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() })
-                            .append(GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() })
+                val document = Document(
+                    key.fieldName, Document(NOT,
+                        Document(LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }).append(
+                            GREATER_THAN_EQUAL,
+                            values.second?.let { it.convertIfId() })
                     )
                 )
+                if (document.isNotEmpty()) documents.add(document)
+                document
             }
         }
     }
 
     infix fun `in`(values: Iterable<R>): Document {
-        return document.append(key.fieldName, Document(IN, values.map { it.convertIfId() }))
+        val document = Document(key.fieldName, Document(IN, values.map { it.convertIfId() }))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun `in`(values: R): Document {
-        return document.append(key.fieldName, Document(IN, values.convertIfId()))
+        val document = Document(key.fieldName, Document(IN, values.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun notIn(values: Iterable<R>): Document {
-        return document.append(key.fieldName, Document(NOT_IN, values.map { it.convertIfId() }))
+        val document = Document(key.fieldName, Document(NOT_IN, values.map { it.convertIfId() }))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun notIn(values: R): Document {
-        return document.append(key.fieldName, Document(NOT_IN, values.convertIfId()))
+        val document = Document(key.fieldName, Document(NOT_IN, values.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun contains(value: R): Document {
-        return document.append(key.fieldName, Document(REGEX, value.convertIfId()))
+        val document = Document(key.fieldName, Document(REGEX, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun containsIgnoreCase(value: R): Document {
-        return document.append(key.fieldName, Document(REGEX, value.convertIfId()).append(OPTIONS, CASE_INSENSITIVE))
+        val document = Document(key.fieldName, Document(REGEX, value.convertIfId()).append(OPTIONS, CASE_INSENSITIVE))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun containsNot(value: R): Document {
-        return document.append(key.fieldName, Document(NOT, Document(REGEX, value.convertIfId())))
+        val document = Document(key.fieldName, Document(NOT, Document(REGEX, value.convertIfId())))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun containsNotIgnoreCase(value: R): Document {
-        return document.append(
-            key.fieldName,
-            Document(NOT, Document(REGEX, value.convertIfId()).append(OPTIONS, CASE_INSENSITIVE))
+        val document = Document(
+            key.fieldName, Document(NOT, Document(REGEX, value.convertIfId()).append(OPTIONS, CASE_INSENSITIVE))
         )
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun startsWith(value: R): Document {
-        return document.append(key.fieldName, Document(REGEX, "^${value.convertIfId()}"))
+        val document = Document(key.fieldName, Document(REGEX, "^${value.convertIfId()}"))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun endsWith(value: R): Document {
-        return document.append(key.fieldName, Document(REGEX, "${value.convertIfId()}$"))
+        val document = Document(key.fieldName, Document(REGEX, "${value.convertIfId()}$"))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun match(value: R): Document {
-        return document.append(key.fieldName, Document(MATCH, value.convertIfId()))
+        val document = Document(key.fieldName, Document(MATCH, value.convertIfId()))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     // 이 아래 3개의 operator는 테스트가 더 필요하다.
     infix fun all(value: Iterable<R>): Document {
-        return document.append(key.fieldName, Document(ALL, value.map { it.convertIfId() }))
+        val document = Document(key.fieldName, Document(ALL, value.map { it.convertIfId() }))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun size(value: Int): Document {
-        return document.append(key.fieldName, Document(SIZE, value))
+        val document = Document(key.fieldName, Document(SIZE, value))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     infix fun exists(value: Boolean): Document {
-        return document.append(key.fieldName, Document(EXISTS, value))
+        val document = Document(key.fieldName, Document(EXISTS, value))
+        if (document.isNotEmpty()) documents.add(document)
+        return document
     }
 
     private val KProperty1<T, R>.fieldName: String
