@@ -91,11 +91,9 @@ fun findAuthors(
     maxAge: Int?,
 ): List<Author> {
     val document = document {
-        and(
-            { field(Author::name) `in` names },
-            { field(Author::age) between (minAge to maxAge) },
-            { nickname?.let { field(Author::nickname) contains it } },
-        )
+        field(Author::name) `in` names
+        field(Author::age) between (minAge to maxAge)
+        nickname?.let { field(Author::nickname) contains it }
     }
 
     return mongoTemplate.find(document, Author::class)
@@ -114,55 +112,45 @@ mongoTemplate.find(basicQuery, Author::class)
 ```
 
 #### field
-document scope 에서 and, or, nor, not을 사용하면 field를 함수 형태로 넘길 수 있습니다.
+document scope 에서 and, or, nor을 사용하면 field를 함수 형태로 넘길 수 있습니다.
 field 객체는 Expression 을 생성할 수 있습니다.
 
 ```kotlin
 
 val basicQuery = document {
-    and(
-        { field(Author::name) eq "정철희" },
-        { field(Author::age) ne 25 },
-    )
+    field(Author::name) eq "정철희"
+    field(Author::age) ne 25
 }
 
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
 ```kotlin
-val basicQuery = document {
-    or(
-        { field(Author::name) `in` ["정철희", "정원희"] },
-        { field(Author::age) between (25 to 30) },
-    )
+val basicQuery = document(OR) {
+    field(Author::name) `in` ["정철희", "정원희"]
+    field(Author::age) between (25 to 30)
 }
 ```
 
 and, or, nor, not 인자 안에 함수 scope 내부는 and 연산으로 처리됩니다.
 ```kotlin
-val basicQuery = document {
-    or(
-        {
-            and(
-                { field(Author::name) eq "정철희" },
-                { field(Author::age) eq 25 },
-                { field(Author::phone) eq "010-1234-5678" },
-            )
-        },
-        {
-            and(
-                { field(Author::name) eq "정원희" },
-                { field(Author::age) eq 30 },
-                { field(Author::phone) eq "010-5678-1234" },
-            )
-        },
-    )
+val basicQuery = document(OR) {
+    and {
+        field(Author::name) eq "정철희"
+        field(Author::age) eq 25
+        field(Author::phone) eq "010-1234-5678"
+    }
+    and {
+        field(Author::name) eq "정원희"
+        field(Author::age) eq 30
+        field(Author::phone) eq "010-5678-1234"
+    }
 }
 
 /**
  * 위의 코드는 아래와 같은 쿼리를 생성합니다.
- * ( 정철희 and 25 and 010-1234-5678 ) 
- * or 
+ * ( 정철희 and 25 and 010-1234-5678 )
+ * or
  * ( 정원희 and 30 and 010-5678-1234 )
  */
 
@@ -174,14 +162,14 @@ mongoTemplate.find(basicQuery, Author::class)
 정렬은 orderBy 함수를 사용하면 됩니다.
 ```kotlin
 val basicQuery = document {
-    and { field(Author::name) eq "정철희" }
+    field(Author::name) eq "정철희"
 }.orderBy(Author::age).desc()
 ```
 
 아래처럼 여러 필드를 정렬할 수도 있습니다.
 ```kotlin
 val basicQuery = document {
-    and { field(Author::name) eq "정철희" }
+    field(Author::name) eq "정철희"
 }.orderBy(Author::age).desc()
     .orderBy(Author::phone).asc()
 ```
@@ -192,7 +180,7 @@ grouping을 사용하면 간단한 통계 쿼리를 생성할 수 있습니다.
 ```kotlin
 // 이름이 정철희인 사람들의 나이의 합
 val basicQuery = document {
-    and { field(Author::name) eq "정철희" }
+    field(Author::name) eq "정철희"
 }
 
 val sumOfAge: Long = mongoTemplate.sum(basicQuery, Author::age)
@@ -204,7 +192,7 @@ val sumOfAge: Long = mongoTemplate.sum(basicQuery, Author::age)
 // 이름이 정철희인 사람들의 나이별로 그룹합니다.
 // 이 그룹의 핸드폰 번호를 숫자(Double Type)로 형변환한 값의 합 
 val basicQuery = document {
-    and { field(Author::name) eq "정철희" }
+    field(Author::name) eq "정철희"
 }
 
 val statusGroup = basicQuery.groupBy(Author::status)
