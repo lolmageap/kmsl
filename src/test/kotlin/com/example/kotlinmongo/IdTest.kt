@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 @SpringBootTest
 class IdTest(
     private val mongoTemplate: MongoTemplate,
-): StringSpec({
+) : StringSpec({
     "id 값으로 조회" {
         val author = mongoTemplate.insert(
             Author.of(
@@ -27,7 +27,7 @@ class IdTest(
         )
 
         val document = document {
-            and { field(Author::id) eq author.id }
+            field(Author::id) eq author.id
         }
 
         val result = mongoTemplate.find(document, Author::class).first()

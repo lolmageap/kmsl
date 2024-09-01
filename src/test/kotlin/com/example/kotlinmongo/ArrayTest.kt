@@ -83,8 +83,7 @@ class ArrayTest(
         )
 
         val document = document {
-            and { field(Author::books) eq books }
-
+            field(Author::books) eq books
         }
 
         val author = mongoTemplate.find(document, Author::class).first()
@@ -96,7 +95,7 @@ class ArrayTest(
         val book = mutableListOf(createBook("book1"))
 
         val document = document {
-            and { field(Author::books) `in` book }
+            field(Author::books) `in` book
         }
 
         val author = mongoTemplate.find(document, Author::class).first()

@@ -1,6 +1,7 @@
 package com.example.kotlinmongo
 
 import com.example.kotlinmongo.collection.Author
+import com.example.kotlinmongo.extension.RootDocumentOperator.OR
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.field
 import io.kotest.core.spec.style.StringSpec
@@ -10,10 +11,8 @@ import org.springframework.data.mongodb.core.query.BasicQuery
 class FieldTest : StringSpec({
     "equal 연산 테스트" {
         val document = document {
-            and(
-                { field(Author::name) eq "John" },
-                { field(Author::age) eq 18 },
-            )
+            field(Author::name) eq "John"
+            field(Author::age) eq 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
@@ -21,10 +20,8 @@ class FieldTest : StringSpec({
 
     "not equal 연산 테스트" {
         val document = document {
-            and(
-                { field(Author::name) ne "John" },
-                { field(Author::age) ne 18 }
-            )
+            field(Author::name) ne "John"
+            field(Author::age) ne 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$ne\" : \"John\"}}, { \"age\" : {\"\$ne\" : 18}}]}")
@@ -32,7 +29,7 @@ class FieldTest : StringSpec({
 
     "greater than 연산 테스트" {
         val document = document {
-            and { field(Author::age) gt 18 }
+            field(Author::age) gt 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gt\" : 18}}]}")
@@ -40,7 +37,7 @@ class FieldTest : StringSpec({
 
     "greater than or equal 연산 테스트" {
         val document = document {
-            and { field(Author::age) gte 18 }
+            field(Author::age) gte 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gte\" : 18}}]}")
@@ -48,7 +45,7 @@ class FieldTest : StringSpec({
 
     "less than 연산 테스트" {
         val document = document {
-            and { field(Author::age) lt 18 }
+            field(Author::age) lt 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18}}]}")
@@ -56,7 +53,7 @@ class FieldTest : StringSpec({
 
     "less than or equal 연산 테스트" {
         val document = document {
-            and { field(Author::age) lte 18 }
+            field(Author::age) lte 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lte\" : 18}}]}")
@@ -64,7 +61,7 @@ class FieldTest : StringSpec({
 
     "between 연산 테스트" {
         val document = document {
-            and { field(Author::age) between (18 to 30) }
+            field(Author::age) between (18 to 30)
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18, \"\$gt\" : 30}}]}")
@@ -72,7 +69,7 @@ class FieldTest : StringSpec({
 
     "between inclusive 연산 테스트" {
         val document = document {
-            and { field(Author::age) betweenInclusive (18 to 30) }
+            field(Author::age) betweenInclusive (18 to 30)
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lte\" : 18, \"\$gte\" : 30}}]}")
@@ -80,10 +77,8 @@ class FieldTest : StringSpec({
 
     "greater than and less than or equal 연산 테스트" {
         val document = document {
-            and(
-                { field(Author::age) gt 18 },
-                { field(Author::age) lte 30 },
-            )
+            field(Author::age) gt 18
+            field(Author::age) lte 30
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : { \"\$gt\" : 18}}, { \"age\" : { \"\$lte\" : 30}}]}")
@@ -91,10 +86,8 @@ class FieldTest : StringSpec({
 
     "greater than or equal and less than 연산 테스트" {
         val document = document {
-            and(
-                { field(Author::age) gte 18 },
-                { field(Author::age) lt 30 },
-            )
+            field(Author::age) gte 18
+            field(Author::age) lt 30
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : { \"\$gte\" : 18}}, { \"age\" : { \"\$lt\" : 30}}]}")
@@ -102,7 +95,7 @@ class FieldTest : StringSpec({
 
     "in 연산 테스트" {
         val document = document {
-            and { field(Author::age) `in` listOf(18, 19, 20) }
+            field(Author::age) `in` listOf(18, 19, 20)
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$in\" : [18, 19, 20]}}]}")
@@ -110,7 +103,7 @@ class FieldTest : StringSpec({
 
     "not in 연산 테스트" {
         val document = document {
-            and { field(Author::age) notIn listOf(18, 19, 20) }
+            field(Author::age) notIn listOf(18, 19, 20)
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$nin\" : [18, 19, 20]}}]}")
@@ -118,7 +111,7 @@ class FieldTest : StringSpec({
 
     "contains 연산 테스트" {
         val document = document {
-            and { field(Author::name) contains "John" }
+            field(Author::name) contains "John"
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$regex\" : \"John\"}}]}")
@@ -126,7 +119,7 @@ class FieldTest : StringSpec({
 
     "contains not 연산 테스트" {
         val document = document {
-            and { field(Author::name) containsNot "John" }
+            field(Author::name) containsNot "John"
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$not\" : {\"\$regex\" : \"John\"}}}]}")
@@ -134,7 +127,7 @@ class FieldTest : StringSpec({
 
     "starts with 연산 테스트" {
         val document = document {
-            and { field(Author::name) startsWith "John" }
+            field(Author::name) startsWith "John"
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$regex\" : \"^John\"}}]}")
@@ -142,7 +135,7 @@ class FieldTest : StringSpec({
 
     "ends with 연산 테스트" {
         val document = document {
-            and { field(Author::name) endsWith "John" }
+            field(Author::name) endsWith "John"
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$regex\" : \"John$\"}}]}")
@@ -150,28 +143,22 @@ class FieldTest : StringSpec({
 
     "match 연산 테스트" {
         val document = document {
-            and { field(Author::name) match "John" }
+            field(Author::name) match "John"
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$match\" : \"John\"}}]}")
     }
 
     "or 연산 테스트" {
-        val document = document {
-            or(
-                {
-                    and(
-                        { field(Author::name) eq "John" },
-                        { field(Author::age) eq 18 },
-                    )
-                },
-                {
-                    and(
-                        { field(Author::name) eq "Any" },
-                        { field(Author::age) eq 81 },
-                    )
-                },
-            )
+        val document = document(OR) {
+            and {
+                field(Author::name) eq "John"
+                field(Author::age) eq 18
+            }
+            and {
+                field(Author::name) eq "Any"
+                field(Author::age) eq 81
+            }
         }
 
         document shouldBe BasicQuery("{ \"\$or\" : [ { \"\$and\" : [ { \"name\" : \"John\" }, { \"age\" : 18 } ] }, { \"\$and\" : [ { \"name\" : \"Any\" }, { \"age\" : 81 } ] } ] }")
