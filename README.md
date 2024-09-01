@@ -216,3 +216,28 @@ val statusToSumOfGroup: Map<Status, Double> = mongoTemplate.sum(statusGroup, Aut
 - [x] and operator 와 or operator 와 document scope 를 하나로 합치자.
 - [x] 정렬을 구현하여 사용할 수 있도록 하자.
 - [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
+- [ ] groupBy도 함수식으로 변경하자.
+- [ ] orderBy도 함수식으로 변경하자.
+
+
+### TODO 예시 
+```kotlin
+
+val basicQuery = document {
+    field(Author::name) eq "정철희"
+} order {
+    field(Author::age) by DESC
+    field(Author::phone) by ASC
+} group {
+    field(Author::age) by SINGLE
+} sum {
+    field(Author::phone) alias "phoneSum" type Double::class
+} max {
+    field(Author::phone) alias "phoneMax" type Double::class
+}
+
+// groupBy 예시 2
+group {
+    field(Author::age) and field(Author::phone)
+}
+```
