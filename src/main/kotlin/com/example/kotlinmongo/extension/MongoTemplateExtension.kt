@@ -50,19 +50,19 @@ fun <T : Any> MongoTemplate.count(
     entityClass: KClass<T>,
 ): Long = count(query, entityClass.java)
 
-inline fun <T : Any, reified K : Any> MongoTemplate.count(
-    group: Group<T, K>,
-    entityClass: KClass<T>,
-    alias: String = "count",
-): Map<K, Long> {
-    val aggregation = group.count()
-    return aggregate(aggregation, entityClass.java, Map::class.java)
-        .mappedResults.associate { result ->
-            val key = castIfEnum<K, T>(result, entityClass)
-            val value = result[alias] as Int
-            key to value.toLong()
-        }
-}
+//inline fun <T : Any, reified K : Any> MongoTemplate.count(
+//    group: Group<T, K>,
+//    entityClass: KClass<T>,
+//    alias: String = "count",
+//): Map<K, Long> {
+//    val aggregation = group.count()
+//    return aggregate(aggregation, entityClass.java, Map::class.java)
+//        .mappedResults.associate { result ->
+//            val key = castIfEnum<K, T>(result, entityClass)
+//            val value = result[alias] as Int
+//            key to value.toLong()
+//        }
+//}
 
 //inline fun <reified T : Any, reified R : Any> MongoTemplate.sum(
 //    query: BasicQuery,
