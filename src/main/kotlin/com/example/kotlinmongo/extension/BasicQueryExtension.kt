@@ -1,20 +1,49 @@
 package com.example.kotlinmongo.extension
 
-import com.example.kotlinmongo.clazz.EmptyGroup
-import com.example.kotlinmongo.clazz.Field
-import com.example.kotlinmongo.clazz.Group
-import com.example.kotlinmongo.clazz.Order
+import com.example.kotlinmongo.clazz.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
-fun <T, R> BasicQuery.groupBy(
+//fun <T, R> BasicQuery.groupBy(
+//    key: KProperty1<T, R>,
+//) = Group(
+//    key,
+//    this.queryObject.copy(),
+//)
+
+infix fun <T, R> BasicQuery.group(
+    block: Group<T, R>.() -> Unit,
+): Group<T, R> {
+    val group = Group<T, R>(this.queryObject.copy())
+    group.block()
+    return group
+}
+
+fun <T, R> Group<T, R>.field(
     key: KProperty1<T, R>,
-) = Group(
-    key,
-    this.queryObject.copy(),
-)
+) = Field(key, mutableListOf())
+
+fun <T, R> Group.Sum.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
+
+fun <T, R> Group.Average.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
+
+fun <T, R> Group.Max.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
+
+fun <T, R> Group.Min.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
+
+fun <T, R> Group.Count.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
 
 fun BasicQuery.groupBy() = EmptyGroup(
     this.queryObject.copy(),
