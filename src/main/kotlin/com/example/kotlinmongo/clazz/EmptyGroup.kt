@@ -1,8 +1,10 @@
 package com.example.kotlinmongo.clazz
 
 import org.bson.Document
+import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.AggregationExpression
+import org.springframework.data.mongodb.core.aggregation.GroupOperation
 import org.springframework.data.mongodb.core.aggregation.MatchOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import kotlin.reflect.KClass
@@ -10,118 +12,156 @@ import kotlin.reflect.KClass
 class EmptyGroup(
     private val document: Document,
 ) {
-    fun sumOf(
-        type: KClass<*>? = null,
-        alias: String = "total",
-        sumField: Document.() -> Field<*, *>,
-    ): Aggregation {
-        val fieldName = sumField.invoke(Document()).key.name
-        return if (type == null) {
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().sum("\$$fieldName").`as`(alias),
-            )
-        } else {
-            val expression = AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$$fieldName")
+    class Sum(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.type(
+            type: KClass<*>,
+        ) =
+            AggregationExpression {
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
             }
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().sum(expression).`as`(alias),
-            )
-        }
+
+        infix fun AggregationExpression.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.sum(this).`as`(value))
+
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.sum(this.key.toDotPath()).`as`(value))
     }
 
-    fun avgOf(
-        type: KClass<*>? = null,
-        alias: String = "avg",
-        avgField: Document.() -> Field<*, *>,
-    ): Aggregation {
-        val fieldName = avgField.invoke(Document()).key.name
-
-        return if (type == null) {
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().avg("\$$fieldName").`as`(alias),
-            )
-        } else {
-            val expression = AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$$fieldName")
+    class Average(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.type(
+            type: KClass<*>,
+        ) =
+            AggregationExpression {
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
             }
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().avg(expression).`as`(alias),
-            )
-        }
+
+        infix fun AggregationExpression.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.avg(this).`as`(value))
+
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
-    fun maxOf(
-        type: KClass<*>? = null,
-        alias: String = "max",
-        maxField: Document.() -> Field<*, *>,
-    ): Aggregation {
-        val fieldName = maxField.invoke(Document()).key.name
-        return if (type == null) {
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().max("\$$fieldName").`as`(alias),
-            )
-        } else {
-            val expression = AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$$fieldName")
+    class Max(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.type(
+            type: KClass<*>,
+        ) =
+            AggregationExpression {
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
             }
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().max(expression).`as`(alias),
-            )
-        }
+
+        infix fun AggregationExpression.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.max(this).`as`(value))
+
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
-    fun minOf(
-        type: KClass<*>? = null,
-        alias: String = "min",
-        minField: Document.() -> Field<*, *>,
-    ): Aggregation {
-        val fieldName = minField.invoke(Document()).key.name
-        return if (type == null) {
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().min("\$$fieldName").`as`(alias),
-            )
-        } else {
-            val expression = AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$$fieldName")
+    class Min(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.type(
+            type: KClass<*>,
+        ) =
+            AggregationExpression {
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
             }
-            val matchStage = document.matchOperation()
-            Aggregation.newAggregation(
-                matchStage,
-                Aggregation.group().min(expression).`as`(alias),
-            )
-        }
+
+        infix fun AggregationExpression.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.min(this).`as`(value))
+
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
-    fun count(
-        alias: String = "count",
-    ): Aggregation {
-        val matchStage = document.matchOperation()
-        return Aggregation.newAggregation(
-            matchStage,
-            Aggregation.group().count().`as`(alias),
-        )
+    class Count(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.type(
+            type: KClass<*>,
+        ) =
+            AggregationExpression {
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
+            }
+
+        infix fun AggregationExpression.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.count().`as`(value))
+
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.count().`as`(value))
     }
 
-    private fun Document.matchOperation(): MatchOperation {
-        val criteria = Criteria()
-        for ((key, value) in this) {
-            criteria.and(key).`is`(value)
+    class GroupOperationWrapper(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        fun toAggregation(): Aggregation {
+            val matchOperation = document.matchOperation()
+            return Aggregation.newAggregation(matchOperation, groupOperation)
         }
-        return Aggregation.match(criteria)
+
+        infix fun sum(
+            block: Sum.() -> GroupOperationWrapper,
+        ) =
+            Sum(document, this.groupOperation).block()
+
+        infix fun average(
+            block: Average.() -> GroupOperationWrapper,
+        ) =
+            Average(document, this.groupOperation).block()
+
+        infix fun max(
+            block: Max.() -> GroupOperationWrapper,
+        ) =
+            Max(document, this.groupOperation).block()
+
+        infix fun min(
+            block: Min.() -> GroupOperationWrapper,
+        ) =
+            Min(document, this.groupOperation).block()
+
+        infix fun count(
+            block: Count.() -> GroupOperationWrapper,
+        ) =
+            Count(document, this.groupOperation).block()
+
+        private fun Document.matchOperation(): MatchOperation {
+            val criteria = Criteria()
+            for ((key, value) in this) {
+                criteria.and(key).`is`(value)
+            }
+            return Aggregation.match(criteria)
+        }
     }
 }
