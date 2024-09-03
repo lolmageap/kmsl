@@ -1,17 +1,12 @@
 package com.example.kotlinmongo.extension
 
-import com.example.kotlinmongo.clazz.*
-import org.bson.Document
+import com.example.kotlinmongo.clazz.EmptyGroup
+import com.example.kotlinmongo.clazz.Field
+import com.example.kotlinmongo.clazz.Group
+import com.example.kotlinmongo.clazz.Order
+import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-
-//fun <T, R> BasicQuery.groupBy(
-//    key: KProperty1<T, R>,
-//) = Group(
-//    key,
-//    this.queryObject.copy(),
-//)
 
 infix fun <T, R> BasicQuery.group(
     block: Group<T, R>.() -> Unit,
@@ -45,45 +40,54 @@ fun <T, R> Group.Count.field(
     key: KProperty1<T, R>,
 ) = Field(key, mutableListOf())
 
-fun BasicQuery.groupBy() = EmptyGroup(
-    this.queryObject.copy(),
-)
+fun <T, R> EmptyGroup.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
 
-fun BasicQuery.sumOf(
-    alias: String,
-    type: KClass<*>? = null,
-    sumField: Document.() -> Field<*, *>,
-) =
-    EmptyGroup(
-        this.queryObject.copy()
-    ).sumOf(type) { sumField.invoke(Document()) }
+fun <T, R> EmptyGroup.Sum.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
 
-fun BasicQuery.avgOf(
-    alias: String,
-    type: KClass<*>? = null,
-    avgField: Document.() -> Field<*, *>,
-) =
-    EmptyGroup(
-        this.queryObject.copy()
-    ).avgOf(type) { avgField.invoke(Document()) }
+fun <T, R> EmptyGroup.Average.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
 
-fun BasicQuery.maxOf(
-    alias: String,
-    type: KClass<*>? = null,
-    maxField: Document.() -> Field<*, *>,
-) =
-    EmptyGroup(
-        this.queryObject.copy()
-    ).maxOf(type) { maxField.invoke(Document()) }
+fun <T, R> EmptyGroup.Max.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
 
-fun <T, R> BasicQuery.minOf(
-    alias: String,
-    type: KClass<*>? = null,
-    minField: Document.() -> Field<T, R>,
+fun <T, R> EmptyGroup.Min.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
+
+fun <T, R> EmptyGroup.Count.field(
+    key: KProperty1<T, R>,
+) = Field(key, mutableListOf())
+
+infix fun BasicQuery.sum(
+    block: EmptyGroup.Sum.() -> EmptyGroup.GroupOperationWrapper,
 ) =
-    EmptyGroup(
-        this.queryObject.copy()
-    ).minOf(type) { minField.invoke(Document()) }
+    EmptyGroup.Sum(this.queryObject.copy(), Aggregation.group()).block()
+
+infix fun BasicQuery.average(
+    block: EmptyGroup.Average.() -> EmptyGroup.GroupOperationWrapper,
+) =
+    EmptyGroup.Average(this.queryObject.copy(), Aggregation.group()).block()
+
+infix fun BasicQuery.max(
+    block: EmptyGroup.Max.() -> EmptyGroup.GroupOperationWrapper,
+) =
+    EmptyGroup.Max(this.queryObject.copy(), Aggregation.group()).block()
+
+infix fun BasicQuery.min(
+    block: EmptyGroup.Min.() -> EmptyGroup.GroupOperationWrapper,
+) =
+    EmptyGroup.Min(this.queryObject.copy(), Aggregation.group()).block()
+
+infix fun BasicQuery.count(
+    block: EmptyGroup.Count.() -> EmptyGroup.GroupOperationWrapper,
+) =
+    EmptyGroup.Count(this.queryObject.copy(), Aggregation.group()).block()
 
 fun BasicQuery.orderBy(
     key: KProperty1<*, *>,
