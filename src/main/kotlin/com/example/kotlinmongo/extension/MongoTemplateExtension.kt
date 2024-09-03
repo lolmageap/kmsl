@@ -1,8 +1,7 @@
 package com.example.kotlinmongo.extension
 
+import com.example.kotlinmongo.clazz.EmptyGroup
 import com.example.kotlinmongo.clazz.Group
-import com.example.kotlinmongo.clazz.cast
-import com.example.kotlinmongo.clazz.castIfEnum
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -11,7 +10,6 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty1
 
 fun <T : Any> MongoTemplate.find(
     query: BasicQuery,
@@ -49,6 +47,31 @@ fun <T : Any> MongoTemplate.count(
     query: BasicQuery,
     entityClass: KClass<T>,
 ): Long = count(query, entityClass.java)
+
+// 현재 키가 Any 타입인데 String 타입으로 변환하는 방법을 찾아야 합니다.
+fun <T : Any> MongoTemplate.aggregate(
+    group: Group.GroupOperationWrapper,
+    entityClass: KClass<T>,
+): Map<String, *> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).uniqueMappedResult!!.map {
+        it.key.toString() to it.value
+    }.toMap()
+
+fun <T : Any> MongoTemplate.aggregate(
+    group: EmptyGroup.GroupOperationWrapper,
+    entityClass: KClass<T>,
+): Map<String, *> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).uniqueMappedResult!!.map {
+        it.key.toString() to it.value
+    }.toMap()
 
 //inline fun <T : Any, reified K : Any> MongoTemplate.count(
 //    group: Group<T, K>,
