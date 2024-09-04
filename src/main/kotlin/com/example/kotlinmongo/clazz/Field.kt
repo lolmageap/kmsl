@@ -3,13 +3,14 @@ package com.example.kotlinmongo.clazz
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.mapping.Field
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
 
 class Field<T, R>(
     val key: KProperty1<T, R>,
-    val documents: MutableList<Document>,
+    val documents: MutableList<Document> = mutableListOf(),
 ) {
     val KProperty1<T, R>.fieldName: String
         get() {
@@ -21,7 +22,7 @@ class Field<T, R>(
                 val hasFieldAnnotation = javaField.annotations.any { it is Field }
                 if (hasFieldAnnotation) javaField.annotations.filterIsInstance<Field>().first().value
                 else "_id"
-            } else this.name
+            } else this.toDotPath()
         }
 
     fun R.convertIfId(): Any? {
@@ -34,3 +35,63 @@ class Field<T, R>(
         else this
     }
 }
+
+fun <T, R> DocumentOperatorBuilder.RootDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents)
+
+fun <T, R> DocumentOperatorBuilder.AndDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents)
+
+fun <T, R> DocumentOperatorBuilder.OrDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents)
+
+fun <T, R> DocumentOperatorBuilder.NorDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents)
+
+fun <T, R> Group<T, R>.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> Group.Sum.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> Group.Average.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> Group.Max.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> Group.Min.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> EmptyGroup.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> EmptyGroup.Sum.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> EmptyGroup.Average.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> EmptyGroup.Max.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> EmptyGroup.Min.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> Order.field(
+    key: KProperty1<T, R>,
+) = Field(key)

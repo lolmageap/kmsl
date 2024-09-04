@@ -1,10 +1,10 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.extension.RootDocumentOperator.NOR
 import com.example.kotlinmongo.extension.RootDocumentOperator.OR
 import com.example.kotlinmongo.extension.document
-import com.example.kotlinmongo.extension.field
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.data.mongodb.core.query.BasicQuery
