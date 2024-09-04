@@ -48,9 +48,8 @@ fun <T : Any> MongoTemplate.count(
     entityClass: KClass<T>,
 ): Long = count(query, entityClass.java)
 
-// 현재 키가 Any 타입인데 String 타입으로 변환하는 방법을 찾아야 합니다.
-fun <T : Any> MongoTemplate.aggregate(
-    group: Group.GroupOperationWrapper,
+fun <T : Any, R : Any> MongoTemplate.count(
+    group: Group<T, R>,
     entityClass: KClass<T>,
 ): Map<String, *> =
     this.aggregate(
@@ -60,6 +59,33 @@ fun <T : Any> MongoTemplate.aggregate(
     ).uniqueMappedResult!!.map {
         it.key.toString() to it.value
     }.toMap()
+
+fun <T : Any> MongoTemplate.count(
+    group: EmptyGroup.GroupOperationWrapper,
+    entityClass: KClass<T>,
+): Map<String, *> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).uniqueMappedResult!!.map {
+        it.key.toString() to it.value
+    }.toMap()
+
+// 현재 키가 Any 타입인데 String 타입으로 변환하는 방법을 찾아야 합니다.
+fun <T : Any> MongoTemplate.aggregate(
+    group: Group.GroupOperationWrapper,
+    entityClass: KClass<T>,
+): List<Map<String, *>> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).mappedResults.map { results ->
+        results.map {
+            it.key.toString() to it.value
+        }.toMap()
+    }
 
 fun <T : Any> MongoTemplate.aggregate(
     group: EmptyGroup.GroupOperationWrapper,
