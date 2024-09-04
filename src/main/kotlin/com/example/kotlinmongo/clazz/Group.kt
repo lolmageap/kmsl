@@ -1,12 +1,11 @@
 package com.example.kotlinmongo.clazz
 
+import com.example.kotlinmongo.extension.matchOperation
 import org.bson.Document
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.AggregationExpression
 import org.springframework.data.mongodb.core.aggregation.GroupOperation
-import org.springframework.data.mongodb.core.aggregation.MatchOperation
-import org.springframework.data.mongodb.core.query.Criteria
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
@@ -106,16 +105,6 @@ open class Group<T, R>(
             GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
-    class Count(
-        private val document: Document,
-        private val groupOperation: GroupOperation,
-    ) {
-        infix fun alias(
-            value: String,
-        ) =
-            GroupOperationWrapper(document, groupOperation.count().`as`(value))
-    }
-
     infix fun Field<T, R>.by(
         type: GroupType,
     ) {
@@ -157,19 +146,6 @@ open class Group<T, R>(
             block: Min.() -> GroupOperationWrapper,
         ) =
             Min(document, this.groupOperation).block()
-
-        infix fun count(
-            block: Count.() -> GroupOperationWrapper,
-        ) =
-            Count(document, this.groupOperation).block()
-
-        private fun Document.matchOperation(): MatchOperation {
-            val criteria = Criteria()
-            for ((key, value) in this) {
-                criteria.and(key).`is`(value)
-            }
-            return Aggregation.match(criteria)
-        }
     }
 
     infix fun sum(
@@ -179,17 +155,21 @@ open class Group<T, R>(
 
     infix fun average(
         block: Average.() -> GroupOperationWrapper,
-    ) = Average(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+    ) =
+        Average(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
 
     infix fun max(
         block: Max.() -> GroupOperationWrapper,
-    ) = Max(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+    ) =
+        Max(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
 
     infix fun min(
         block: Min.() -> GroupOperationWrapper,
-    ) = Min(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+    ) =
+        Min(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
 
-    infix fun count(
-        block: Count.() -> GroupOperationWrapper,
-    ) = Count(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+    fun toAggregation(): Aggregation {
+        val matchOperation = document.matchOperation()
+        return Aggregation.newAggregation(matchOperation, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray()))
+    }
 }

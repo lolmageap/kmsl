@@ -1,12 +1,11 @@
 package com.example.kotlinmongo.clazz
 
+import com.example.kotlinmongo.extension.matchOperation
 import org.bson.Document
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.AggregationExpression
 import org.springframework.data.mongodb.core.aggregation.GroupOperation
-import org.springframework.data.mongodb.core.aggregation.MatchOperation
-import org.springframework.data.mongodb.core.query.Criteria
 import kotlin.reflect.KClass
 
 class EmptyGroup(
@@ -100,28 +99,6 @@ class EmptyGroup(
             GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
-    class Count(
-        private val document: Document,
-        private val groupOperation: GroupOperation,
-    ) {
-        infix fun <T, R> Field<T, R>.type(
-            type: KClass<*>,
-        ) =
-            AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
-            }
-
-        infix fun AggregationExpression.alias(
-            value: String,
-        ) =
-            GroupOperationWrapper(document, groupOperation.count().`as`(value))
-
-        infix fun <T, R> Field<T, R>.alias(
-            value: String,
-        ) =
-            GroupOperationWrapper(document, groupOperation.count().`as`(value))
-    }
-
     class GroupOperationWrapper(
         private val document: Document,
         private val groupOperation: GroupOperation,
@@ -150,18 +127,5 @@ class EmptyGroup(
             block: Min.() -> GroupOperationWrapper,
         ) =
             Min(document, this.groupOperation).block()
-
-        infix fun count(
-            block: Count.() -> GroupOperationWrapper,
-        ) =
-            Count(document, this.groupOperation).block()
-
-        private fun Document.matchOperation(): MatchOperation {
-            val criteria = Criteria()
-            for ((key, value) in this) {
-                criteria.and(key).`is`(value)
-            }
-            return Aggregation.match(criteria)
-        }
     }
 }
