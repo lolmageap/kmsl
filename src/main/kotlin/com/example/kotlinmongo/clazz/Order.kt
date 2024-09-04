@@ -2,25 +2,33 @@ package com.example.kotlinmongo.clazz
 
 import com.example.kotlinmongo.extension.copy
 import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Sort.Direction
+import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KProperty1
 
-data class Order(
-    val basicQuery: BasicQuery,
-    val key: KProperty1<*, *>,
-) {
-    fun asc() = basicQuery.sorting(Sort.Direction.ASC)
-    fun desc() = basicQuery.sorting(Sort.Direction.DESC)
+class Order {
+    private val sortingList =
+        mutableListOf<Pair<KProperty1<*, *>, Direction>>()
 
-    private fun BasicQuery.sorting(
-        direction: Sort.Direction,
+    infix fun <T, R> Field<T, R>.by(
+        direction: Direction,
+    ) {
+        sortingList.add(this.key to direction)
+    }
+
+    fun sorting(
+        basicQuery: BasicQuery,
     ): BasicQuery {
-        val document = this.queryObject.copy()
-        val existingSort = this.extractSortObject()
-        val newSort = Sort.by(direction, key.name)
-        val combinedSort = existingSort.and(newSort)
+        val document = basicQuery.queryObject.copy()
+        val existingSort = basicQuery.extractSortObject()
         val newBasicQuery = BasicQuery(document)
-        newBasicQuery.with(combinedSort)
+
+        sortingList.forEach {
+            Sort.by(it.second, it.first.toDotPath())
+            val combinedSort = existingSort.and(Sort.by(it.second, it.first.toDotPath()))
+            newBasicQuery.with(combinedSort)
+        }
         return newBasicQuery
     }
 
@@ -28,8 +36,8 @@ data class Order(
         Sort.by(
             this.sortObject.entries.map {
                 val sort = when (it.value) {
-                    ASC -> Sort.Direction.ASC
-                    else -> Sort.Direction.DESC
+                    ASC -> Direction.ASC
+                    else -> Direction.DESC
                 }
                 Sort.Order(sort, it.key)
             }
