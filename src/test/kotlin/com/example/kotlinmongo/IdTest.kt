@@ -1,11 +1,13 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Status
 import com.example.kotlinmongo.extension.*
-import com.example.kotlinmongo.extension.aggregate
 import io.kotest.core.spec.style.StringSpec
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Sort.Direction.ASC
+import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.MongoTemplate
 
 @SpringBootTest
@@ -26,6 +28,9 @@ class IdTest(
 
         val document = document {
             field(Author::id) eq author.id
+        } order {
+            field(Author::age) by DESC
+            field(Author::weight) by ASC
         } group {
             field(Author::status) and field(Author::age)
         } sum {
@@ -40,10 +45,6 @@ class IdTest(
 
         val map = mongoTemplate.aggregate(document, Author::class)
         println("map: $map")
-        println(map["total"])
-        println(map["avg"])
-        println(map["max"])
-        println(map["min"])
     }
 
     "id 값으로 조회2" {
