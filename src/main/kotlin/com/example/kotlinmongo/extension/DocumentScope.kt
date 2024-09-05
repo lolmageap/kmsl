@@ -12,6 +12,8 @@ fun document(
 ): BasicQuery {
     val document = DocumentOperatorBuilder.RootDocumentOperatorBuilder().let {
         it.block()
+        if (it.documents.isEmpty()) return BasicQuery(Document())
+
         when (documentOperator) {
             AND -> Document().append(DocumentOperator.AND, it.documents)
             OR -> Document().append(DocumentOperator.OR, it.documents)
@@ -19,7 +21,7 @@ fun document(
         }
     }
 
-    return BasicQuery(document.toJson())
+    return BasicQuery(document)
 }
 
 fun Document.copy() = Document(this)
