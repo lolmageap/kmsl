@@ -1,11 +1,13 @@
 package com.example.kotlinmongo.clazz
 
+import org.springframework.data.mapping.toDotPath
 import kotlin.reflect.KProperty1
 
 class EmbeddedDocument private constructor(
     private val property: KProperty1<*, *>,
 ) {
-    val name: String = property.name
+    val name: String
+        get() = property.toDotPath()
 
     companion object {
         fun of(
@@ -13,7 +15,3 @@ class EmbeddedDocument private constructor(
         ) = EmbeddedDocument(property)
     }
 }
-
-fun embeddedDocument(
-    property: KProperty1<*, *>,
-) = EmbeddedDocument.of(property)

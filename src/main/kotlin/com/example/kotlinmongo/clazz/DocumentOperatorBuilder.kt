@@ -3,7 +3,9 @@ package com.example.kotlinmongo.clazz
 import com.example.kotlinmongo.clazz.DocumentOperator.AND
 import com.example.kotlinmongo.clazz.DocumentOperator.NOR
 import com.example.kotlinmongo.clazz.DocumentOperator.OR
+import com.example.kotlinmongo.extension.RootDocumentOperator
 import org.bson.Document
+import kotlin.reflect.KProperty1
 
 class DocumentOperatorBuilder {
     open class RootDocumentOperatorBuilder {
@@ -34,6 +36,27 @@ class DocumentOperatorBuilder {
             norDocumentOperatorBuilder.block()
             val nor = norDocumentOperatorBuilder.documents
             documents.add(Document().append(NOR, nor))
+        }
+
+        fun embeddedDocument(
+            property: KProperty1<*, *>,
+        ) = EmbeddedDocument.of(property)
+
+        fun EmbeddedDocument.elemMatch(
+            documentOperator: RootDocumentOperator = RootDocumentOperator.AND,
+            block: EmbeddedDocumentOperatorBuilder.() -> Unit,
+        ) {
+            val embeddedDocumentOperatorBuilder = EmbeddedDocumentOperatorBuilder()
+            embeddedDocumentOperatorBuilder.block()
+            val elemMatch = embeddedDocumentOperatorBuilder.documents
+
+            val invokedDocument = when (documentOperator) {
+                RootDocumentOperator.AND -> Document().append(AND, elemMatch)
+                RootDocumentOperator.OR -> Document().append(OR, elemMatch)
+                RootDocumentOperator.NOR -> Document().append(NOR, elemMatch)
+            }
+
+            documents.add(Document(this.name, Document(DocumentOperator.ELEM_MATCH, invokedDocument)))
         }
 
         infix fun <T, R> Field<T, R>.eq(value: R): Document {

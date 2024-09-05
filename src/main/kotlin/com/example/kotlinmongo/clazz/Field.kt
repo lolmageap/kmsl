@@ -52,6 +52,10 @@ fun <T, R> DocumentOperatorBuilder.NorDocumentOperatorBuilder.field(
     key: KProperty1<T, R>,
 ) = Field(key, this.documents)
 
+fun <T, R> DocumentOperatorBuilder.EmbeddedDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents)
+
 fun <T, R> Group<T, R>.field(
     key: KProperty1<T, R>,
 ) = Field(key)
