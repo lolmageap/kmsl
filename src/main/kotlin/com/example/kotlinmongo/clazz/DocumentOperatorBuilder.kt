@@ -16,8 +16,8 @@ class DocumentOperatorBuilder {
         ) {
             val andDocumentOperatorBuilder = AndDocumentOperatorBuilder()
             andDocumentOperatorBuilder.block()
-            val and = andDocumentOperatorBuilder.documents
-            documents.add(Document().append(AND, and))
+            val andDocuments = andDocumentOperatorBuilder.documents
+            documents.add(Document().append(AND, andDocuments))
         }
 
         fun or(
@@ -25,8 +25,8 @@ class DocumentOperatorBuilder {
         ) {
             val orDocumentOperatorBuilder = OrDocumentOperatorBuilder()
             orDocumentOperatorBuilder.block()
-            val or = orDocumentOperatorBuilder.documents
-            documents.add(Document().append(OR, or))
+            val orDocuments = orDocumentOperatorBuilder.documents
+            documents.add(Document().append(OR, orDocuments))
         }
 
         fun nor(
@@ -34,8 +34,8 @@ class DocumentOperatorBuilder {
         ) {
             val norDocumentOperatorBuilder = NorDocumentOperatorBuilder()
             norDocumentOperatorBuilder.block()
-            val nor = norDocumentOperatorBuilder.documents
-            documents.add(Document().append(NOR, nor))
+            val norDocuments = norDocumentOperatorBuilder.documents
+            documents.add(Document().append(NOR, norDocuments))
         }
 
         fun embeddedDocument(
@@ -48,54 +48,68 @@ class DocumentOperatorBuilder {
         ) {
             val embeddedDocumentOperatorBuilder = EmbeddedDocumentOperatorBuilder()
             embeddedDocumentOperatorBuilder.block()
-            val elemMatch = embeddedDocumentOperatorBuilder.documents
+            val elemMatchDocuments = embeddedDocumentOperatorBuilder.documents
 
             val invokedDocument = when (documentOperator) {
-                RootDocumentOperator.AND -> Document().append(AND, elemMatch)
-                RootDocumentOperator.OR -> Document().append(OR, elemMatch)
-                RootDocumentOperator.NOR -> Document().append(NOR, elemMatch)
+                RootDocumentOperator.AND -> Document().append(AND, elemMatchDocuments)
+                RootDocumentOperator.OR -> Document().append(OR, elemMatchDocuments)
+                RootDocumentOperator.NOR -> Document().append(NOR, elemMatchDocuments)
             }
 
             documents.add(Document(this.name, Document(DocumentOperator.ELEM_MATCH, invokedDocument)))
         }
 
-        infix fun <T, R> Field<T, R>.eq(value: R): Document {
+        infix fun <T, R> Field<T, R>.eq(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, value.convertIfId())
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.ne(value: R): Document {
+        infix fun <T, R> Field<T, R>.ne(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.NOT_EQUAL, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.lt(value: R): Document {
+        infix fun <T, R> Field<T, R>.lt(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.lte(value: R): Document {
+        infix fun <T, R> Field<T, R>.lte(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.gt(value: R): Document {
+        infix fun <T, R> Field<T, R>.gt(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.gte(value: R): Document {
+        infix fun <T, R> Field<T, R>.gte(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.between(values: Pair<R?, R?>): Document {
+        infix fun <T, R> Field<T, R>.between(
+            values: Pair<R?, R?>,
+        ): Document {
             return when {
                 values.first == null && values.second == null -> {
                     Document()
@@ -125,7 +139,9 @@ class DocumentOperatorBuilder {
             }
         }
 
-        infix fun <T, R> Field<T, R>.notBetween(values: Pair<R?, R?>): Document {
+        infix fun <T, R> Field<T, R>.notBetween(
+            values: Pair<R?, R?>,
+        ): Document {
             return when {
                 values.first == null && values.second == null -> {
                     Document()
@@ -161,7 +177,9 @@ class DocumentOperatorBuilder {
             }
         }
 
-        infix fun <T, R> Field<T, R>.betweenInclusive(values: Pair<R?, R?>): Document {
+        infix fun <T, R> Field<T, R>.betweenInclusive(
+            values: Pair<R?, R?>,
+        ): Document {
             return when {
                 values.first == null && values.second == null -> {
                     Document()
@@ -193,7 +211,9 @@ class DocumentOperatorBuilder {
             }
         }
 
-        infix fun <T, R> Field<T, R>.notBetweenInclusive(values: Pair<R?, R?>): Document {
+        infix fun <T, R> Field<T, R>.notBetweenInclusive(
+            values: Pair<R?, R?>,
+        ): Document {
             return when {
                 values.first == null && values.second == null -> {
                     Document()
@@ -230,37 +250,49 @@ class DocumentOperatorBuilder {
             }
         }
 
-        infix fun <T, R> Field<T, R>.`in`(values: Iterable<R>): Document {
+        infix fun <T, R> Field<T, R>.`in`(
+            values: Iterable<R>,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.IN, values.map { it.convertIfId() }))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.`in`(values: R): Document {
+        infix fun <T, R> Field<T, R>.`in`(
+            values: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.IN, values.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.notIn(values: Iterable<R>): Document {
+        infix fun <T, R> Field<T, R>.notIn(
+            values: Iterable<R>,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.notIn(values: R): Document {
+        infix fun <T, R> Field<T, R>.notIn(
+            values: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.contains(value: R): Document {
+        infix fun <T, R> Field<T, R>.contains(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.containsIgnoreCase(value: R): Document {
+        infix fun <T, R> Field<T, R>.containsIgnoreCase(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()).append(
                 DocumentOperator.OPTIONS,
                 DocumentOperator.CASE_INSENSITIVE
@@ -269,13 +301,17 @@ class DocumentOperatorBuilder {
             return document
         }
 
-        infix fun <T, R> Field<T, R>.containsNot(value: R): Document {
+        infix fun <T, R> Field<T, R>.containsNot(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId())))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.containsNotIgnoreCase(value: R): Document {
+        infix fun <T, R> Field<T, R>.containsNotIgnoreCase(
+            value: R,
+        ): Document {
             val document = Document(
                 key.fieldName, Document(
                     DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
@@ -287,38 +323,49 @@ class DocumentOperatorBuilder {
             return document
         }
 
-        infix fun <T, R> Field<T, R>.startsWith(value: R): Document {
+        infix fun <T, R> Field<T, R>.startsWith(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.REGEX, "^${value.convertIfId()}"))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.endsWith(value: R): Document {
+        infix fun <T, R> Field<T, R>.endsWith(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.REGEX, "${value.convertIfId()}$"))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.match(value: R): Document {
+        infix fun <T, R> Field<T, R>.match(
+            value: R,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.MATCH, value.convertIfId()))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        // 이 아래 3개의 operator는 테스트가 더 필요하다.
-        infix fun <T, R> Field<T, R>.all(value: Iterable<R>): Document {
+        infix fun <T, R> Field<T, R>.all(
+            value: Iterable<R>,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.ALL, value.map { it.convertIfId() }))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.size(value: Int): Document {
+        infix fun <T, R> Field<T, R>.size(
+            value: Int,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.SIZE, value))
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.exists(value: Boolean): Document {
+        infix fun <T, R> Field<T, R>.exists(
+            value: Boolean,
+        ): Document {
             val document = Document(key.fieldName, Document(DocumentOperator.EXISTS, value))
             if (document.isNotEmpty()) documents.add(document)
             return document
