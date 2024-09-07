@@ -4,6 +4,7 @@ import com.example.kotlinmongo.clazz.GroupType.SINGLE
 import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
+import com.example.kotlinmongo.collection.Status
 import com.example.kotlinmongo.collection.Status.ACTIVE
 import com.example.kotlinmongo.collection.Status.RETIREMENT
 import com.example.kotlinmongo.extension.*
@@ -95,7 +96,10 @@ class GroupTest(
             field(Author::status) by SINGLE
         }
 
-        val countOfGroup = mongoTemplate.count(document, Author::class)
+        val countOfGroup = mongoTemplate.count(document, Author::class).map {
+            Status.valueOf(it.key) to it.value as Long
+        }.toMap()
+
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
     }
 
@@ -120,75 +124,103 @@ class GroupTest(
         }
 
         val sumOfGroup = mongoTemplate.aggregate(document, Author::class)
-        println("sumOfGroup: $sumOfGroup")
-//        sumOfGroup shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
+            .associate { it["_id"] to it["sum"] as Long }
+            .mapKeys { Status.valueOf(it.key.toString()) }
+
+        sumOfGroup shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
     }
 
-//    "전체에 대한 평균을 구할 수 있다" {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val avgOfAge = mongoTemplate.avg(document, Author::age)
-//        avgOfAge shouldBe 25
-//    }
-//
-//    "grouping 된 평균을 구할 수 있다" {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val statusGroup = document.groupBy(Author::status)
-//        val avgOfAge = mongoTemplate.avg(statusGroup, Author::age)
-//        avgOfAge shouldBe mapOf(ACTIVE to 30, RETIREMENT to 10)
-//    }
-//
-//    "전체에 대한 최대값을 구할 수 있다" {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val maxOfAge = mongoTemplate.max(document, Author::age)
-//        maxOfAge shouldBe 40
-//    }
-//
-//    "grouping 된 최대값을 구할 수 있다" {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val nameGroup = document.groupBy(Author::name)
-//        val maxOfAge = mongoTemplate.max(nameGroup, Author::age)
-//        maxOfAge shouldBe mapOf("John" to 40)
-//    }
-//
-//    "전체에 대한 최소값을 구할 수 있다" {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val minOfAge = mongoTemplate.min(document, Author::age)
-//        minOfAge shouldBe 10
-//    }
-//
-//    "grouping 된 최소값을 구할 수 있다" {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val nameGroup = document.groupBy(Author::name)
-//        val minOfAge = mongoTemplate.min(nameGroup, Author::age)
-//        minOfAge shouldBe mapOf("John" to 10)
-//    }
-//
-//    "mongoDB에 데이터를 다른 타입으로 컨버팅 하고 연산을 할 수 있다." {
-//        val document = document {
-//            and { field(Author::name) eq "John" }
-//        }
-//
-//        val totalHeight = mongoTemplate.sum(document, Author::height, BigDecimal::class)
-//        totalHeight.roundOff shouldBe 740.toBigDecimal()
-//    }
+    "전체에 대한 평균을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } average {
+            field(Author::age) alias "avg"
+        }
+
+        val avg = mongoTemplate.aggregate(document, Author::class)["avg"] as Double
+        avg shouldBe 25.0
+    }
+
+    "grouping 된 평균을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } group {
+            field(Author::status) by SINGLE
+        } average {
+            field(Author::age) alias "avg"
+        }
+
+        val avgOfGroup = mongoTemplate.aggregate(document, Author::class)
+            .associate { it["_id"] to it["avg"] as Double }
+            .mapKeys { Status.valueOf(it.key.toString()) }
+
+        avgOfGroup shouldBe mapOf(ACTIVE to 30.0, RETIREMENT to 10.0)
+    }
+
+    "전체에 대한 최대값을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } max {
+            field(Author::age) alias "max"
+        }
+
+        val max = mongoTemplate.aggregate(document, Author::class)["max"] as Long
+        max shouldBe 40
+    }
+
+    "grouping 된 최대값을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } group {
+            field(Author::status) by SINGLE
+        } max {
+            field(Author::age) alias "max"
+        }
+
+        val maxOfGroup = mongoTemplate.aggregate(document, Author::class)
+            .associate { it["_id"] to it["max"] as Long }
+            .mapKeys { Status.valueOf(it.key.toString()) }
+
+        maxOfGroup shouldBe mapOf(ACTIVE to 40, RETIREMENT to 10)
+    }
+
+    "전체에 대한 최소값을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } min {
+            field(Author::age) alias "min"
+        }
+
+        val min = mongoTemplate.aggregate(document, Author::class)["min"] as Long
+        min shouldBe 10
+    }
+
+    "grouping 된 최소값을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } group {
+            field(Author::status) by SINGLE
+        } min {
+            field(Author::age) alias "min"
+        }
+
+        val minOfGroup = mongoTemplate.aggregate(document, Author::class)
+            .associate { it["_id"] to it["min"] as Long }
+            .mapKeys { Status.valueOf(it.key.toString()) }
+
+        minOfGroup shouldBe mapOf(ACTIVE to 20, RETIREMENT to 10)
+    }
+
+    "mongoDB에 데이터를 다른 타입으로 컨버팅 하고 연산을 할 수 있다." {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } sum {
+            field(Author::age) type BigDecimal::class alias "total"
+        }
+
+        val sum = mongoTemplate.aggregate(document, Author::class)["total"] as BigDecimal
+        sum shouldBe 100.toBigDecimal()
+    }
 })
 
 private val BigDecimal.roundOff: BigDecimal
