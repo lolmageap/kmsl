@@ -72,7 +72,6 @@ fun <T : Any> MongoTemplate.count(
         it.key.toString() to it.value
     }.toMap()
 
-// 현재 키가 Any 타입인데 String 타입으로 변환하는 방법을 찾아야 합니다.
 fun <T : Any> MongoTemplate.aggregate(
     group: Group.GroupOperationWrapper,
     entityClass: KClass<T>,
