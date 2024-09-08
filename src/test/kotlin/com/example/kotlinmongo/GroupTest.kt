@@ -168,6 +168,17 @@ class GroupTest(
         max shouldBe 40
     }
 
+    "mongoTemplate 을 이용 해서 grouping 된 총합을 구할 수 있다" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } group {
+            field(Author::status) by SINGLE
+        }
+
+        val statusToTotalAge = mongoTemplate.sum(document, Author::age)
+        statusToTotalAge shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
+    }
+
     "grouping 된 최대값을 구할 수 있다" {
         val document = document {
             and { field(Author::name) eq "John" }
