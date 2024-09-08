@@ -17,6 +17,8 @@ open class Group<T, R>(
     val document: Document,
     private val groupProperties: MutableSet<KProperty1<T, R>> = mutableSetOf(),
 ) {
+    private var isSingleGroup: Boolean? = null
+
     class Sum(
         private val document: Document,
         private val groupOperation: GroupOperation,
@@ -108,12 +110,29 @@ open class Group<T, R>(
     infix fun Field<T, R>.by(
         type: GroupType,
     ) {
+        if (type == GroupType.SINGLE) {
+            if (isSingleGroup == false) {
+                error("Single Group으로 선언되어 있지 않습니다.")
+            }
+            isSingleGroup = true
+        } else {
+            if (isSingleGroup == true) {
+                error("Single Group으로 선언되어 있습니다.")
+            }
+            isSingleGroup = false
+        }
+
         groupProperties.add(this.key)
     }
 
     infix fun Field<T, R>.and(
         field: Field<T, R>,
     ) {
+        if (isSingleGroup == true) {
+            error("Single Group으로 선언되어 있습니다.")
+        }
+
+        isSingleGroup = false
         groupProperties.add(this.key)
         groupProperties.add(field.key)
     }
@@ -170,6 +189,9 @@ open class Group<T, R>(
 
     fun toAggregation(): Aggregation {
         val matchOperation = document.matchOperation()
-        return Aggregation.newAggregation(matchOperation, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray()))
+        return Aggregation.newAggregation(
+            matchOperation,
+            Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())
+        )
     }
 }
