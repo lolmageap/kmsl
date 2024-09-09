@@ -42,21 +42,13 @@ class DocumentOperatorBuilder {
             property: KProperty1<*, *>,
         ) = EmbeddedDocument.of(property)
 
-        fun EmbeddedDocument.elemMatch(
-            documentOperator: RootDocumentOperator = RootDocumentOperator.AND,
+        infix fun EmbeddedDocument.elemMatch(
             block: EmbeddedDocumentOperatorBuilder.() -> Unit,
         ) {
             val embeddedDocumentOperatorBuilder = EmbeddedDocumentOperatorBuilder()
             embeddedDocumentOperatorBuilder.block()
             val elemMatchDocuments = embeddedDocumentOperatorBuilder.documents
-
-            val invokedDocument = when (documentOperator) {
-                RootDocumentOperator.AND -> Document().append(AND, elemMatchDocuments)
-                RootDocumentOperator.OR -> Document().append(OR, elemMatchDocuments)
-                RootDocumentOperator.NOR -> Document().append(NOR, elemMatchDocuments)
-            }
-
-            documents.add(Document(this.name, Document(DocumentOperator.ELEM_MATCH, invokedDocument)))
+            documents.add(Document(this.name, Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))))
         }
 
         infix fun <T, R> Field<T, R>.eq(

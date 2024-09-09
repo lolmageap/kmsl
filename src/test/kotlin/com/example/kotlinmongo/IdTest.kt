@@ -30,7 +30,7 @@ class IdTest(
         val document =
             document {
                 field(Author::age) eq 30
-                embeddedDocument(Author::books).elemMatch {
+                embeddedDocument(Author::books) elemMatch {
                     field(Book::price) exists false
                     field(Book::description) startsWith "test"
                 }
