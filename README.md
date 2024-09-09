@@ -4,16 +4,17 @@ kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.
 간단한 criteria, bson, aggregation 을 DSL 형태로 사용할 수 있습니다.
 
 현재 실무 에서 사용 하고 있으며 필요한 기능을 추가 하고 있습니다.  
-조건이 많고 mongodb 의 조건, 연산이 필요할 때 사용 하고 있습니다.  
+조건이 많고 mongodb 의 조건, 연산이 필요할 때 사용 하고 있습니다.
 
 spring data jpa와 spring data mongo를 같이 사용할 때 querydsl을 호환성 문제 때문에 사용할 수 없어 criteria, bson을 사용해야 했습니다.  
-하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제가 있어 이를 해결하려 만들었습니다.  
+하지만 criteria, bson을 사용하면 타입 안정성이 떨어지며 코드가 지저분해지고 가독성이 떨어지는 문제가 있어 이를 해결하려 만들었습니다.
 
 ### Criteria, QueryDSL Mongo와 Custom MongoDB DSL의 비교
 
-아래는 Author의 name을 in 연산, nickname을 like 연산, age는 between 연산하는 코드입니다.  
+아래는 Author의 name을 in 연산, nickname을 like 연산, age는 between 연산하는 코드입니다.
 
 **Criteria**
+
 ```kotlin
 fun findAuthors(
     names: List<String>,
@@ -51,6 +52,7 @@ fun findAuthors(
 ```
 
 **QueryDSL Mongo**
+
 ```kotlin
 private lateinit var authorRepository: JpaRepository<Author, Long>
 private val author = QAuthor.author
@@ -83,6 +85,7 @@ fun findAuthors(
 ```
 
 **Custom Mongo DSL**
+
 ```kotlin
 fun findAuthors(
     names: List<String>,
@@ -99,11 +102,13 @@ fun findAuthors(
     return mongoTemplate.find(document, Author::class)
 }
 ```
+
 위와 같이 동일한 결과를 반환하는 코드지만 Custom Mongo DSL은 가독성과 오타로 인한 런타임 문제, 타입 안정성까지 챙기게 됩니다.
 
 ## 사용법
 
 ### document scope
+
 document scope 를 사용하면 basic query 를 생성할 수 있습니다.
 
 ```kotlin
@@ -112,8 +117,9 @@ mongoTemplate.find(basicQuery, Author::class)
 ```
 
 #### field
-document scope 에서 and, or, nor을 사용하면 field를 함수 형태로 넘길 수 있습니다.
-field 객체는 Expression 을 생성할 수 있습니다.
+
+document scope 에서 and, or, nor을 사용하면 field를 함수 형태로 넘길 수 있습니다.  
+field 객체는 Expression 을 생성할 수 있습니다.  
 
 ```kotlin
 
@@ -132,7 +138,8 @@ val basicQuery = document(OR) {
 }
 ```
 
-and, or, nor, not 인자 안에 함수 scope 내부는 and 연산으로 처리됩니다.
+and, or, nor, not 인자 안에 함수 scope 내부는 and 연산으로 처리됩니다.  
+
 ```kotlin
 val basicQuery = document(OR) {
     and {
@@ -157,25 +164,48 @@ val basicQuery = document(OR) {
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-#### 정렬
+#### elemMatch
+collection 내부의 embedded document를 검색할 때 사용합니다.  
+아래와 같이 사용할 수 있습니다.  
 
-정렬은 orderBy 함수를 사용하면 됩니다.
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "정철희"
-}.orderBy(Author::age).desc()
+    embeddedDocument(Author::books) elemMatch {
+        field(Book::title) eq "코틀린"
+        field(Book::price) gt 10000
+    }
+}
+
+mongoTemplate.find(basicQuery, Author::class)
 ```
 
-아래처럼 여러 필드를 정렬할 수도 있습니다.
+#### 정렬
+
+정렬은 orderBy 함수를 사용하면 됩니다.  
+
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "정철희"
-}.orderBy(Author::age).desc()
-    .orderBy(Author::phone).asc()
+} order {
+    field(Author::age) by DESC
+}
+```
+
+아래처럼 여러 필드를 정렬할 수도 있습니다.  
+
+```kotlin
+val basicQuery = document {
+    field(Author::name) eq "정철희"
+} order {
+    field(Author::age) by DESC
+    field(Author::phone) by ASC
+}
 ```
 
 #### grouping
-grouping을 사용하면 간단한 통계 쿼리를 생성할 수 있습니다.
+
+전체의 합을 구할 때 아래처럼 코드를 작성할 수 있습니다.  
 
 ```kotlin
 // 이름이 정철희인 사람들의 나이의 합
@@ -186,46 +216,54 @@ val basicQuery = document {
 val sumOfAge: Long = mongoTemplate.sum(basicQuery, Author::age)
 ```
 
-만약 mongodb에 field가 string 타입이어도 숫자로 형변환하여 계산할 수 있습니다.  
-숫자의 타입이 Int 인지, Long 인지, Double 인지에 설정도 가능합니다.  
+grouping을 사용하면 간단한 통계 쿼리도 아래처럼 작성할 수 있습니다.  
+
+```kotlin
+// 이름이 정철희인 사람들의 나이의 합
+val basicQuery = document {
+    field(Author::name) eq "정철희"
+}
+
+val sumOfAge: Long = mongoTemplate.sum(basicQuery, Author::age)
+```
+
+조금 복잡한 쿼리도 아래처럼 작성할 수 있습니다.  
+만약 실제 mongoDB에 field가 String 타입이어도 숫자로 형변환하여 계산할 수 있습니다.    
+아래는 sum 할 때 숫자의 타입으로 컨버팅하는 예시입니다.  
+
 ```kotlin
 // 이름이 정철희인 사람들의 나이별로 그룹합니다.
 // 이 그룹의 핸드폰 번호를 숫자(Double Type)로 형변환한 값의 합 
-val basicQuery = document {
+val statusGroup = document {
     field(Author::name) eq "정철희"
+} group {
+    field(Author::status) by SINGLE
+} sum {
+    field(Author::phone) type Double::class alias "sumOfPhone"
 }
 
-val statusGroup = basicQuery.groupBy(Author::status)
-val statusToSumOfGroup: Map<Status, Double> = mongoTemplate.sum(statusGroup, Author::phone, Double::class)
+val statusToSumOfGroup = mongoTemplate.aggregate(statusGroup, Author::class)
+```
+
+여러 group으로 그룹핑할 수도 있습니다.
+
+```kotlin
+val statusAndAgeGroup = document {
+    field(Author::name) eq "정철희"
+} group {
+    field(Author::status) and field(Author::age)
+} sum {
+    field(Author::phone) alias "sumOfPhone"
+}
+
+val statusAndAgeToSumOfGroup = mongoTemplate.aggregate(statusAndAgeGroup, Author::class)
 ```
 
 ## TODO
+
 - [x] naming 이 아직 미숙한 부분이 많다. naming 을 조금 더 직관적으로 수정하자.
 - [x] and operator 와 or operator 와 document scope 를 하나로 합치자.
 - [x] 정렬을 구현하여 사용할 수 있도록 하자.
-- [ ] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
-- [ ] groupBy도 함수식으로 변경하자.
-- [ ] orderBy도 함수식으로 변경하자.
-
-
-### TODO 예시 
-```kotlin
-
-val basicQuery = document {
-    field(Author::name) eq "정철희"
-} order {
-    field(Author::age) by DESC
-    field(Author::phone) by ASC
-} group {
-    field(Author::age) by SINGLE
-} sum {
-    field(Author::phone) alias "phoneSum" type Double::class
-} max {
-    field(Author::phone) alias "phoneMax" type Double::class
-}
-
-// groupBy 예시 2
-group {
-    field(Author::age) and field(Author::phone)
-}
-```
+- [x] aggregation 을 좀 더 편하게 사용할 수 있도록 개선하자.
+- [x] groupBy도 함수식으로 변경하자.
+- [x] orderBy도 함수식으로 변경하자.
