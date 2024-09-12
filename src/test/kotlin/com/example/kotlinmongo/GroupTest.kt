@@ -1,17 +1,24 @@
 package com.example.kotlinmongo
 
+import com.example.kotlinmongo.clazz.FieldName.AVERAGE_FIELD
+import com.example.kotlinmongo.clazz.FieldName.COUNT_FIELD
+import com.example.kotlinmongo.clazz.FieldName.ID
+import com.example.kotlinmongo.clazz.FieldName.MAX_FIELD
+import com.example.kotlinmongo.clazz.FieldName.MIN_FIELD
+import com.example.kotlinmongo.clazz.FieldName.SUM_FIELD
 import com.example.kotlinmongo.clazz.GroupType.SINGLE
 import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status
-import com.example.kotlinmongo.collection.Status.ACTIVE
-import com.example.kotlinmongo.collection.Status.RETIREMENT
+import com.example.kotlinmongo.collection.Status.*
 import com.example.kotlinmongo.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Sort.Direction.ASC
+import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.MongoTemplate
 import java.math.BigDecimal
 
@@ -97,8 +104,24 @@ class GroupTest(
         }
 
         val countOfGroup = mongoTemplate.count(document, Author::class).map {
-            Status.valueOf(it.key) to it.value as Long
+            Status.valueOf(it.key) to it.value.toLong()
         }.toMap()
+
+        countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
+    }
+
+    "grouping 된 count 를 구할 수 있다2" {
+        val document = document {
+            and { field(Author::name) eq "John" }
+        } group {
+            field(Author::status) by SINGLE
+        } count {
+            field(Author::status) alias COUNT_FIELD
+        }
+
+        val countOfGroup = mongoTemplate.aggregate(document, Author::class)
+            .associate { it[ID] to it[COUNT_FIELD].toLong() }
+            .mapKeys { Status.valueOf(it.key.toString()) }
 
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
     }
@@ -107,10 +130,10 @@ class GroupTest(
         val document = document {
             and { field(Author::name) eq "John" }
         } sum {
-            field(Author::age) alias "sum"
+            field(Author::age) alias SUM_FIELD
         }
 
-        val sum = mongoTemplate.aggregate(document, Author::class)["sum"] as Long
+        val sum = mongoTemplate.aggregate(document, Author::class)[SUM_FIELD].toLong()
         sum shouldBe 100
     }
 
@@ -120,11 +143,11 @@ class GroupTest(
         } group {
             field(Author::status) by SINGLE
         } sum {
-            field(Author::age) alias "sum"
+            field(Author::age) alias SUM_FIELD
         }
 
         val sumOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it["_id"] to it["sum"] as Long }
+            .associate { it[ID] to it[SUM_FIELD].toLong() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         sumOfGroup shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
@@ -134,10 +157,10 @@ class GroupTest(
         val document = document {
             and { field(Author::name) eq "John" }
         } average {
-            field(Author::age) alias "avg"
+            field(Author::age) alias AVERAGE_FIELD
         }
 
-        val avg = mongoTemplate.aggregate(document, Author::class)["avg"] as Double
+        val avg = mongoTemplate.aggregate(document, Author::class)[AVERAGE_FIELD].toDouble()
         avg shouldBe 25.0
     }
 
@@ -147,11 +170,11 @@ class GroupTest(
         } group {
             field(Author::status) by SINGLE
         } average {
-            field(Author::age) alias "avg"
+            field(Author::age) alias AVERAGE_FIELD
         }
 
         val avgOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it["_id"] to it["avg"] as Double }
+            .associate { it[ID] to it[AVERAGE_FIELD].toDouble() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         avgOfGroup shouldBe mapOf(ACTIVE to 30.0, RETIREMENT to 10.0)
@@ -161,10 +184,10 @@ class GroupTest(
         val document = document {
             and { field(Author::name) eq "John" }
         } max {
-            field(Author::age) alias "max"
+            field(Author::age) alias MAX_FIELD
         }
 
-        val max = mongoTemplate.aggregate(document, Author::class)["max"] as Long
+        val max = mongoTemplate.aggregate(document, Author::class)[MAX_FIELD].toLong()
         max shouldBe 40
     }
 
@@ -185,11 +208,11 @@ class GroupTest(
         } group {
             field(Author::status) by SINGLE
         } max {
-            field(Author::age) alias "max"
+            field(Author::age) alias MAX_FIELD
         }
 
         val maxOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it["_id"] to it["max"] as Long }
+            .associate { it[ID] to it[MAX_FIELD].toLong() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         maxOfGroup shouldBe mapOf(ACTIVE to 40, RETIREMENT to 10)
@@ -199,10 +222,10 @@ class GroupTest(
         val document = document {
             and { field(Author::name) eq "John" }
         } min {
-            field(Author::age) alias "min"
+            field(Author::age) alias MIN_FIELD
         }
 
-        val min = mongoTemplate.aggregate(document, Author::class)["min"] as Long
+        val min = mongoTemplate.aggregate(document, Author::class)[MIN_FIELD].toLong()
         min shouldBe 10
     }
 
@@ -212,11 +235,11 @@ class GroupTest(
         } group {
             field(Author::status) by SINGLE
         } min {
-            field(Author::age) alias "min"
+            field(Author::age) alias MIN_FIELD
         }
 
         val minOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it["_id"] to it["min"] as Long }
+            .associate { it[ID] to it[MIN_FIELD].toInt() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         minOfGroup shouldBe mapOf(ACTIVE to 20, RETIREMENT to 10)
@@ -226,16 +249,94 @@ class GroupTest(
         val document = document {
             and { field(Author::name) eq "John" }
         } sum {
-            field(Author::age) type BigDecimal::class alias "total"
+            field(Author::age) type BigDecimal::class alias SUM_FIELD
         }
 
-        val sum = mongoTemplate.aggregate(document, Author::class)["total"] as BigDecimal
+        val sum = mongoTemplate.aggregate(document, Author::class)[SUM_FIELD].toBigDecimal()
         sum shouldBe 100.toBigDecimal()
     }
-})
 
-private val BigDecimal.roundOff: BigDecimal
-    get() = this.setScale(0)
+    "grouping 한 뒤 집계 쿼리 조회" {
+        val document =
+            document {
+                field(Author::age) eq 30
+                embeddedDocument(Author::books) elemMatch {
+                    field(Book::price) exists false
+                    field(Book::description) startsWith "test"
+                }
+            } order {
+                field(Author::age) by DESC
+                field(Author::weight) by ASC
+            } group {
+                field(Author::status) and field(Author::age)
+            } sum {
+                field(Author::age) alias SUM_FIELD
+            } average {
+                field(Author::weight) alias AVERAGE_FIELD
+            } max {
+                field(Author::height) alias MAX_FIELD
+            } min {
+                field(Author::height) alias MIN_FIELD
+            } count {
+                field(Author::id) alias COUNT_FIELD
+            }
+
+        val result = mongoTemplate.aggregate(document, Author::class)
+
+        result.first { it[ID] == ACTIVE }[SUM_FIELD].toLong() shouldBe 90
+        result.first { it[ID] == ACTIVE }[AVERAGE_FIELD].toDouble() shouldBe 90.0
+        result.first { it[ID] == ACTIVE }[MAX_FIELD].toInt() shouldBe 190
+        result.first { it[ID] == ACTIVE }[MIN_FIELD].toInt() shouldBe 190
+        result.first { it[ID] == ACTIVE }[COUNT_FIELD].toLong() shouldBe 1
+
+        result.first { it[ID] == RETIREMENT }[SUM_FIELD].toLong() shouldBe 10
+        result.first { it[ID] == RETIREMENT }[AVERAGE_FIELD].toDouble() shouldBe 90.0
+        result.first { it[ID] == RETIREMENT }[MAX_FIELD].toInt() shouldBe 190
+        result.first { it[ID] == RETIREMENT }[MIN_FIELD].toInt() shouldBe 190
+        result.first { it[ID] == RETIREMENT }[COUNT_FIELD].toLong() shouldBe 1
+
+        result.first { it[ID] == REST }[SUM_FIELD].toLong() shouldBe 0
+        result.first { it[ID] == REST }[AVERAGE_FIELD].toDouble() shouldBe 0.0
+        result.first { it[ID] == REST }[MAX_FIELD].toInt() shouldBe 0
+        result.first { it[ID] == REST }[MIN_FIELD].toInt() shouldBe 0
+        result.first { it[ID] == REST }[COUNT_FIELD].toLong() shouldBe 0
+    }
+
+    "grouping 하지 않고 집계 쿼리 조회" {
+        val author = mongoTemplate.insert(
+            Author.of(
+                name = "Test",
+                age = 100,
+                weight = 170.0,
+                height = 70f,
+                status = RETIREMENT,
+                books = mutableListOf(),
+            )
+        )
+
+        val document = document {
+            field(Author::id) eq author.id
+        } sum {
+            field(Author::age) alias SUM_FIELD
+        } average {
+            field(Author::weight) alias AVERAGE_FIELD
+        } max {
+            field(Author::height) alias MAX_FIELD
+        } min {
+            field(Author::height) alias MIN_FIELD
+        } count {
+            field(Author::id) alias COUNT_FIELD
+        }
+
+        val result = mongoTemplate.aggregate(document, Author::class)
+        result[ID] shouldBe null
+        result[SUM_FIELD].toLong() shouldBe 100
+        result[AVERAGE_FIELD].toDouble() shouldBe 170.0
+        result[MAX_FIELD].toInt() shouldBe 70
+        result[MIN_FIELD].toInt() shouldBe 70
+        result[COUNT_FIELD].toLong() shouldBe 1
+    }
+})
 
 private fun createBook(
     title: String,
