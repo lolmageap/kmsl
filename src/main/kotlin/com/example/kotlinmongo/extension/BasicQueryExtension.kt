@@ -1,8 +1,7 @@
 package com.example.kotlinmongo.extension
 
-import com.example.kotlinmongo.clazz.EmptyGroup
-import com.example.kotlinmongo.clazz.Group
-import com.example.kotlinmongo.clazz.Order
+import com.example.kotlinmongo.clazz.*
+import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery
 
@@ -41,3 +40,16 @@ infix fun BasicQuery.min(
     block: EmptyGroup.Min.() -> EmptyGroup.GroupOperationWrapper,
 ) =
     EmptyGroup.Min(this.queryObject.copy(), Aggregation.group()).block()
+
+infix fun BasicQuery.where(
+    block: DocumentOperatorBuilder.RootDocumentOperatorBuilder.() -> Unit,
+): BasicQuery {
+    val originalQuery = this.queryObject.copy()
+    val newQuery = DocumentOperatorBuilder.RootDocumentOperatorBuilder().let {
+        it.block()
+        if (it.documents.isEmpty()) BasicQuery(Document())
+        Document().append(DocumentOperator.AND, it.documents)
+    }
+
+    return BasicQuery(Document().append(DocumentOperator.AND, listOf(originalQuery, newQuery)))
+}

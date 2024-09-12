@@ -4,6 +4,7 @@ import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.extension.RootDocumentOperator.OR
 import com.example.kotlinmongo.extension.document
+import com.example.kotlinmongo.extension.where
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.data.mongodb.core.query.BasicQuery
@@ -147,6 +148,19 @@ class FieldTest : StringSpec({
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$match\" : \"John\"}}]}")
+    }
+
+    "조건 재할당 테스트" {
+        val document = document {
+            field(Author::name) eq "John"
+            field(Author::age) eq 18
+        } where {
+            field(Author::height) eq 180f
+        } where {
+            field(Author::books) size 2
+        }
+
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}, { \"height\" : 180.0}, { \"books\" : {\"\$size\" : 2}}]}")
     }
 
     "or 연산 테스트" {
