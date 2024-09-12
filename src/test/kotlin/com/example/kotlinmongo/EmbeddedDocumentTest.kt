@@ -4,7 +4,6 @@ import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status
-import com.example.kotlinmongo.extension.RootDocumentOperator.OR
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.find
 import com.example.kotlinmongo.extension.order
@@ -79,9 +78,11 @@ class EmbeddedDocumentTest(
 
     "내부 오브젝트 필드에 대한 연산" {
         val document = document {
-            embeddedDocument(Author::books).elemMatch(OR) {
-                field(Book::title) eq "book1"
-                field(Book::title) eq "book3"
+            embeddedDocument(Author::books).elemMatch {
+                or {
+                    field(Book::title) eq "book1"
+                    field(Book::title) eq "book3"
+                }
             }
         } order {
             field(Author::age) by ASC
