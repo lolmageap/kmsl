@@ -107,6 +107,16 @@ open class Group<T, R>(
             GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
+    class Count(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.count().`as`(value))
+    }
+
     infix fun Field<T, R>.by(
         type: GroupType,
     ) {
@@ -165,6 +175,11 @@ open class Group<T, R>(
             block: Min.() -> GroupOperationWrapper,
         ) =
             Min(document, this.groupOperation).block()
+
+        infix fun count(
+            block: Count.() -> GroupOperationWrapper,
+        ) =
+            Count(document, this.groupOperation).block()
     }
 
     infix fun sum(
@@ -186,6 +201,11 @@ open class Group<T, R>(
         block: Min.() -> GroupOperationWrapper,
     ) =
         Min(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+
+    infix fun count(
+        block: Count.() -> GroupOperationWrapper,
+    ) =
+        Count(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
 
     fun toAggregation(): Aggregation {
         val matchOperation = document.matchOperation()

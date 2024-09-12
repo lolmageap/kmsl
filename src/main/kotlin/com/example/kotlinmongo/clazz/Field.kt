@@ -76,6 +76,10 @@ fun <T, R> Group.Min.field(
     key: KProperty1<T, R>,
 ) = Field(key)
 
+fun <T, R> Group.Count.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
 fun <T, R> EmptyGroup.field(
     key: KProperty1<T, R>,
 ) = Field(key)
@@ -93,6 +97,10 @@ fun <T, R> EmptyGroup.Max.field(
 ) = Field(key)
 
 fun <T, R> EmptyGroup.Min.field(
+    key: KProperty1<T, R>,
+) = Field(key)
+
+fun <T, R> EmptyGroup.Count.field(
     key: KProperty1<T, R>,
 ) = Field(key)
 

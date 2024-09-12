@@ -99,6 +99,16 @@ class EmptyGroup(
             GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
     }
 
+    class Count(
+        private val document: Document,
+        private val groupOperation: GroupOperation,
+    ) {
+        infix fun <T, R> Field<T, R>.alias(
+            value: String,
+        ) =
+            GroupOperationWrapper(document, groupOperation.count().`as`(value))
+    }
+
     class GroupOperationWrapper(
         private val document: Document,
         private val groupOperation: GroupOperation,
@@ -127,5 +137,10 @@ class EmptyGroup(
             block: Min.() -> GroupOperationWrapper,
         ) =
             Min(document, this.groupOperation).block()
+
+        infix fun count(
+            block: Count.() -> GroupOperationWrapper,
+        ) =
+            Count(document, this.groupOperation).block()
     }
 }
