@@ -3,7 +3,6 @@ package com.example.kotlinmongo.clazz
 import com.example.kotlinmongo.clazz.DocumentOperator.AND
 import com.example.kotlinmongo.clazz.DocumentOperator.NOR
 import com.example.kotlinmongo.clazz.DocumentOperator.OR
-import com.example.kotlinmongo.extension.RootDocumentOperator
 import org.bson.Document
 import kotlin.reflect.KProperty1
 
@@ -48,7 +47,12 @@ class DocumentOperatorBuilder {
             val embeddedDocumentOperatorBuilder = EmbeddedDocumentOperatorBuilder()
             embeddedDocumentOperatorBuilder.block()
             val elemMatchDocuments = embeddedDocumentOperatorBuilder.documents
-            documents.add(Document(this.name, Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))))
+            documents.add(
+                Document(
+                    this.name,
+                    Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))
+                )
+            )
         }
 
         infix fun <T, R> Field<T, R>.eq(
@@ -108,22 +112,30 @@ class DocumentOperatorBuilder {
                 }
 
                 values.first == null -> {
-                    val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN, values.second?.let { it.convertIfId() }))
+                    val document = Document(
+                        key.fieldName,
+                        Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
+                    )
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
 
                 values.second == null -> {
-                    val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN, values.first?.let { it.convertIfId() }))
+                    val document = Document(
+                        key.fieldName,
+                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                    )
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
 
                 else -> {
-                    val document = Document(key.fieldName,
-                        Document(DocumentOperator.LESS_THAN, values.first?.let { it.convertIfId() }).append(
-                            DocumentOperator.GREATER_THAN,
-                            values.second?.let { it.convertIfId() })
+                    val document = Document(
+                        key.fieldName,
+                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                            DocumentOperator.LESS_THAN,
+                            values.second?.convertIfId()
+                        )
                     )
                     if (document.isNotEmpty()) documents.add(document)
                     document
@@ -141,7 +153,11 @@ class DocumentOperatorBuilder {
 
                 values.first == null -> {
                     val document = Document(
-                        key.fieldName, Document(DocumentOperator.NOT, Document(DocumentOperator.GREATER_THAN, values.second?.let { it.convertIfId() }))
+                        key.fieldName,
+                        Document(
+                            DocumentOperator.NOT,
+                            Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
+                        )
                     )
                     if (document.isNotEmpty()) documents.add(document)
                     document
@@ -149,7 +165,13 @@ class DocumentOperatorBuilder {
 
                 values.second == null -> {
                     val document =
-                        Document(key.fieldName, Document(DocumentOperator.NOT, Document(DocumentOperator.LESS_THAN, values.first?.let { it.convertIfId() })))
+                        Document(
+                            key.fieldName,
+                            Document(
+                                DocumentOperator.NOT,
+                                Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                            )
+                        )
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
@@ -158,9 +180,10 @@ class DocumentOperatorBuilder {
                     val document = Document(
                         key.fieldName, Document(
                             DocumentOperator.NOT,
-                            Document(DocumentOperator.LESS_THAN, values.first?.let { it.convertIfId() }).append(
-                                DocumentOperator.GREATER_THAN,
-                                values.second?.let { it.convertIfId() })
+                            Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                                DocumentOperator.LESS_THAN,
+                                values.second?.convertIfId()
+                            )
                         )
                     )
                     if (document.isNotEmpty()) documents.add(document)
@@ -179,23 +202,33 @@ class DocumentOperatorBuilder {
 
                 values.first == null -> {
                     val document =
-                        Document(key.fieldName, Document(DocumentOperator.GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                        Document(
+                            key.fieldName,
+                            Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                        )
                     if (document.isNotEmpty()) documents.add(document)
                     return document
                 }
 
                 values.second == null -> {
                     val document =
-                        Document(key.fieldName, Document(DocumentOperator.LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                        Document(
+                            key.fieldName,
+                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                        )
                     if (document.isNotEmpty()) documents.add(document)
                     return document
                 }
 
                 else -> {
-                    val document = Document(key.fieldName,
-                        Document(DocumentOperator.LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }).append(
+                    val document = Document(
+                        key.fieldName,
+                        Document(
                             DocumentOperator.GREATER_THAN_EQUAL,
-                            values.second?.let { it.convertIfId() })
+                            values.first?.convertIfId()
+                        ).append(
+                            DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                        )
                     )
                     if (document.isNotEmpty()) documents.add(document)
                     return document
@@ -213,7 +246,11 @@ class DocumentOperatorBuilder {
 
                 values.first == null -> {
                     val document = Document(
-                        key.fieldName, Document(DocumentOperator.NOT, Document(DocumentOperator.GREATER_THAN_EQUAL, values.second?.let { it.convertIfId() }))
+                        key.fieldName,
+                        Document(
+                            DocumentOperator.NOT,
+                            Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                        )
                     )
                     if (document.isNotEmpty()) documents.add(document)
                     document
@@ -221,7 +258,11 @@ class DocumentOperatorBuilder {
 
                 values.second == null -> {
                     val document = Document(
-                        key.fieldName, Document(DocumentOperator.NOT, Document(DocumentOperator.LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }))
+                        key.fieldName,
+                        Document(
+                            DocumentOperator.NOT,
+                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                        )
                     )
                     if (document.isNotEmpty()) documents.add(document)
                     document
@@ -231,9 +272,10 @@ class DocumentOperatorBuilder {
                     val document = Document(
                         key.fieldName, Document(
                             DocumentOperator.NOT,
-                            Document(DocumentOperator.LESS_THAN_EQUAL, values.first?.let { it.convertIfId() }).append(
-                                DocumentOperator.GREATER_THAN_EQUAL,
-                                values.second?.let { it.convertIfId() })
+                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                                DocumentOperator.LESS_THAN_EQUAL,
+                                values.second?.convertIfId()
+                            )
                         )
                     )
                     if (document.isNotEmpty()) documents.add(document)
@@ -285,10 +327,12 @@ class DocumentOperatorBuilder {
         infix fun <T, R> Field<T, R>.containsIgnoreCase(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                DocumentOperator.OPTIONS,
-                DocumentOperator.CASE_INSENSITIVE
-            ))
+            val document = Document(
+                key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                    DocumentOperator.OPTIONS,
+                    DocumentOperator.CASE_INSENSITIVE
+                )
+            )
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
@@ -296,7 +340,10 @@ class DocumentOperatorBuilder {
         infix fun <T, R> Field<T, R>.containsNot(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId())))
+            val document = Document(
+                key.fieldName,
+                Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
+            )
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
@@ -309,7 +356,8 @@ class DocumentOperatorBuilder {
                     DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
                         DocumentOperator.OPTIONS,
                         DocumentOperator.CASE_INSENSITIVE
-                    ))
+                    )
+                )
             )
             if (document.isNotEmpty()) documents.add(document)
             return document
@@ -364,8 +412,8 @@ class DocumentOperatorBuilder {
         }
     }
 
-    class AndDocumentOperatorBuilder: RootDocumentOperatorBuilder()
-    class OrDocumentOperatorBuilder: RootDocumentOperatorBuilder()
-    class NorDocumentOperatorBuilder: RootDocumentOperatorBuilder()
-    class EmbeddedDocumentOperatorBuilder: RootDocumentOperatorBuilder()
+    class AndDocumentOperatorBuilder : RootDocumentOperatorBuilder()
+    class OrDocumentOperatorBuilder : RootDocumentOperatorBuilder()
+    class NorDocumentOperatorBuilder : RootDocumentOperatorBuilder()
+    class EmbeddedDocumentOperatorBuilder : RootDocumentOperatorBuilder()
 }
