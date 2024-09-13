@@ -185,33 +185,33 @@ open class Group<T, R>(
     infix fun sum(
         block: Sum.() -> GroupOperationWrapper,
     ) =
-        Sum(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+        Sum(document, Aggregation.group(*groupProperties.map { "\$${it.toDotPath()}" }.toTypedArray())).block()
 
     infix fun average(
         block: Average.() -> GroupOperationWrapper,
     ) =
-        Average(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+        Average(document, Aggregation.group(*groupProperties.map { "\$${it.toDotPath()}" }.toTypedArray())).block()
 
     infix fun max(
         block: Max.() -> GroupOperationWrapper,
     ) =
-        Max(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+        Max(document, Aggregation.group(*groupProperties.map { "\$${it.toDotPath()}" }.toTypedArray())).block()
 
     infix fun min(
         block: Min.() -> GroupOperationWrapper,
     ) =
-        Min(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+        Min(document, Aggregation.group(*groupProperties.map { "\$${it.toDotPath()}" }.toTypedArray())).block()
 
     infix fun count(
         block: Count.() -> GroupOperationWrapper,
     ) =
-        Count(document, Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())).block()
+        Count(document, Aggregation.group(*groupProperties.map { "\$${it.toDotPath()}" }.toTypedArray())).block()
 
     fun toAggregation(): Aggregation {
         val matchOperation = document.matchOperation()
         return Aggregation.newAggregation(
             matchOperation,
-            Aggregation.group(*groupProperties.map { "\$${it.name}" }.toTypedArray())
+            Aggregation.group(*groupProperties.map { "\$${it.toDotPath()}" }.toTypedArray())
         )
     }
 }
