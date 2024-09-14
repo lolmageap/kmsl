@@ -15,6 +15,7 @@ data class Author private constructor(
     val height: Float,
     val status: Status,
     val books: MutableList<Book>,
+    val receipt: Receipt? = null,
 ) {
     companion object {
         fun of(
