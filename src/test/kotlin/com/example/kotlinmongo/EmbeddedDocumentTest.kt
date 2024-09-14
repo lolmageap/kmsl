@@ -78,7 +78,7 @@ class EmbeddedDocumentTest(
 
     "내부 오브젝트 필드에 대한 연산" {
         val document = document {
-            embeddedDocument(Author::books).elemMatch {
+            embeddedDocument(Author::books) elemMatch {
                 or {
                     field(Book::title) eq "book1"
                     field(Book::title) eq "book3"
@@ -99,10 +99,18 @@ class EmbeddedDocumentTest(
 
     "일반 필드와 내부 오브젝트 필드에 대한 연산" {
         val document = document {
-            embeddedDocument(Author::books).elemMatch {
-                field(Book::title) `in` mutableListOf("book1", "book3")
-                field(Book::price) eq 10000L
+            embeddedDocument(Author::books) elemMatch {
+                field(it::title) exists true
+                field(it::price) eq 10000L
             }
+
+            embeddedDocument(Author::receipt) elemMatch {
+                or {
+                    field(it::card) eq "신한"
+                    field(it::price) gte 10000L
+                }
+            }
+
             field(Author::age) eq 10
             field(Author::status) eq Status.RETIREMENT
         }
