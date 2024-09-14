@@ -3,6 +3,7 @@ package com.example.kotlinmongo
 import com.example.kotlinmongo.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
+import com.example.kotlinmongo.collection.Receipt
 import com.example.kotlinmongo.collection.Status
 import com.example.kotlinmongo.extension.document
 import com.example.kotlinmongo.extension.find
@@ -29,6 +30,10 @@ class EmbeddedDocumentTest(
                     createBook("book1"),
                     createBook("book2"),
                 ),
+                receipt = createReceipt(
+                    card = "신한",
+                    price = 10000L,
+                ),
             )
         )
         mongoTemplate.insert(
@@ -41,6 +46,10 @@ class EmbeddedDocumentTest(
                 books = mutableListOf(
                     createBook("book3"),
                     createBook("book4"),
+                ),
+                receipt = createReceipt(
+                    card = "국민",
+                    price = 10000L,
                 ),
             )
         )
@@ -55,6 +64,7 @@ class EmbeddedDocumentTest(
                     createBook("book5"),
                     createBook("book6"),
                 ),
+                receipt = null,
             )
         )
         mongoTemplate.insert(
@@ -76,7 +86,7 @@ class EmbeddedDocumentTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "내부 오브젝트 필드에 대한 연산" {
+    "내부 오브젝트 필드에 대한 연산1" {
         val document = document {
             embeddedDocument(Author::books) elemMatch {
                 or {
@@ -97,30 +107,53 @@ class EmbeddedDocumentTest(
         titles shouldBe mutableListOf("book1", "book2")
     }
 
-    "일반 필드와 내부 오브젝트 필드에 대한 연산" {
+    "내부 오브젝트 필드에 대한 연산2" {
         val document = document {
             embeddedDocument(Author::books) elemMatch {
-                field(it::title) exists true
-                field(it::price) eq 10000L
+                or {
+                    field(it::title) eq "book1"
+                    field(it::title) eq "book3"
+                }
             }
+        } order {
+            field(Author::age) by ASC
+        }
 
+        val authors = mongoTemplate.find(document, Author::class)
+        authors.size shouldBe 2
+
+        val titles = authors.first().books.map { it.title }
+
+        titles.size shouldBe 2
+        titles shouldBe mutableListOf("book1", "book2")
+    }
+
+    "일반 필드와 내부 오브젝트 필드에 대한 연산1" {
+        val document = document {
             embeddedDocument(Author::receipt) elemMatch {
                 or {
                     field(it::card) eq "신한"
                     field(it::price) gte 10000L
                 }
             }
-
-            field(Author::age) eq 10
-            field(Author::status) eq Status.RETIREMENT
         }
 
         val authors = mongoTemplate.find(document, Author::class)
-        authors.size shouldBe 2
+        authors.size shouldBe 1
+    }
 
-        val author = authors.first()
-        val titles = author.books.map { it.title }
-        titles shouldBe mutableListOf("book1", "book2")
+    "일반 필드와 내부 오브젝트 필드에 대한 연산2" {
+        val document = document {
+            embeddedDocument(Author::receipt) elemMatch {
+                or {
+                    field(Receipt::card) eq "신한"
+                    field(Receipt::price) gte 10000L
+                }
+            }
+        }
+
+        val authors = mongoTemplate.find(document, Author::class)
+        authors.size shouldBe 1
     }
 })
 
@@ -135,4 +168,14 @@ private fun createBook(
         price = price,
         isbn = isbn,
         description = description,
+    )
+
+private fun createReceipt(
+    card: String,
+    price: Long,
+) =
+    Receipt.of(
+        date = "2024-09-14",
+        card = card,
+        price = price,
     )
