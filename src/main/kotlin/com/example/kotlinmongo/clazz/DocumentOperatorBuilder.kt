@@ -41,18 +41,13 @@ class DocumentOperatorBuilder {
             property: KProperty1<T, R>,
         ) = EmbeddedDocument.of(property)
 
-        inline infix fun <T, reified R> EmbeddedDocument<T, R?>.elemMatch(
-            noinline block: EmbeddedDocumentOperatorBuilder.(R) -> Unit,
+        inline infix fun <T, reified R> EmbeddedDocument<T, R?>.where(
+            noinline block: EmbeddedDocumentOperatorBuilder.() -> Unit,
         ) {
             val embeddedDocumentOperatorBuilder = EmbeddedDocumentOperatorBuilder()
-            embeddedDocumentOperatorBuilder.block(R::class.objectInstance!!)
-            val elemMatchDocuments = embeddedDocumentOperatorBuilder.documents
-            documents.add(
-                Document(
-                    this.name,
-                    Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))
-                )
-            )
+            embeddedDocumentOperatorBuilder.block()
+            val whereDocuments = embeddedDocumentOperatorBuilder.documents
+            documents.add(Document(AND, whereDocuments))
         }
 
         fun <T, R> embeddedDocument(
@@ -60,116 +55,113 @@ class DocumentOperatorBuilder {
         ) = EmbeddedDocuments.of(property)
 
         inline infix fun <T, reified R> EmbeddedDocuments<T, R>.elemMatch(
-            noinline block: EmbeddedDocumentsOperatorBuilder.(R) -> Unit,
+            noinline block: EmbeddedDocumentsOperatorBuilder.() -> Unit,
         ) {
             val embeddedDocumentsOperatorBuilder = EmbeddedDocumentsOperatorBuilder()
-            embeddedDocumentsOperatorBuilder.block(R::class.objectInstance!!)
+            embeddedDocumentsOperatorBuilder.block()
             val elemMatchDocuments = embeddedDocumentsOperatorBuilder.documents
             documents.add(
                 Document(
-                    this.name,
-                    Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))
+                    this.name, Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))
                 )
             )
         }
 
-        infix fun <T, R> Field<T, R>.eq(
+        inline infix fun <reified T : Any, R> Field<T, R>.eq(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, value.convertIfId())
+            val document =
+                if (isEmbeddedDocument) {
+                    Document("${this.getClassName(T::class)}.${key.fieldName}", value.convertIfId())
+                } else {
+                    Document(key.fieldName, value.convertIfId())
+                }
+
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.eq(
+        inline infix fun <reified T : Any, R> Field<T, R>.ne(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, value.convertIfId())
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.NOT_EQUAL, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.NOT_EQUAL, value.convertIfId()))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.ne(
+        inline infix fun <reified T : Any, R> Field<T, R>.lt(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT_EQUAL, value.convertIfId()))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.LESS_THAN, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.LESS_THAN, value.convertIfId()))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.ne(
+        inline infix fun <reified T : Any, R> Field<T, R>.lte(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT_EQUAL, value.convertIfId()))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.lt(
+        inline infix fun <reified T : Any, R> Field<T, R>.gt(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN, value.convertIfId()))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.GREATER_THAN, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.GREATER_THAN, value.convertIfId()))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.lt(
+        inline infix fun <reified T : Any, R> Field<T, R>.gte(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN, value.convertIfId()))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.lte(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.lte(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.gt(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.gt(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.gte(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.gte(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.between(
+        inline infix fun <reified T : Any, R> Field<T, R>.between(
             values: Pair<R?, R?>,
         ): Document {
             return when {
@@ -178,172 +170,60 @@ class DocumentOperatorBuilder {
                 }
 
                 values.first == null -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
-                    )
-                    if (document.isNotEmpty()) documents.add(document)
-                    document
-                }
-
-                values.second == null -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
-                    )
-                    if (document.isNotEmpty()) documents.add(document)
-                    document
-                }
-
-                else -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN,
-                            values.second?.convertIfId()
-                        )
-                    )
-                    if (document.isNotEmpty()) documents.add(document)
-                    document
-                }
-            }
-        }
-
-        infix fun <R> EmbeddedField<R>.between(
-            values: Pair<R?, R?>,
-        ) = when {
-            values.first == null && values.second == null -> {
-                Document()
-            }
-
-            values.first == null -> {
-                val document = Document(
-                    key.fieldName,
-                    Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-
-            values.second == null -> {
-                val document = Document(
-                    key.fieldName,
-                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-
-            else -> {
-                val document = Document(
-                    key.fieldName,
-                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                        DocumentOperator.LESS_THAN,
-                        values.second?.convertIfId()
-                    )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-        }
-
-        infix fun <T, R> Field<T, R>.notBetween(
-            values: Pair<R?, R?>,
-        ): Document {
-            return when {
-                values.first == null && values.second == null -> {
-                    Document()
-                }
-
-                values.first == null -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
-                        )
-                    )
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
+                            )
+                        } else {
+                            Document(key.fieldName, Document(DocumentOperator.LESS_THAN, values.second?.convertIfId()))
+                        }
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
 
                 values.second == null -> {
                     val document =
-                        Document(
-                            key.fieldName,
+                        if (isEmbeddedDocument) {
                             Document(
-                                DocumentOperator.NOT,
+                                "${this.getClassName(T::class)}.${key.fieldName}",
                                 Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
                             )
-                        )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
 
                 else -> {
-                    val document = Document(
-                        key.fieldName, Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                                DocumentOperator.LESS_THAN,
-                                values.second?.convertIfId()
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                                    DocumentOperator.LESS_THAN, values.second?.convertIfId()
+                                )
                             )
-                        )
-                    )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                                    DocumentOperator.LESS_THAN, values.second?.convertIfId()
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
             }
         }
 
-        infix fun <R> EmbeddedField<R>.notBetween(
-            values: Pair<R?, R?>,
-        ) = when {
-            values.first == null && values.second == null -> {
-                Document()
-            }
-
-            values.first == null -> {
-                val document = Document(
-                    key.fieldName,
-                    Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
-                    )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-
-            values.second == null -> {
-                val document =
-                    Document(
-                        key.fieldName,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
-                        )
-                    )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-
-            else -> {
-                val document = Document(
-                    key.fieldName, Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN,
-                            values.second?.convertIfId()
-                        )
-                    )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-        }
-
-        infix fun <T, R> Field<T, R>.betweenInclusive(
+        inline infix fun <reified T : Any, R> Field<T, R>.notBetween(
             values: Pair<R?, R?>,
         ): Document {
             return when {
@@ -353,83 +233,80 @@ class DocumentOperatorBuilder {
 
                 values.first == null -> {
                     val document =
-                        Document(
-                            key.fieldName,
-                            Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
-                        )
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
+                                )
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
-                    return document
+                    document
                 }
 
                 values.second == null -> {
                     val document =
-                        Document(
-                            key.fieldName,
-                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
-                        )
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                                )
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
-                    return document
+                    document
                 }
 
                 else -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(
-                            DocumentOperator.GREATER_THAN_EQUAL,
-                            values.first?.convertIfId()
-                        ).append(
-                            DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
-                        )
-                    )
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                                        DocumentOperator.LESS_THAN, values.second?.convertIfId()
+                                    )
+                                )
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                                        DocumentOperator.LESS_THAN, values.second?.convertIfId()
+                                    )
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
-                    return document
+                    document
                 }
             }
         }
 
-        infix fun <R> EmbeddedField<R>.betweenInclusive(
-            values: Pair<R?, R?>,
-        ) = when {
-            values.first == null && values.second == null -> {
-                Document()
-            }
-
-            values.first == null -> {
-                val document =
-                    Document(
-                        key.fieldName,
-                        Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
-                    )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-
-            values.second == null -> {
-                val document =
-                    Document(
-                        key.fieldName,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
-                    )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-
-            else -> {
-                val document = Document(
-                    key.fieldName,
-                    Document(
-                        DocumentOperator.GREATER_THAN_EQUAL,
-                        values.first?.convertIfId()
-                    ).append(
-                        DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
-                    )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-        }
-
-        infix fun <T, R> Field<T, R>.notBetweenInclusive(
+        inline infix fun <reified T : Any, R> Field<T, R>.betweenInclusive(
             values: Pair<R?, R?>,
         ): Document {
             return when {
@@ -438,341 +315,386 @@ class DocumentOperatorBuilder {
                 }
 
                 values.first == null -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
-                        )
-                    )
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                            )
+                        }
+                    if (document.isNotEmpty()) documents.add(document)
+                    return document
+                }
+
+                values.second == null -> {
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                            )
+                        }
+                    if (document.isNotEmpty()) documents.add(document)
+                    return document
+                }
+
+                else -> {
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                                    DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                                )
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                                    DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                                )
+                            )
+                        }
+                    if (document.isNotEmpty()) documents.add(document)
+                    return document
+                }
+            }
+        }
+
+        inline infix fun <reified T : Any, R> Field<T, R>.notBetweenInclusive(
+            values: Pair<R?, R?>,
+        ): Document {
+            return when {
+                values.first == null && values.second == null -> {
+                    Document()
+                }
+
+                values.first == null -> {
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                                )
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
 
                 values.second == null -> {
-                    val document = Document(
-                        key.fieldName,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
-                        )
-                    )
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                                )
+                            )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
 
                 else -> {
-                    val document = Document(
-                        key.fieldName, Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
-                                DocumentOperator.LESS_THAN_EQUAL,
-                                values.second?.convertIfId()
+                    val document =
+                        if (isEmbeddedDocument) {
+                            Document(
+                                "${this.getClassName(T::class)}.${key.fieldName}",
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                                        DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                                    )
+                                )
                             )
-                        )
-                    )
+                        } else {
+                            Document(
+                                key.fieldName,
+                                Document(
+                                    DocumentOperator.NOT,
+                                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                                        DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                                    )
+                                )
+                            )
+                        }
                     if (document.isNotEmpty()) documents.add(document)
                     document
                 }
             }
         }
 
-        infix fun <R> EmbeddedField<R>.notBetweenInclusive(
-            values: Pair<R?, R?>,
-        ) = when {
-            values.first == null && values.second == null -> {
-                Document()
-            }
-
-            values.first == null -> {
-                val document = Document(
-                    key.fieldName,
+        inline infix fun <reified T : Any, R> Field<T, R>.`in`(
+            values: Iterable<R>,
+        ): Document {
+            val document =
+                if (isEmbeddedDocument) {
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.IN, values.map { it.convertIfId() })
                     )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.IN, values.map { it.convertIfId() }))
+                }
+            if (document.isNotEmpty()) documents.add(document)
+            return document
+        }
 
-            values.second == null -> {
-                val document = Document(
-                    key.fieldName,
+        inline infix fun <reified T : Any, R> Field<T, R>.`in`(
+            values: R,
+        ): Document {
+            val document =
+                if (isEmbeddedDocument) {
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.IN, values.convertIfId())
                     )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.IN, values.convertIfId()))
+                }
+            if (document.isNotEmpty()) documents.add(document)
+            return document
+        }
 
-            else -> {
-                val document = Document(
-                    key.fieldName, Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN_EQUAL,
-                            values.second?.convertIfId()
+        inline infix fun <reified T : Any, R> Field<T, R>.notIn(
+            values: Iterable<R>,
+        ): Document {
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() })
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }))
+                }
+            if (document.isNotEmpty()) documents.add(document)
+            return document
+        }
+
+        inline infix fun <reified T : Any, R> Field<T, R>.notIn(
+            values: R,
+        ): Document {
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.NOT_IN, values.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.convertIfId()))
+                }
+            if (document.isNotEmpty()) documents.add(document)
+            return document
+        }
+
+        inline infix fun <reified T : Any, R> Field<T, R>.contains(
+            value: R,
+        ): Document {
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.REGEX, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()))
+                }
+            if (document.isNotEmpty()) documents.add(document)
+            return document
+        }
+
+        inline infix fun <reified T : Any, R> Field<T, R>.containsIgnoreCase(
+            value: R,
+        ): Document {
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                            DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
                         )
                     )
-                )
-                if (document.isNotEmpty()) documents.add(document)
-                document
-            }
-        }
-
-        infix fun <T, R> Field<T, R>.`in`(
-            values: Iterable<R>,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.IN, values.map { it.convertIfId() }))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.`in`(
-            values: Iterable<R>,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.IN, values.map { it.convertIfId() }))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.`in`(
-            values: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.IN, values.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.`in`(
-            values: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.IN, values.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.notIn(
-            values: Iterable<R>,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.notIn(
-            values: Iterable<R>,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.notIn(
-            values: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.notIn(
-            values: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.NOT_IN, values.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.contains(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.contains(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.containsIgnoreCase(
-            value: R,
-        ): Document {
-            val document = Document(
-                key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                    DocumentOperator.OPTIONS,
-                    DocumentOperator.CASE_INSENSITIVE
-                )
-            )
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.containsIgnoreCase(
-            value: R,
-        ): Document {
-            val document = Document(
-                key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                    DocumentOperator.OPTIONS,
-                    DocumentOperator.CASE_INSENSITIVE
-                )
-            )
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.containsNot(
-            value: R,
-        ): Document {
-            val document = Document(
-                key.fieldName,
-                Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
-            )
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.containsNot(
-            value: R,
-        ): Document {
-            val document = Document(
-                key.fieldName,
-                Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
-            )
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.containsNotIgnoreCase(
-            value: R,
-        ): Document {
-            val document = Document(
-                key.fieldName, Document(
-                    DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                        DocumentOperator.OPTIONS,
-                        DocumentOperator.CASE_INSENSITIVE
+                } else {
+                    Document(
+                        key.fieldName,
+                        Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                            DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
+                        )
                     )
-                )
-            )
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.containsNotIgnoreCase(
+        inline infix fun <reified T : Any, R> Field<T, R>.containsNot(
             value: R,
         ): Document {
-            val document = Document(
-                key.fieldName, Document(
-                    DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                        DocumentOperator.OPTIONS,
-                        DocumentOperator.CASE_INSENSITIVE
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
                     )
-                )
-            )
+                } else {
+                    Document(
+                        key.fieldName,
+                        Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
+                    )
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.startsWith(
+        inline infix fun <reified T : Any, R> Field<T, R>.containsNotIgnoreCase(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, "^${value.convertIfId()}"))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(
+                            DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                                DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
+                            )
+                        )
+                    )
+                } else {
+                    Document(
+                        key.fieldName,
+                        Document(
+                            DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                                DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
+                            )
+                        )
+                    )
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.startsWith(
+        inline infix fun <reified T : Any, R> Field<T, R>.startsWith(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, "^${value.convertIfId()}"))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.REGEX, "^${value.convertIfId()}")
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.REGEX, "^${value.convertIfId()}"))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.endsWith(
+        inline infix fun <reified T : Any, R> Field<T, R>.endsWith(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, "${value.convertIfId()}$"))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.REGEX, "${value.convertIfId()}$")
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.REGEX, "${value.convertIfId()}$"))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.endsWith(
+        inline infix fun <reified T : Any, R> Field<T, R>.match(
             value: R,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.REGEX, "${value.convertIfId()}$"))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.REGEX, value.convertIfId())
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.REGEX, value.convertIfId()))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <T, R> Field<T, R>.match(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.MATCH, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.match(
-            value: R,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.MATCH, value.convertIfId()))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.all(
+        inline infix fun <reified T : Any, R> Field<T, R>.all(
             value: Iterable<R>,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.ALL, value.map { it.convertIfId() }))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.ALL, value.map { it.convertIfId() })
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.ALL, value.map { it.convertIfId() }))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.all(
-            value: Iterable<R>,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.ALL, value.map { it.convertIfId() }))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.size(
+        inline infix fun <reified T : Any, R> Field<T, R>.size(
             value: Int,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.SIZE, value))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.SIZE, value)
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.SIZE, value))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
 
-        infix fun <R> EmbeddedField<R>.size(
-            value: Int,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.SIZE, value))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <T, R> Field<T, R>.exists(
+        inline infix fun <reified T : Any, R> Field<T, R>.exists(
             value: Boolean,
         ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.EXISTS, value))
-            if (document.isNotEmpty()) documents.add(document)
-            return document
-        }
-
-        infix fun <R> EmbeddedField<R>.exists(
-            value: Boolean,
-        ): Document {
-            val document = Document(key.fieldName, Document(DocumentOperator.EXISTS, value))
+            val document =
+                if (isEmbeddedDocument) {
+                    Document(
+                        "${this.getClassName(T::class)}.${key.fieldName}",
+                        Document(DocumentOperator.EXISTS, value)
+                    )
+                } else {
+                    Document(key.fieldName, Document(DocumentOperator.EXISTS, value))
+                }
             if (document.isNotEmpty()) documents.add(document)
             return document
         }
