@@ -5,43 +5,23 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.mapping.Field
-import kotlin.reflect.KProperty0
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
 
 class Field<T, R>(
     val key: KProperty1<T, R>,
     val documents: MutableList<Document> = mutableListOf(),
+    val isEmbeddedDocument: Boolean = false,
 ) {
-    val KProperty1<T, R>.fieldName: String
-        get() {
-            val javaField = this.javaField!!
-            javaField.isAccessible = true
-
-            val hasIdAnnotation = javaField.annotations.any { it is Id }
-            return if (hasIdAnnotation) {
-                val hasFieldAnnotation = javaField.annotations.any { it is Field }
-                if (hasFieldAnnotation) javaField.annotations.filterIsInstance<Field>().first().value
-                else "_id"
-            } else this.toDotPath()
-        }
-
-    fun R.convertIfId(): Any? {
-        val javaField = key.javaField!!
-        javaField.isAccessible = true
-
-        val hasIdAnnotation = javaField.annotations.any { it is Id }
-        return if (hasIdAnnotation) ObjectId(this.toString())
-        else if (this is Enum<*>) this.name
-        else this
+    fun <T : Any> getClassName(
+        clazz: KClass<T>,
+    ): String? {
+        val className = clazz.simpleName
+        return className?.replaceFirstChar { it.lowercase() }
     }
-}
 
-class EmbeddedField<R>(
-    val key: KProperty0<R>,
-    val documents: MutableList<Document> = mutableListOf(),
-) {
-    val KProperty0<R>.fieldName: String
+    val KProperty1<T, R>.fieldName: String
         get() {
             val javaField = this.javaField!!
             javaField.isAccessible = true
@@ -81,13 +61,13 @@ fun <T, R> DocumentOperatorBuilder.NorDocumentOperatorBuilder.field(
     key: KProperty1<T, R>,
 ) = Field(key, this.documents)
 
-fun <R> DocumentOperatorBuilder.EmbeddedDocumentOperatorBuilder.field(
-    key: KProperty0<R>,
-) = EmbeddedField(key, this.documents)
+fun <T, R> DocumentOperatorBuilder.EmbeddedDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents, true)
 
-fun <R> DocumentOperatorBuilder.EmbeddedDocumentsOperatorBuilder.field(
-    key: KProperty0<R>,
-) = EmbeddedField(key, this.documents)
+fun <T, R> DocumentOperatorBuilder.EmbeddedDocumentsOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key, this.documents)
 
 fun <T, R> Group<T, R>.field(
     key: KProperty1<T, R>,
