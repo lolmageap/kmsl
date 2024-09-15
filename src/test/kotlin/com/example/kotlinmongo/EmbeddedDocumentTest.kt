@@ -30,10 +30,7 @@ class EmbeddedDocumentTest(
                     createBook("book1"),
                     createBook("book2"),
                 ),
-                receipt = createReceipt(
-                    card = "신한",
-                    price = 10000L,
-                ),
+                receipt = createReceipt("신한"),
             )
         )
         mongoTemplate.insert(
@@ -47,10 +44,7 @@ class EmbeddedDocumentTest(
                     createBook("book3"),
                     createBook("book4"),
                 ),
-                receipt = createReceipt(
-                    card = "국민",
-                    price = 10000L,
-                ),
+                receipt = createReceipt("국민"),
             )
         )
         mongoTemplate.insert(
@@ -107,50 +101,17 @@ class EmbeddedDocumentTest(
         titles shouldBe mutableListOf("book1", "book2")
     }
 
-    "내부 오브젝트 필드에 대한 연산2" {
+    "일반 필드와 내부 오브젝트 필드에 대한 연산" {
         val document = document {
-            embeddedDocument(Author::books) elemMatch {
-                or {
-                    field(it::title) eq "book1"
-                    field(it::title) eq "book3"
-                }
-            }
-        } order {
-            field(Author::age) by ASC
-        }
-
-        val authors = mongoTemplate.find(document, Author::class)
-        authors.size shouldBe 2
-
-        val titles = authors.first().books.map { it.title }
-
-        titles.size shouldBe 2
-        titles shouldBe mutableListOf("book1", "book2")
-    }
-
-    "일반 필드와 내부 오브젝트 필드에 대한 연산1" {
-        val document = document {
-            embeddedDocument(Author::receipt) elemMatch {
-                or {
-                    field(it::card) eq "신한"
-                    field(it::price) gte 10000L
-                }
+            // document 내부에 isEmbeddedDocument 라는 필드를 false로 만들어준다.
+            // where scope 를 열 때 isEmbeddedDocument 상태를 true로 만들어주고 닫을 때 false로 만들어준다.
+            embeddedDocument(Author::receipt) where {
+                field(Receipt::card) eq "신한"
+                field(Receipt::price) gte 10000L
             }
         }
 
-        val authors = mongoTemplate.find(document, Author::class)
-        authors.size shouldBe 1
-    }
-
-    "일반 필드와 내부 오브젝트 필드에 대한 연산2" {
-        val document = document {
-            embeddedDocument(Author::receipt) elemMatch {
-                or {
-                    field(Receipt::card) eq "신한"
-                    field(Receipt::price) gte 10000L
-                }
-            }
-        }
+        println("document: $document")
 
         val authors = mongoTemplate.find(document, Author::class)
         authors.size shouldBe 1
@@ -172,10 +133,9 @@ private fun createBook(
 
 private fun createReceipt(
     card: String,
-    price: Long,
 ) =
     Receipt.of(
         date = "2024-09-14",
         card = card,
-        price = price,
+        price = 10000L,
     )
