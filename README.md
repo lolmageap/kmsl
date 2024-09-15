@@ -204,3 +204,7 @@ document {
 
 mongoTemplate.aggregate(document, Author::class)
 ```
+
+### TODO
+- [ ] DocumentOperatorBuilder에 field 확장 함수들 리팩토링 -> isEmbeddedDocument 관련해서 변수로 빼자
+- [ ] 'document 내부에 isEmbeddedDocument 라는 필드를 false로 만들어준다. 그리고 where scope 를 열 때 isEmbeddedDocument 상태를 true로 만들어주고 닫을 때 false로 만들어준다.' 구현
