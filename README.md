@@ -1,4 +1,4 @@
-## mongodb dsl
+# mongodb dsl
 
 kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.  
 간단한 criteria, bson, aggregation 을 DSL 형태로 사용할 수 있습니다.
@@ -6,9 +6,9 @@ kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.
 현재 실무 에서 사용 하고 있으며 필요한 기능을 추가 하고 있습니다.  
 조건이 많고 mongodb 의 조건, 연산이 필요할 때 사용 하고 있습니다.
 
-## 사용법
+# 사용법
 
-### document scope
+## document scope
 
 document scope 를 사용하면 basic query 를 생성할 수 있습니다.
 
@@ -17,7 +17,7 @@ val basicQuery = document {}
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-#### field
+### field
 
 document scope 에서 and, or, nor을 사용하면 field를 함수 형태로 넘길 수 있습니다.  
 field 객체는 Expression 을 생성할 수 있습니다.
@@ -84,16 +84,45 @@ val basicQuery = document(OR) {
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-#### elemMatch
+### embedded document
 
 collection 내부의 embedded document를 검색할 때 사용합니다.  
-아래와 같이 사용할 수 있습니다.
+아래와 같이 선언 할 수 있습니다.
+
+```kotlin
+val basicQuery = document {
+    embeddedDocument(Author::books)
+}
+```
+
+#### 조건
+
+embeddedDocument로 선언된 embedded document 내부의 필드를 조건으로 사용할 수 있습니다.    
+단일 embedded document 필드에 대한 연산을 할 때는 아래와 같이 사용할 수 있습니다.
+where 함수 안에서 and, or, nor 함수를 사용할 수도 있습니다.
+
+```kotlin
+val basicQuery = document {
+    field(Author::name) eq "정철희"
+    embeddedDocument(Author::receipt) where {
+        field(Receipt::card) eq "신한"
+        field(Receipt::price) gte 10000L
+    }
+}
+
+mongoTemplate.find(basicQuery, Author::class)
+```
+
+#### elemMatch
+
+embedded document 배열 필드에 대한 연산을 할 때는 아래와 같이 elemMatch 함수를 사용해서 조건을 지정할 수 있습니다.
+elemMatch 함수 안에서 and, or, nor 함수를 사용할 수도 있습니다.
 
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "정철희"
     embeddedDocument(Author::books) elemMatch {
-        field(Book::title) eq "코틀린"
+        field(Book::title) contains "코틀린"
         field(Book::price) gt 10000
     }
 }
@@ -101,7 +130,7 @@ val basicQuery = document {
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-#### 정렬
+### 정렬
 
 정렬은 orderBy 함수를 사용하면 됩니다.
 
@@ -124,7 +153,7 @@ val basicQuery = document {
 }
 ```
 
-#### grouping
+### grouping
 
 전체의 합을 구할 때 아래처럼 코드를 작성할 수 있습니다.
 
@@ -177,7 +206,8 @@ val statusAndAgeGroup = document {
 mongoTemplate.aggregate(statusAndAgeGroup, Author::class)
 ```
 
-아래와 같이 복잡한 조건과 통계를 한번에 구할 수도 있습니다.  
+아래와 같이 복잡한 조건과 통계를 한번에 구할 수도 있습니다.
+
 ```kotlin
 document {
     field(Author::age) eq 30
@@ -204,7 +234,3 @@ document {
 
 mongoTemplate.aggregate(document, Author::class)
 ```
-
-### TODO
-- [ ] DocumentOperatorBuilder에 field 확장 함수들 리팩토링 -> isEmbeddedDocument 관련해서 변수로 빼자
-- [ ] 'document 내부에 isEmbeddedDocument 라는 필드를 false로 만들어준다. 그리고 where scope 를 열 때 isEmbeddedDocument 상태를 true로 만들어주고 닫을 때 false로 만들어준다.' 구현
