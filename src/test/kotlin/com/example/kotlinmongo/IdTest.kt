@@ -16,7 +16,7 @@ class IdTest(
     private val mongoTemplate: MongoTemplate,
 ) : StringSpec({
     "id 값으로 조회" {
-        val author = mongoTemplate.insert(
+        mongoTemplate.insert(
             Author.of(
                 name = "Test",
                 age = 100,
@@ -79,6 +79,19 @@ class IdTest(
 
         val document = document {
             field(Author::id) eq author.id
+            and {
+                field(Author::age) eq 100
+                or {
+                    field(Author::weight) eq 170.0
+                    field(Author::height) eq 70f
+                }
+                or {
+                    field(Author::status) eq Status.RETIREMENT
+                    field(Author::status) eq Status.ACTIVE
+                }
+            }
+        }.also {
+            println("it : $it")
         } sum {
             field(Author::age) alias "total"
         } average {

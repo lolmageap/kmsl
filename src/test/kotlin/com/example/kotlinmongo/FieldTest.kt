@@ -65,7 +65,7 @@ class FieldTest : StringSpec({
             field(Author::age) between (18 to 30)
         }
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18, \"\$gt\" : 30}}]}")
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gt\" : 18, \"\$lt\" : 30}}]}")
     }
 
     "between inclusive 연산 테스트" {
@@ -73,7 +73,7 @@ class FieldTest : StringSpec({
             field(Author::age) betweenInclusive (18 to 30)
         }
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lte\" : 18, \"\$gte\" : 30}}]}")
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gte\" : 18, \"\$lte\" : 30}}]}")
     }
 
     "greater than and less than or equal 연산 테스트" {
@@ -156,11 +156,9 @@ class FieldTest : StringSpec({
             field(Author::age) eq 18
         } where {
             field(Author::height) eq 180f
-        } where {
-            field(Author::books) size 2
         }
 
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}, { \"height\" : 180.0}, { \"books\" : {\"\$size\" : 2}}]}")
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}, { \"\$and\" : [{ \"height\" : 180.0}]}]}")
     }
 
     "or 연산 테스트" {

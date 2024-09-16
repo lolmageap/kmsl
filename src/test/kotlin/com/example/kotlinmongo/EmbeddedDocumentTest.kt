@@ -80,7 +80,7 @@ class EmbeddedDocumentTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "내부 오브젝트 필드에 대한 연산1" {
+    "내부 배열 오브젝트 필드에 대한 연산" {
         val document = document {
             embeddedDocument(Author::books) elemMatch {
                 or {
@@ -101,17 +101,17 @@ class EmbeddedDocumentTest(
         titles shouldBe mutableListOf("book1", "book2")
     }
 
-    "일반 필드와 내부 오브젝트 필드에 대한 연산" {
+    "내부 단일 오브젝트 필드에 대한 연산" {
         val document = document {
-            // document 내부에 isEmbeddedDocument 라는 필드를 false로 만들어준다.
-            // where scope 를 열 때 isEmbeddedDocument 상태를 true로 만들어주고 닫을 때 false로 만들어준다.
             embeddedDocument(Author::receipt) where {
-                field(Receipt::card) eq "신한"
-                field(Receipt::price) gte 10000L
+                and {
+                    field(Receipt::card) eq "신한"
+                    field(Receipt::price) gte 10000L
+                }
             }
+        } order {
+            field(Author::age) by ASC
         }
-
-        println("document: $document")
 
         val authors = mongoTemplate.find(document, Author::class)
         authors.size shouldBe 1
