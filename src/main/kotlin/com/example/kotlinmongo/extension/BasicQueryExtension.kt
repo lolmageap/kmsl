@@ -42,10 +42,10 @@ infix fun BasicQuery.min(
     EmptyGroup.Min(this.queryObject.copy(), Aggregation.group()).block()
 
 infix fun BasicQuery.where(
-    block: DocumentOperatorBuilder.RootDocumentOperatorBuilder.() -> Unit,
+    block: DocumentOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val originalQuery = this.queryObject.copy()
-    val newQuery = DocumentOperatorBuilder.RootDocumentOperatorBuilder().let {
+    val newQuery = DocumentOperatorBuilder().let {
         it.block()
         if (it.documents.isEmpty()) BasicQuery(Document())
         Document().append(DocumentOperator.AND, it.documents)

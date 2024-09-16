@@ -8,9 +8,9 @@ import org.springframework.data.mongodb.core.query.BasicQuery
 
 fun document(
     documentOperator: RootDocumentOperator = AND,
-    block: DocumentOperatorBuilder.RootDocumentOperatorBuilder.() -> Unit,
+    block: DocumentOperatorBuilder.() -> Unit,
 ): BasicQuery {
-    val document = DocumentOperatorBuilder.RootDocumentOperatorBuilder().let {
+    val document = DocumentOperatorBuilder().let {
         it.block()
         if (it.documents.isEmpty()) return BasicQuery(Document())
 

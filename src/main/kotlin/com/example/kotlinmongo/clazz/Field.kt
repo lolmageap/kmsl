@@ -12,7 +12,6 @@ import kotlin.reflect.jvm.javaField
 class Field<T, R>(
     val key: KProperty1<T, R>,
     val documents: MutableList<Document> = mutableListOf(),
-    val isEmbeddedDocument: Boolean = false,
 ) {
     fun <T : Any> getClassName(
         clazz: KClass<T>,
@@ -45,27 +44,7 @@ class Field<T, R>(
     }
 }
 
-fun <T, R> DocumentOperatorBuilder.RootDocumentOperatorBuilder.field(
-    key: KProperty1<T, R>,
-) = Field(key, this.documents)
-
-fun <T, R> DocumentOperatorBuilder.AndDocumentOperatorBuilder.field(
-    key: KProperty1<T, R>,
-) = Field(key, this.documents)
-
-fun <T, R> DocumentOperatorBuilder.OrDocumentOperatorBuilder.field(
-    key: KProperty1<T, R>,
-) = Field(key, this.documents)
-
-fun <T, R> DocumentOperatorBuilder.NorDocumentOperatorBuilder.field(
-    key: KProperty1<T, R>,
-) = Field(key, this.documents)
-
-fun <T, R> DocumentOperatorBuilder.EmbeddedDocumentOperatorBuilder.field(
-    key: KProperty1<T, R>,
-) = Field(key, this.documents, true)
-
-fun <T, R> DocumentOperatorBuilder.EmbeddedDocumentsOperatorBuilder.field(
+fun <T, R> DocumentOperatorBuilder.field(
     key: KProperty1<T, R>,
 ) = Field(key, this.documents)
 
