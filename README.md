@@ -74,6 +74,21 @@ val basicQuery = document(OR) {
     }
 }
 
+val basicQuery2 = document {
+    or {
+        and {
+            field(Author::name) eq "정철희"
+            field(Author::age) eq 25
+            field(Author::phone) eq "010-1234-5678"
+        }
+        and {
+            field(Author::name) eq "정원희"
+            field(Author::age) eq 30
+            field(Author::phone) eq "010-5678-1234"
+        }   
+    }
+}
+
 /**
  * 위의 코드는 아래와 같은 쿼리를 생성합니다.
  * ( 정철희 and 25 and 010-1234-5678 )
@@ -104,6 +119,7 @@ where 함수 안에서 and, or, nor 함수를 사용할 수도 있습니다.
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "정철희"
+    
     embeddedDocument(Author::receipt) where {
         field(Receipt::card) eq "신한"
         field(Receipt::price) gte 10000L
@@ -121,6 +137,7 @@ elemMatch 함수 안에서 and, or, nor 함수를 사용할 수도 있습니다.
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "정철희"
+    
     embeddedDocument(Author::books) elemMatch {
         field(Book::title) contains "코틀린"
         field(Book::price) gt 10000
@@ -132,7 +149,7 @@ mongoTemplate.find(basicQuery, Author::class)
 
 ### 정렬
 
-정렬은 orderBy 함수를 사용하면 됩니다.
+정렬은 order 함수를 사용하면 됩니다.
 
 ```kotlin
 val basicQuery = document {
@@ -211,8 +228,9 @@ mongoTemplate.aggregate(statusAndAgeGroup, Author::class)
 ```kotlin
 document {
     field(Author::age) eq 30
+    
     embeddedDocument(Author::books) elemMatch {
-        field(Book::price) exists false
+        field(Book::price) exists true
         field(Book::description) startsWith "test"
     }
 } order {
