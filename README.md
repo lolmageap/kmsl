@@ -1,74 +1,81 @@
-# mongodb dsl
+# CH-Mongo
 
-kotlin + spring boot 를 이용한 mongodb dsl 프로젝트 입니다.  
-간단한 criteria, bson, aggregation 을 DSL 형태로 사용할 수 있습니다.
+Spring Data MongoDB is supported in Kotlin DSL form.  
+It was created to solve dynamic queries and complex operations.  
 
-현재 실무 에서 사용 하고 있으며 필요한 기능을 추가 하고 있습니다.  
-조건이 많고 mongodb 의 조건, 연산이 필요할 때 사용 하고 있습니다.
+# Usage
 
-# 사용법
+## Document Scope
 
-## document scope
-
-document scope 를 사용하면 basic query 를 생성할 수 있습니다.
+By using the document scope, you can create basic queries.
 
 ```kotlin
 val basicQuery = document {}
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-### field
+### Field
 
-document scope 에서 and, or, nor을 사용하면 field를 함수 형태로 넘길 수 있습니다.  
-field 객체는 Expression 을 생성할 수 있습니다.
+In the document scope, using and, or, and nor, you can pass fields as function arguments.  
+The field object can generate an Expression.  
 
-아래는 최상단의 scope가 AND 연산자로 생성된 예시입니다.
+Below is an example where the top-level scope is created with an AND operator.
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
     field(Author::age) ne 25
 }
 
 val basicQuery2 = document(AND) {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
     field(Author::age) ne 25
 }
 
 basicQuery shouldBe basicQuery2
-
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-아래는 최상단의 scope가 OR 연산자로 생성된 예시입니다.
+Below is an example where the top-level scope is created with an OR operator.
 
 ```kotlin
 val basicQuery = document(OR) {
-    field(Author::name) `in` ["정철희", "정원희"]
+    field(Author::name) `in` ["cherhy", "wonny"]
     field(Author::age) between (25 to 30)
 }
 ```
 
-아래는 최상단의 scope가 NOR 연산자로 생성된 예시입니다.
+For improved readability, you can use it as shown below.
+
+```kotlin
+val basicQuery = document {
+    or {
+        field(Author::name) `in` ["cherhy", "wonny"]
+        field(Author::age) between (25 to 30)
+    }
+}
+```
+
+Below is an example where the top-level scope is created with an NOR operator.
 
 ```kotlin
 val basicQuery = document(NOR) {
-    field(Author::name) `in` ["정철희", "정원희"]
+    field(Author::name) `in` ["cherhy", "wonny"]
     field(Author::age) between (25 to 30)
 }
 ```
 
-and, or, nor, not 인자 안에 함수 scope 내부는 and 연산으로 처리됩니다.
+Complex operations can be handled as shown below.  
 
 ```kotlin
 val basicQuery = document(OR) {
     and {
-        field(Author::name) eq "정철희"
+        field(Author::name) eq "cherhy"
         field(Author::age) eq 25
         field(Author::phone) eq "010-1234-5678"
     }
     and {
-        field(Author::name) eq "정원희"
+        field(Author::name) eq "wonny"
         field(Author::age) eq 30
         field(Author::phone) eq "010-5678-1234"
     }
@@ -77,12 +84,12 @@ val basicQuery = document(OR) {
 val basicQuery2 = document {
     or {
         and {
-            field(Author::name) eq "정철희"
+            field(Author::name) eq "cherhy"
             field(Author::age) eq 25
             field(Author::phone) eq "010-1234-5678"
         }
         and {
-            field(Author::name) eq "정원희"
+            field(Author::name) eq "wonny"
             field(Author::age) eq 30
             field(Author::phone) eq "010-5678-1234"
         }   
@@ -90,19 +97,20 @@ val basicQuery2 = document {
 }
 
 /**
- * 위의 코드는 아래와 같은 쿼리를 생성합니다.
- * ( 정철희 and 25 and 010-1234-5678 )
+ * The code above generates a query like the one shown below
+ * 
+ * ( cherhy and 25 and 010-1234-5678 )
  * or
- * ( 정원희 and 30 and 010-5678-1234 )
+ * ( wonny and 30 and 010-5678-1234 )
  */
 
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-### embedded document
+### Embedded Document
 
-collection 내부의 embedded document를 검색할 때 사용합니다.  
-아래와 같이 선언 할 수 있습니다.
+It is used when searching for embedded documents within a collection.  
+You can declare it as shown below.  
 
 ```kotlin
 val basicQuery = document {
@@ -110,18 +118,18 @@ val basicQuery = document {
 }
 ```
 
-#### 조건
+#### Using Embedded Document Fields
 
-embeddedDocument로 선언된 embedded document 내부의 필드를 조건으로 사용할 수 있습니다.    
-단일 embedded document 필드에 대한 연산을 할 때는 아래와 같이 사용할 수 있습니다.
-where 함수 안에서 and, or, nor 함수를 사용할 수도 있습니다.
+You can use fields inside an embedded document declared with embeddedDocument as conditions.  
+When performing operations on a single embedded document field, you can use it as shown below.  
+Within the where function, you can also use and, or, and nor functions.  
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
     
     embeddedDocument(Author::receipt) where {
-        field(Receipt::card) eq "신한"
+        field(Receipt::card) eq "toss"
         field(Receipt::price) gte 10000L
     }
 }
@@ -129,17 +137,17 @@ val basicQuery = document {
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-#### elemMatch
+#### ElemMatch
 
-embedded document 배열 필드에 대한 연산을 할 때는 아래와 같이 elemMatch 함수를 사용해서 조건을 지정할 수 있습니다.
-elemMatch 함수 안에서 and, or, nor 함수를 사용할 수도 있습니다.
+When performing operations on an array field of embedded documents, you can specify conditions using the elemMatch function as shown below.  
+Within the elemMatch function, you can also use and, or, and nor functions.  
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
     
     embeddedDocument(Author::books) elemMatch {
-        field(Book::title) contains "코틀린"
+        field(Book::title) contains "kotlin"
         field(Book::price) gt 10000
     }
 }
@@ -147,36 +155,36 @@ val basicQuery = document {
 mongoTemplate.find(basicQuery, Author::class)
 ```
 
-### 정렬
+### Sort
 
-정렬은 order 함수를 사용하면 됩니다.
+You can use the order function to handle sorting.  
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
 } order {
     field(Author::age) by DESC
 }
 ```
 
-아래처럼 여러 필드를 정렬할 수도 있습니다.
+You can also sort by multiple fields as shown below.
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
 } order {
     field(Author::age) by DESC
     field(Author::phone) by ASC
 }
 ```
 
-### grouping
+### Grouping
 
-전체의 합을 구할 때 아래처럼 코드를 작성할 수 있습니다.
+To calculate the total sum, you can write the code as shown below.
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
 } sum {
     field(Author::age) alias "sumOfAge"
 }
@@ -184,22 +192,22 @@ val basicQuery = document {
 mongoTemplate.aggregate(basicQuery, Author::class)
 ```
 
-간단한 통계 쿼리는 mongoTemplate.sum과 같은 확장 함수를 지원해줍니다.
+Simple statistical queries support extension functions like mongoTemplate.sum
 
 ```kotlin
 val basicQuery = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
 }
 
 mongoTemplate.sum(basicQuery, Author::age)
 ```
 
-만약 실제 mongoDB에 field가 String 타입이어도 숫자로 형변환하여 계산할 수 있습니다.    
-아래는 sum 할 때 mongoDB에서 숫자 타입으로 컨버팅하는 예시입니다.
+Even if a field in the actual MongoDB is of type String, you can perform calculations by converting it to a number.  
+Below is an example of converting to a number type when summing in MongoDB.  
 
 ```kotlin
 val statusGroup = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
 } group {
     field(Author::status) by SINGLE
 } sum {
@@ -209,11 +217,11 @@ val statusGroup = document {
 mongoTemplate.aggregate(statusGroup, Author::class)
 ```
 
-여러 group으로 그룹핑할 수도 있습니다.
+You can also group by multiple groups.  
 
 ```kotlin
 val statusAndAgeGroup = document {
-    field(Author::name) eq "정철희"
+    field(Author::name) eq "cherhy"
 } group {
     field(Author::status) and field(Author::age)
 } sum {
@@ -223,7 +231,7 @@ val statusAndAgeGroup = document {
 mongoTemplate.aggregate(statusAndAgeGroup, Author::class)
 ```
 
-아래와 같이 복잡한 조건과 통계를 한번에 구할 수도 있습니다.
+You can also calculate complex conditions and statistics in a single query, as shown below.  
 
 ```kotlin
 document {
