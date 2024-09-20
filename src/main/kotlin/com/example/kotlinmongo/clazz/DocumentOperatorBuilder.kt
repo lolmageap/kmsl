@@ -17,7 +17,7 @@ class DocumentOperatorBuilder(
         val andDocumentOperatorBuilder = DocumentOperatorBuilder(this.isEmbeddedDocument)
         andDocumentOperatorBuilder.block()
         val andDocuments = andDocumentOperatorBuilder.documents
-        documents.add(Document().append(AND, andDocuments))
+        if (andDocuments.isNotEmpty()) documents.add(Document(AND, andDocuments))
     }
 
     fun or(
@@ -26,7 +26,7 @@ class DocumentOperatorBuilder(
         val orDocumentOperatorBuilder = DocumentOperatorBuilder(this.isEmbeddedDocument)
         orDocumentOperatorBuilder.block()
         val orDocuments = orDocumentOperatorBuilder.documents
-        documents.add(Document().append(OR, orDocuments))
+        if (orDocuments.isNotEmpty()) documents.add(Document(OR, orDocuments))
     }
 
     fun nor(
@@ -35,7 +35,7 @@ class DocumentOperatorBuilder(
         val norDocumentOperatorBuilder = DocumentOperatorBuilder(this.isEmbeddedDocument)
         norDocumentOperatorBuilder.block()
         val norDocuments = norDocumentOperatorBuilder.documents
-        documents.add(Document().append(NOR, norDocuments))
+        if (norDocuments.isNotEmpty()) documents.add(Document(NOR, norDocuments))
     }
 
     fun <T, R> embeddedDocument(
@@ -50,7 +50,7 @@ class DocumentOperatorBuilder(
         embeddedDocumentOperatorBuilder.block()
         embeddedDocumentOperatorBuilder.isEmbeddedDocument = false
         val whereDocuments = embeddedDocumentOperatorBuilder.documents
-        documents.add(Document(AND, whereDocuments))
+        if (whereDocuments.isNotEmpty()) documents.add(Document(AND, whereDocuments))
     }
 
     fun <T, R> embeddedDocument(
@@ -63,11 +63,15 @@ class DocumentOperatorBuilder(
         val embeddedDocumentsOperatorBuilder = DocumentOperatorBuilder(this@DocumentOperatorBuilder.isEmbeddedDocument)
         embeddedDocumentsOperatorBuilder.block()
         val elemMatchDocuments = embeddedDocumentsOperatorBuilder.documents
-        documents.add(
-            Document(
-                this.name, Document(DocumentOperator.ELEM_MATCH, Document().append(AND, elemMatchDocuments))
+        if (elemMatchDocuments.isNotEmpty()) {
+            documents.add(
+                Document(
+                    this.name,
+                    Document(
+                        DocumentOperator.ELEM_MATCH, Document(AND, elemMatchDocuments))
+                )
             )
-        )
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.eq(
@@ -77,9 +81,9 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, value.convertIfId())
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(key, value.convertIfId()).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.ne(
@@ -89,9 +93,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.NOT_EQUAL, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.NOT_EQUAL, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.lt(
@@ -101,9 +108,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.LESS_THAN, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.LESS_THAN, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.lte(
@@ -113,9 +123,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.gt(
@@ -125,9 +138,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.GREATER_THAN, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.GREATER_THAN, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.gte(
@@ -137,9 +153,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.between(
@@ -155,32 +174,29 @@ class DocumentOperatorBuilder(
             }
 
             values.first == null -> {
-                val document =
-                    Document(key, Document(DocumentOperator.LESS_THAN, values.second?.convertIfId()))
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                Document(key, Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             values.second == null -> {
-                val document =
-                    Document(
-                        key,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
-                    )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                Document(
+                    key,
+                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             else -> {
-                val document =
-                    Document(
-                        key,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN, values.second?.convertIfId()
-                        )
+                Document(
+                    key,
+                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                        DocumentOperator.LESS_THAN, values.second?.convertIfId()
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
         }
     }
@@ -198,44 +214,41 @@ class DocumentOperatorBuilder(
             }
 
             values.first == null -> {
-                val document =
+                Document(
+                    key,
                     Document(
-                        key,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
-                        )
+                        DocumentOperator.NOT,
+                        Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             values.second == null -> {
-                val document =
+                Document(
+                    key,
                     Document(
-                        key,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
-                        )
+                        DocumentOperator.NOT,
+                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             else -> {
-                val document =
+                Document(
+                    key,
                     Document(
-                        key,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                                DocumentOperator.LESS_THAN, values.second?.convertIfId()
-                            )
+                        DocumentOperator.NOT,
+                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                            DocumentOperator.LESS_THAN, values.second?.convertIfId()
                         )
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
         }
     }
@@ -253,36 +266,32 @@ class DocumentOperatorBuilder(
             }
 
             values.first == null -> {
-                val document =
-                    Document(
-                        key,
-                        Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
-                    )
-                if (document.isNotEmpty()) documents.add(document)
-                return document
+                Document(
+                    key,
+                    Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             values.second == null -> {
-                val document =
-                    Document(
-                        key,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
-                    )
-                if (document.isNotEmpty()) documents.add(document)
-                return document
+                Document(
+                    key,
+                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             else -> {
-                val document =
-                    Document(
-                        key,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
-                        )
+                Document(
+                    key,
+                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                        DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
                     )
-
-                if (document.isNotEmpty()) documents.add(document)
-                return document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
         }
     }
@@ -300,44 +309,41 @@ class DocumentOperatorBuilder(
             }
 
             values.first == null -> {
-                val document =
+                Document(
+                    key,
                     Document(
-                        key,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
-                        )
+                        DocumentOperator.NOT,
+                        Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             values.second == null -> {
-                val document =
+                Document(
+                    key,
                     Document(
-                        key,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
-                        )
+                        DocumentOperator.NOT,
+                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
 
             else -> {
-                val document =
+                Document(
+                    key,
                     Document(
-                        key,
-                        Document(
-                            DocumentOperator.NOT,
-                            Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
-                                DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
-                            )
+                        DocumentOperator.NOT,
+                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                            DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
                         )
                     )
-                if (document.isNotEmpty()) documents.add(document)
-                document
+                ).apply {
+                    if (isNotEmpty()) documents.add(this)
+                }
             }
         }
     }
@@ -349,9 +355,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.IN, values.map { it.convertIfId() }))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.IN, values.map { it.convertIfId() }),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.`in`(
@@ -361,9 +370,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.IN, values.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.IN, values.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.notIn(
@@ -373,9 +385,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.notIn(
@@ -385,9 +400,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.NOT_IN, values.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.NOT_IN, values.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.contains(
@@ -397,9 +415,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.REGEX, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.REGEX, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.containsIgnoreCase(
@@ -409,16 +430,14 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document =
-            Document(
-                key,
-                Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                    DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
-                )
+        return Document(
+            key,
+            Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
             )
-
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.containsNot(
@@ -428,13 +447,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document =
-            Document(
-                key,
-                Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
-            )
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.containsNotIgnoreCase(
@@ -444,17 +462,16 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document =
+        return Document(
+            key,
             Document(
-                key,
-                Document(
-                    DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                        DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
-                    )
+                DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
+                    DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
                 )
             )
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.startsWith(
@@ -464,9 +481,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.REGEX, "^${value.convertIfId()}"))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.REGEX, "^${value.convertIfId()}"),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.endsWith(
@@ -476,10 +496,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.REGEX, "${value.convertIfId()}$"))
-
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.REGEX, "${value.convertIfId()}$"),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.match(
@@ -489,9 +511,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.MATCH, value.convertIfId()))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.MATCH, value.convertIfId()),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.all(
@@ -501,9 +526,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.ALL, value.map { it.convertIfId() }))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.ALL, value.map { it.convertIfId() }),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.size(
@@ -513,9 +541,12 @@ class DocumentOperatorBuilder(
             if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
             else key.fieldName
 
-        val document = Document(key, Document(DocumentOperator.SIZE, value))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+        return Document(
+            key,
+            Document(DocumentOperator.SIZE, value),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.exists(
@@ -523,8 +554,12 @@ class DocumentOperatorBuilder(
     ): Document {
         val key = if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
         else key.fieldName
-        val document = Document(key, Document(DocumentOperator.EXISTS, value))
-        if (document.isNotEmpty()) documents.add(document)
-        return document
+
+        return Document(
+            key,
+            Document(DocumentOperator.EXISTS, value),
+        ).apply {
+            if (isNotEmpty()) documents.add(this)
+        }
     }
 }
