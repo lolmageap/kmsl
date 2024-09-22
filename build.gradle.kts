@@ -39,6 +39,10 @@ publishing {
 			artifactId = "ch-mongo"
 			version = project.version.toString()
 			artifact(tasks.named<Jar>("jar").get())
+
+			tasks.named("generateMetadataFileForMavenJavaPublication") {
+				dependsOn(tasks.named("bootJar"))
+			}
 		}
 	}
 }
@@ -68,4 +72,8 @@ tasks.register<Jar>("javadocJar") {
 tasks.register<Jar>("sourcesJar") {
 	archiveClassifier.set("sources")
 	from(sourceSets.main.get().allSource)
+}
+
+tasks.named("bootJar").configure {
+	enabled = false
 }
