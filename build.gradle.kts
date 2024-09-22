@@ -53,15 +53,15 @@ tasks.withType<Test> {
 }
 
 tasks.bootJar {
-	archiveBaseName = project.name
-	archiveVersion = project.version.toString()
 	archiveClassifier = ""
 	archiveClassifier.set("")
 }
 
 tasks.jar {
-	archiveBaseName = project.name
-	archiveVersion = project.version.toString()
 	archiveClassifier = ""
 	archiveClassifier.set("")
+}
+
+tasks.named("generateMetadataFileForMavenJavaPublication") {
+	dependsOn(tasks.named("bootJar"))
 }
