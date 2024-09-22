@@ -1,18 +1,19 @@
 package com.example.kotlinmongo
 
-import cherhy.mongo.dsl.clazz.FieldName.AVERAGE_FIELD
-import cherhy.mongo.dsl.clazz.FieldName.COUNT_FIELD
-import cherhy.mongo.dsl.clazz.FieldName.ID
-import cherhy.mongo.dsl.clazz.FieldName.MAX_FIELD
-import cherhy.mongo.dsl.clazz.FieldName.MIN_FIELD
-import cherhy.mongo.dsl.clazz.FieldName.SUM_FIELD
-import cherhy.mongo.dsl.clazz.GroupType.SINGLE
-import cherhy.mongo.dsl.clazz.field
+import com.kmsl.dsl.clazz.FieldName.AVERAGE_FIELD
+import com.kmsl.dsl.clazz.FieldName.COUNT_FIELD
+import com.kmsl.dsl.clazz.FieldName.ID
+import com.kmsl.dsl.clazz.FieldName.MAX_FIELD
+import com.kmsl.dsl.clazz.FieldName.MIN_FIELD
+import com.kmsl.dsl.clazz.FieldName.SUM_FIELD
+import com.kmsl.dsl.clazz.GroupType.SINGLE
+import com.kmsl.dsl.clazz.field
 import com.example.kotlinmongo.collection.Author
 import com.example.kotlinmongo.collection.Book
 import com.example.kotlinmongo.collection.Status
 import com.example.kotlinmongo.collection.Status.*
-import cherhy.mongo.dsl.extension.*
+import com.kmsl.dsl.KmslApplication
+import com.kmsl.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +23,7 @@ import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.MongoTemplate
 import java.math.BigDecimal
 
-@SpringBootTest
+@SpringBootTest(classes = [KmslApplication::class])
 class GroupTest(
     @Autowired private val mongoTemplate: MongoTemplate,
 ) : StringSpec({

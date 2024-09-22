@@ -1,4 +1,4 @@
-package cherhy.mongo.dsl.clazz
+package com.kmsl.dsl.clazz
 
 object FieldName {
     const val ID = "_id"

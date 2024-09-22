@@ -1,10 +1,9 @@
 package com.example.kotlinmongo
 
-import cherhy.mongo.dsl.clazz.field
+import com.kmsl.dsl.clazz.field
 import com.example.kotlinmongo.collection.Author
-import cherhy.mongo.dsl.extension.RootDocumentOperator.OR
-import cherhy.mongo.dsl.extension.document
-import cherhy.mongo.dsl.extension.where
+import com.kmsl.dsl.extension.RootDocumentOperator.OR
+import com.kmsl.dsl.extension.document
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.data.mongodb.core.query.BasicQuery

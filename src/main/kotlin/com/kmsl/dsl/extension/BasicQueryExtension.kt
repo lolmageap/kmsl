@@ -1,6 +1,6 @@
-package cherhy.mongo.dsl.extension
+package com.kmsl.dsl.extension
 
-import cherhy.mongo.dsl.clazz.*
+import com.kmsl.dsl.clazz.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery

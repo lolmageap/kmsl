@@ -1,4 +1,4 @@
-package cherhy.mongo.dsl.clazz
+package com.kmsl.dsl.clazz
 
 import org.bson.Document
 import org.bson.types.ObjectId

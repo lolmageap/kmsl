@@ -1,4 +1,4 @@
-package cherhy.mongo.dsl.clazz
+package com.kmsl.dsl.clazz
 
 import org.springframework.data.mapping.toDotPath
 import kotlin.reflect.KProperty1

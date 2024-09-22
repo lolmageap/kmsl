@@ -1,4 +1,4 @@
-package cherhy.mongo.dsl.extension
+package com.kmsl.dsl.extension
 
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation

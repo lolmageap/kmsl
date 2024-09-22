@@ -1,4 +1,4 @@
-package cherhy.mongo.dsl.extension
+package com.kmsl.dsl.extension
 
 import java.math.BigDecimal
 

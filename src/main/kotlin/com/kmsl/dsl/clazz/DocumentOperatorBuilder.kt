@@ -1,8 +1,8 @@
-package cherhy.mongo.dsl.clazz
+package com.kmsl.dsl.clazz
 
-import cherhy.mongo.dsl.clazz.DocumentOperator.AND
-import cherhy.mongo.dsl.clazz.DocumentOperator.NOR
-import cherhy.mongo.dsl.clazz.DocumentOperator.OR
+import com.kmsl.dsl.clazz.DocumentOperator.AND
+import com.kmsl.dsl.clazz.DocumentOperator.NOR
+import com.kmsl.dsl.clazz.DocumentOperator.OR
 import org.bson.Document
 import kotlin.reflect.KProperty1
 
