@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.lolmageap:kmsl:0.0.1")
+    implementation("com.github.lolmageap:kmsl:1.0.0")
 }
 ```
 
