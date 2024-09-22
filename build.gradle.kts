@@ -13,6 +13,8 @@ version = "0.0.1"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
+	withSourcesJar()
+	withJavadocJar()
 }
 
 repositories {
@@ -35,14 +37,6 @@ publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
 			from(components["java"])
-			groupId = project.group.toString()
-			artifactId = "ch-mongo"
-			version = project.version.toString()
-			artifact(tasks.named<Jar>("jar").get())
-
-			tasks.named("generateMetadataFileForMavenJavaPublication") {
-				dependsOn(tasks.named("bootJar"))
-			}
 		}
 	}
 }
@@ -56,24 +50,4 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-}
-
-tasks.withType<Jar> {
-	archiveBaseName.set("ch-mongo")
-	archiveVersion.set(version.toString())
-	archiveClassifier.set("")
-}
-
-tasks.register<Jar>("javadocJar") {
-	archiveClassifier.set("javadoc")
-	from(tasks.getByName("javadoc"))
-}
-
-tasks.register<Jar>("sourcesJar") {
-	archiveClassifier.set("sources")
-	from(sourceSets.main.get().allSource)
-}
-
-tasks.named("bootJar").configure {
-	enabled = false
 }
