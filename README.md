@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.cherhy:kmsl:0.0.1")
+    implementation("com.github.lolmageap:kmsl:0.0.1")
 }
 ```
 
@@ -276,3 +276,6 @@ document {
 
 mongoTemplate.aggregate(document, Author::class)
 ```
+
+### TODO
+- [ ] create @EmbeddedDocument annotation
