@@ -1,6 +1,6 @@
-package cherhy.mongo.dsl.extension
+package com.kmsl.dsl.extension
 
-import cherhy.mongo.dsl.clazz.*
+import com.kmsl.dsl.clazz.*
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -10,6 +10,11 @@ import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+
+fun <T : Any> MongoTemplate.findOne(
+    query: BasicQuery,
+    entityClass: KClass<T>,
+) = findOne(query, entityClass.java)
 
 fun <T : Any> MongoTemplate.find(
     query: BasicQuery,
