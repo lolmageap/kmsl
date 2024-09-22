@@ -36,8 +36,9 @@ publishing {
 		create<MavenPublication>("mavenJava") {
 			from(components["java"])
 			groupId = project.group.toString()
-			artifactId = project.name
+			artifactId = "ch-mongo"
 			version = project.version.toString()
+			artifact(tasks.named<Jar>("jar").get())
 		}
 	}
 }
@@ -54,8 +55,9 @@ tasks.withType<Test> {
 }
 
 tasks.withType<Jar> {
-	archiveBaseName.set("mongo-dsl")
+	archiveBaseName.set("ch-mongo")
 	archiveVersion.set(version.toString())
+	archiveClassifier.set("")
 }
 
 tasks.register<Jar>("javadocJar") {
