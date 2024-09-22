@@ -1,9 +1,9 @@
 package com.example.kotlinmongo
 
 import cherhy.mongo.dsl.clazz.field
-import cherhy.mongo.dsl.collection.Author
-import cherhy.mongo.dsl.collection.Status.ACTIVE
-import cherhy.mongo.dsl.collection.Status.RETIREMENT
+import com.example.kotlinmongo.collection.Author
+import com.example.kotlinmongo.collection.Status.ACTIVE
+import com.example.kotlinmongo.collection.Status.RETIREMENT
 import cherhy.mongo.dsl.extension.document
 import cherhy.mongo.dsl.extension.find
 import io.kotest.core.spec.style.StringSpec

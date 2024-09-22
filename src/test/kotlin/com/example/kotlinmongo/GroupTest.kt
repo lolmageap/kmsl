@@ -8,10 +8,10 @@ import cherhy.mongo.dsl.clazz.FieldName.MIN_FIELD
 import cherhy.mongo.dsl.clazz.FieldName.SUM_FIELD
 import cherhy.mongo.dsl.clazz.GroupType.SINGLE
 import cherhy.mongo.dsl.clazz.field
-import cherhy.mongo.dsl.collection.Author
-import cherhy.mongo.dsl.collection.Book
-import cherhy.mongo.dsl.collection.Status
-import cherhy.mongo.dsl.collection.Status.*
+import com.example.kotlinmongo.collection.Author
+import com.example.kotlinmongo.collection.Book
+import com.example.kotlinmongo.collection.Status
+import com.example.kotlinmongo.collection.Status.*
 import cherhy.mongo.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

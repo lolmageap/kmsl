@@ -1,7 +1,7 @@
 package com.example.kotlinmongo
 
 import cherhy.mongo.dsl.clazz.field
-import cherhy.mongo.dsl.collection.Author
+import com.example.kotlinmongo.collection.Author
 import cherhy.mongo.dsl.extension.RootDocumentOperator.OR
 import cherhy.mongo.dsl.extension.document
 import cherhy.mongo.dsl.extension.where

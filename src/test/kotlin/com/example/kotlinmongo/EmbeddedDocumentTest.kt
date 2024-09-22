@@ -1,10 +1,10 @@
 package com.example.kotlinmongo
 
 import cherhy.mongo.dsl.clazz.field
-import cherhy.mongo.dsl.collection.Author
-import cherhy.mongo.dsl.collection.Book
-import cherhy.mongo.dsl.collection.Receipt
-import cherhy.mongo.dsl.collection.Status
+import com.example.kotlinmongo.collection.Author
+import com.example.kotlinmongo.collection.Book
+import com.example.kotlinmongo.collection.Receipt
+import com.example.kotlinmongo.collection.Status
 import cherhy.mongo.dsl.extension.document
 import cherhy.mongo.dsl.extension.find
 import cherhy.mongo.dsl.extension.order

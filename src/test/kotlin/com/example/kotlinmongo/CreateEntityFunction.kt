@@ -1,7 +1,7 @@
 package com.example.kotlinmongo
 
-import cherhy.mongo.dsl.collection.Book
-import cherhy.mongo.dsl.collection.Receipt
+import com.example.kotlinmongo.collection.Book
+import com.example.kotlinmongo.collection.Receipt
 
 // When creating exception cases, use the copy method
 fun createBook(

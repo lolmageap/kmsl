@@ -44,7 +44,7 @@ class Field<T, R>(
     }
 }
 
-fun <T, R> cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.field(
+fun <T, R> DocumentOperatorBuilder.field(
     key: KProperty1<T, R>,
 ) = Field(key, this.documents)
 

@@ -120,16 +120,16 @@ open class Group<T, R>(
     infix fun Field<T, R>.by(
         type: GroupType,
     ) {
-        if (type == GroupType.SINGLE) {
+        isSingleGroup = if (type == GroupType.SINGLE) {
             if (isSingleGroup == false) {
                 error("Single Group으로 선언되어 있지 않습니다.")
             }
-            isSingleGroup = true
+            true
         } else {
             if (isSingleGroup == true) {
                 error("Single Group으로 선언되어 있습니다.")
             }
-            isSingleGroup = false
+            false
         }
 
         groupProperties.add(this.key)
