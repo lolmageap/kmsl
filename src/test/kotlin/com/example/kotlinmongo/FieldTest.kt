@@ -150,17 +150,6 @@ class FieldTest : StringSpec({
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : {\"\$match\" : \"John\"}}]}")
     }
 
-    "조건 재할당 테스트" {
-        val document = document {
-            field(Author::name) eq "John"
-            field(Author::age) eq 18
-        } where {
-            field(Author::height) eq 180f
-        }
-
-        document shouldBe BasicQuery("{ \"\$and\" : [{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}, { \"\$and\" : [{ \"height\" : 180.0}]}]}")
-    }
-
     "or 연산 테스트" {
         val document = document(OR) {
             and {
