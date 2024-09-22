@@ -8,7 +8,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.4"
 }
 
-group = "cherhy.mongo"
+group = "com.github.lolmageap"
 version = "0.0.1"
 
 java {
@@ -51,4 +51,19 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.withType<Jar> {
+	archiveBaseName.set("mongo-dsl")
+	archiveVersion.set(version.toString())
+}
+
+tasks.register<Jar>("javadocJar") {
+	archiveClassifier.set("javadoc")
+	from(tasks.getByName("javadoc"))
+}
+
+tasks.register<Jar>("sourcesJar") {
+	archiveClassifier.set("sources")
+	from(sourceSets.main.get().allSource)
 }
