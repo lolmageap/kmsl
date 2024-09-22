@@ -4,6 +4,21 @@
 Spring Data MongoDB is supported in Kotlin DSL form.  
 It was created to solve dynamic queries and complex operations.  
 
+## Dependencies
+Warning: You might need to set your Kotlin JVM target to 17, and when using Spring, to 17, in order for this to work properly. This means that certain features are only available when using Java 17.  
+
+add the following to your build.gradle.kts file:
+```kotlin
+repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+}
+
+dependencies {
+    implementation("com.github.cherhy:kmsl:0.0.1")
+}
+```
+
 # Usage
 
 ## Document Scope
