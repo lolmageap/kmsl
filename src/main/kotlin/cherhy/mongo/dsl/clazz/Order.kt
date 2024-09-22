@@ -1,6 +1,6 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
-import com.example.kotlinmongo.extension.copy
+import cherhy.mongo.dsl.extension.copy
 import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.mapping.toDotPath

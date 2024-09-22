@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
 enum class GroupType {
     SINGLE,

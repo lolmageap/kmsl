@@ -1,13 +1,13 @@
 package com.example.kotlinmongo
 
-import com.example.kotlinmongo.clazz.field
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Book
-import com.example.kotlinmongo.collection.Receipt
-import com.example.kotlinmongo.collection.Status
-import com.example.kotlinmongo.extension.document
-import com.example.kotlinmongo.extension.find
-import com.example.kotlinmongo.extension.order
+import cherhy.mongo.dsl.clazz.field
+import cherhy.mongo.dsl.collection.Author
+import cherhy.mongo.dsl.collection.Book
+import cherhy.mongo.dsl.collection.Receipt
+import cherhy.mongo.dsl.collection.Status
+import cherhy.mongo.dsl.extension.document
+import cherhy.mongo.dsl.extension.find
+import cherhy.mongo.dsl.extension.order
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
@@ -117,25 +117,3 @@ class EmbeddedDocumentTest(
         authors.size shouldBe 1
     }
 })
-
-private fun createBook(
-    title: String,
-    price: Long = 10000L,
-    isbn: String = "isbn",
-    description: String? = null,
-) =
-    Book.of(
-        title = title,
-        price = price,
-        isbn = isbn,
-        description = description,
-    )
-
-private fun createReceipt(
-    card: String,
-) =
-    Receipt.of(
-        date = "2024-09-14",
-        card = card,
-        price = 10000L,
-    )

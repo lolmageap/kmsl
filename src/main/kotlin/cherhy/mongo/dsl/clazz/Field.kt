@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -44,7 +44,7 @@ class Field<T, R>(
     }
 }
 
-fun <T, R> DocumentOperatorBuilder.field(
+fun <T, R> cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.field(
     key: KProperty1<T, R>,
 ) = Field(key, this.documents)
 

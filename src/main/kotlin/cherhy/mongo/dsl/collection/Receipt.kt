@@ -1,44 +1,33 @@
-package com.example.kotlinmongo.collection
+package cherhy.mongo.dsl.collection
 
-data class Book private constructor(
-    var title: String,
-    var price: Long,
-    var isbn: String,
-    var description: String? = null,
-) : MutableMap<String, Any?> {
+data class Receipt private constructor(
+    val date: String,
+    val card: String,
+    val price: Long,
+): MutableMap<String, Any?> {
     constructor() : this(
-        title = "",
+        date = "",
+        card = "",
         price = 0,
-        isbn = "",
-        description = null,
     )
 
     private val map: MutableMap<String, Any?> = mutableMapOf(
-        "title" to title,
+        "date" to date,
+        "card" to card,
         "price" to price,
-        "isbn" to isbn,
-        "description" to description,
     )
 
     override fun put(key: String, value: Any?): Any? {
         return when (key) {
-            "title" -> {
-                title = value as String
+            "date" -> {
+                map.put(key, value)
+            }
+
+            "card" -> {
                 map.put(key, value)
             }
 
             "price" -> {
-                price = value as Long
-                map.put(key, value)
-            }
-
-            "isbn" -> {
-                isbn = value as String
-                map.put(key, value)
-            }
-
-            "description" -> {
-                description = value as String?
                 map.put(key, value)
             }
 
@@ -88,15 +77,13 @@ data class Book private constructor(
 
     companion object {
         fun of(
-            title: String,
+            date: String,
+            card: String,
             price: Long,
-            isbn: String,
-            description: String? = null,
-        ) = Book(
-            title = title,
+        ) = Receipt(
+            date = date,
+            card = card,
             price = price,
-            isbn = isbn,
-            description = description,
         )
     }
 }

@@ -1,6 +1,6 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
-import com.example.kotlinmongo.extension.matchOperation
+import cherhy.mongo.dsl.extension.matchOperation
 import org.bson.Document
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.aggregation.Aggregation

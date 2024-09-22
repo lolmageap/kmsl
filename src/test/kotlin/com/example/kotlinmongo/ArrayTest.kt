@@ -1,12 +1,11 @@
 package com.example.kotlinmongo
 
-import com.example.kotlinmongo.clazz.field
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Book
-import com.example.kotlinmongo.collection.Status.ACTIVE
-import com.example.kotlinmongo.collection.Status.RETIREMENT
-import com.example.kotlinmongo.extension.document
-import com.example.kotlinmongo.extension.find
+import cherhy.mongo.dsl.clazz.field
+import cherhy.mongo.dsl.collection.Author
+import cherhy.mongo.dsl.collection.Status.ACTIVE
+import cherhy.mongo.dsl.collection.Status.RETIREMENT
+import cherhy.mongo.dsl.extension.document
+import cherhy.mongo.dsl.extension.find
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
@@ -103,16 +102,3 @@ class ArrayTest(
         titles shouldBe listOf("book1", "book2")
     }
 })
-
-private fun createBook(
-    title: String,
-    price: Long = 10000L,
-    isbn: String = "isbn",
-    description: String? = null,
-) =
-    Book.of(
-        title,
-        price,
-        isbn,
-        description,
-    )

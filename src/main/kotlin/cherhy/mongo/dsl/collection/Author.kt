@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.collection
+package cherhy.mongo.dsl.collection
 
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id

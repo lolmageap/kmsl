@@ -1,6 +1,6 @@
-package com.example.kotlinmongo.extension
+package cherhy.mongo.dsl.extension
 
-import com.example.kotlinmongo.clazz.*
+import cherhy.mongo.dsl.clazz.*
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl

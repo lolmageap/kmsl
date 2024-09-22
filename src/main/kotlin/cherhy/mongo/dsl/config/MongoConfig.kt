@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.config
+package cherhy.mongo.dsl.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

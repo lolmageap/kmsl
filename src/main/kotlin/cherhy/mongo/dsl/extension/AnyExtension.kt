@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.extension
+package cherhy.mongo.dsl.extension
 
 import java.math.BigDecimal
 

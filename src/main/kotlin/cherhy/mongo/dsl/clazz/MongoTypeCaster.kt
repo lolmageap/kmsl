@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
 import java.math.BigDecimal
 import java.util.*

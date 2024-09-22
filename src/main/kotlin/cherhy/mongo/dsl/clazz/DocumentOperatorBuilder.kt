@@ -1,8 +1,8 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
-import com.example.kotlinmongo.clazz.DocumentOperator.AND
-import com.example.kotlinmongo.clazz.DocumentOperator.NOR
-import com.example.kotlinmongo.clazz.DocumentOperator.OR
+import cherhy.mongo.dsl.clazz.DocumentOperator.AND
+import cherhy.mongo.dsl.clazz.DocumentOperator.NOR
+import cherhy.mongo.dsl.clazz.DocumentOperator.OR
 import org.bson.Document
 import kotlin.reflect.KProperty1
 
@@ -12,27 +12,30 @@ class DocumentOperatorBuilder(
     val documents = mutableListOf<Document>()
 
     fun and(
-        block: DocumentOperatorBuilder.() -> Unit,
+        block: cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.() -> Unit,
     ) {
-        val andDocumentOperatorBuilder = DocumentOperatorBuilder(this.isEmbeddedDocument)
+        val andDocumentOperatorBuilder =
+            cherhy.mongo.dsl.clazz.DocumentOperatorBuilder(this.isEmbeddedDocument)
         andDocumentOperatorBuilder.block()
         val andDocuments = andDocumentOperatorBuilder.documents
         if (andDocuments.isNotEmpty()) documents.add(Document(AND, andDocuments))
     }
 
     fun or(
-        block: DocumentOperatorBuilder.() -> Unit,
+        block: cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.() -> Unit,
     ) {
-        val orDocumentOperatorBuilder = DocumentOperatorBuilder(this.isEmbeddedDocument)
+        val orDocumentOperatorBuilder =
+            cherhy.mongo.dsl.clazz.DocumentOperatorBuilder(this.isEmbeddedDocument)
         orDocumentOperatorBuilder.block()
         val orDocuments = orDocumentOperatorBuilder.documents
         if (orDocuments.isNotEmpty()) documents.add(Document(OR, orDocuments))
     }
 
     fun nor(
-        block: DocumentOperatorBuilder.() -> Unit,
+        block: cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.() -> Unit,
     ) {
-        val norDocumentOperatorBuilder = DocumentOperatorBuilder(this.isEmbeddedDocument)
+        val norDocumentOperatorBuilder =
+            cherhy.mongo.dsl.clazz.DocumentOperatorBuilder(this.isEmbeddedDocument)
         norDocumentOperatorBuilder.block()
         val norDocuments = norDocumentOperatorBuilder.documents
         if (norDocuments.isNotEmpty()) documents.add(Document(NOR, norDocuments))
@@ -40,12 +43,13 @@ class DocumentOperatorBuilder(
 
     fun <T, R> embeddedDocument(
         property: KProperty1<T, R>,
-    ) = EmbeddedDocument.of(property)
+    ) = cherhy.mongo.dsl.clazz.EmbeddedDocument.Companion.of(property)
 
-    inline infix fun <T, reified R> EmbeddedDocument<T, R?>.where(
-        noinline block: DocumentOperatorBuilder.() -> Unit,
+    inline infix fun <T, reified R> cherhy.mongo.dsl.clazz.EmbeddedDocument<T, R?>.where(
+        noinline block: cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.() -> Unit,
     ) {
-        val embeddedDocumentOperatorBuilder = DocumentOperatorBuilder(this@DocumentOperatorBuilder.isEmbeddedDocument)
+        val embeddedDocumentOperatorBuilder =
+            cherhy.mongo.dsl.clazz.DocumentOperatorBuilder(this@DocumentOperatorBuilder.isEmbeddedDocument)
         embeddedDocumentOperatorBuilder.isEmbeddedDocument = true
         embeddedDocumentOperatorBuilder.block()
         embeddedDocumentOperatorBuilder.isEmbeddedDocument = false
@@ -55,12 +59,13 @@ class DocumentOperatorBuilder(
 
     fun <T, R> embeddedDocument(
         property: KProperty1<T, List<R>>,
-    ) = EmbeddedDocuments.of(property)
+    ) = cherhy.mongo.dsl.clazz.EmbeddedDocuments.Companion.of(property)
 
-    inline infix fun <T, reified R> EmbeddedDocuments<T, R>.elemMatch(
-        noinline block: DocumentOperatorBuilder.() -> Unit,
+    inline infix fun <T, reified R> cherhy.mongo.dsl.clazz.EmbeddedDocuments<T, R>.elemMatch(
+        noinline block: cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.() -> Unit,
     ) {
-        val embeddedDocumentsOperatorBuilder = DocumentOperatorBuilder(this@DocumentOperatorBuilder.isEmbeddedDocument)
+        val embeddedDocumentsOperatorBuilder =
+            cherhy.mongo.dsl.clazz.DocumentOperatorBuilder(this@DocumentOperatorBuilder.isEmbeddedDocument)
         embeddedDocumentsOperatorBuilder.block()
         val elemMatchDocuments = embeddedDocumentsOperatorBuilder.documents
         if (elemMatchDocuments.isNotEmpty()) {
@@ -68,13 +73,13 @@ class DocumentOperatorBuilder(
                 Document(
                     this.name,
                     Document(
-                        DocumentOperator.ELEM_MATCH, Document(AND, elemMatchDocuments))
+                        cherhy.mongo.dsl.clazz.DocumentOperator.ELEM_MATCH, Document(AND, elemMatchDocuments))
                 )
             )
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.eq(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.eq(
         value: R,
     ): Document {
         val key =
@@ -86,7 +91,7 @@ class DocumentOperatorBuilder(
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.ne(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.ne(
         value: R,
     ): Document {
         val key =
@@ -95,13 +100,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.NOT_EQUAL, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.NOT_EQUAL, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.lt(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.lt(
         value: R,
     ): Document {
         val key =
@@ -110,13 +115,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.LESS_THAN, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.lte(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.lte(
         value: R,
     ): Document {
         val key =
@@ -125,13 +130,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN_EQUAL, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.gt(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.gt(
         value: R,
     ): Document {
         val key =
@@ -140,13 +145,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.GREATER_THAN, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.gte(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.gte(
         value: R,
     ): Document {
         val key =
@@ -155,13 +160,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN_EQUAL, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.between(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.between(
         values: Pair<R?, R?>,
     ): Document {
         val key =
@@ -174,7 +179,7 @@ class DocumentOperatorBuilder(
             }
 
             values.first == null -> {
-                Document(key, Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())).apply {
+                Document(key, Document(cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN, values.second?.convertIfId())).apply {
                     if (isNotEmpty()) documents.add(this)
                 }
             }
@@ -182,7 +187,7 @@ class DocumentOperatorBuilder(
             values.second == null -> {
                 Document(
                     key,
-                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                    Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN, values.first?.convertIfId())
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
                 }
@@ -191,8 +196,8 @@ class DocumentOperatorBuilder(
             else -> {
                 Document(
                     key,
-                    Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                        DocumentOperator.LESS_THAN, values.second?.convertIfId()
+                    Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                        cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN, values.second?.convertIfId()
                     )
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
@@ -201,7 +206,7 @@ class DocumentOperatorBuilder(
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.notBetween(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.notBetween(
         values: Pair<R?, R?>,
     ): Document {
         val key =
@@ -217,8 +222,8 @@ class DocumentOperatorBuilder(
                 Document(
                     key,
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.LESS_THAN, values.second?.convertIfId())
+                        cherhy.mongo.dsl.clazz.DocumentOperator.NOT,
+                        Document(cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN, values.second?.convertIfId())
                     )
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
@@ -229,8 +234,8 @@ class DocumentOperatorBuilder(
                 Document(
                     key,
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId())
+                        cherhy.mongo.dsl.clazz.DocumentOperator.NOT,
+                        Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN, values.first?.convertIfId())
                     )
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
@@ -241,9 +246,9 @@ class DocumentOperatorBuilder(
                 Document(
                     key,
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN, values.second?.convertIfId()
+                        cherhy.mongo.dsl.clazz.DocumentOperator.NOT,
+                        Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN, values.first?.convertIfId()).append(
+                            cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN, values.second?.convertIfId()
                         )
                     )
                 ).apply {
@@ -253,7 +258,7 @@ class DocumentOperatorBuilder(
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.betweenInclusive(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.betweenInclusive(
         values: Pair<R?, R?>,
     ): Document {
         val key =
@@ -268,7 +273,7 @@ class DocumentOperatorBuilder(
             values.first == null -> {
                 Document(
                     key,
-                    Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                    Document(cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
                 }
@@ -277,7 +282,7 @@ class DocumentOperatorBuilder(
             values.second == null -> {
                 Document(
                     key,
-                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                    Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
                 }
@@ -286,8 +291,8 @@ class DocumentOperatorBuilder(
             else -> {
                 Document(
                     key,
-                    Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
-                        DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                    Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                        cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
                     )
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
@@ -296,7 +301,7 @@ class DocumentOperatorBuilder(
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.notBetweenInclusive(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.notBetweenInclusive(
         values: Pair<R?, R?>,
     ): Document {
         val key =
@@ -312,8 +317,8 @@ class DocumentOperatorBuilder(
                 Document(
                     key,
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
+                        cherhy.mongo.dsl.clazz.DocumentOperator.NOT,
+                        Document(cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId())
                     )
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
@@ -324,8 +329,8 @@ class DocumentOperatorBuilder(
                 Document(
                     key,
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
+                        cherhy.mongo.dsl.clazz.DocumentOperator.NOT,
+                        Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId())
                     )
                 ).apply {
                     if (isNotEmpty()) documents.add(this)
@@ -336,9 +341,9 @@ class DocumentOperatorBuilder(
                 Document(
                     key,
                     Document(
-                        DocumentOperator.NOT,
-                        Document(DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
-                            DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
+                        cherhy.mongo.dsl.clazz.DocumentOperator.NOT,
+                        Document(cherhy.mongo.dsl.clazz.DocumentOperator.GREATER_THAN_EQUAL, values.first?.convertIfId()).append(
+                            cherhy.mongo.dsl.clazz.DocumentOperator.LESS_THAN_EQUAL, values.second?.convertIfId()
                         )
                     )
                 ).apply {
@@ -348,7 +353,7 @@ class DocumentOperatorBuilder(
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.`in`(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.`in`(
         values: Iterable<R>,
     ): Document {
         val key =
@@ -357,13 +362,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.IN, values.map { it.convertIfId() }),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.IN, values.map { it.convertIfId() }),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.`in`(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.`in`(
         values: R,
     ): Document {
         val key =
@@ -372,13 +377,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.IN, values.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.IN, values.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.notIn(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.notIn(
         values: Iterable<R>,
     ): Document {
         val key =
@@ -387,13 +392,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.NOT_IN, values.map { it.convertIfId() }),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.NOT_IN, values.map { it.convertIfId() }),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.notIn(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.notIn(
         values: R,
     ): Document {
         val key =
@@ -402,13 +407,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.NOT_IN, values.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.NOT_IN, values.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.contains(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.contains(
         value: R,
     ): Document {
         val key =
@@ -417,13 +422,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.REGEX, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.REGEX, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.containsIgnoreCase(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.containsIgnoreCase(
         value: R,
     ): Document {
         val key =
@@ -432,15 +437,16 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.REGEX, value.convertIfId()).append(
+                cherhy.mongo.dsl.clazz.DocumentOperator.OPTIONS,
+                cherhy.mongo.dsl.clazz.DocumentOperator.CASE_INSENSITIVE
             )
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.containsNot(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.containsNot(
         value: R,
     ): Document {
         val key =
@@ -449,13 +455,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()))
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.NOT, Document(cherhy.mongo.dsl.clazz.DocumentOperator.REGEX, value.convertIfId()))
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.containsNotIgnoreCase(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.containsNotIgnoreCase(
         value: R,
     ): Document {
         val key =
@@ -465,8 +471,9 @@ class DocumentOperatorBuilder(
         return Document(
             key,
             Document(
-                DocumentOperator.NOT, Document(DocumentOperator.REGEX, value.convertIfId()).append(
-                    DocumentOperator.OPTIONS, DocumentOperator.CASE_INSENSITIVE
+                cherhy.mongo.dsl.clazz.DocumentOperator.NOT, Document(cherhy.mongo.dsl.clazz.DocumentOperator.REGEX, value.convertIfId()).append(
+                    cherhy.mongo.dsl.clazz.DocumentOperator.OPTIONS,
+                    cherhy.mongo.dsl.clazz.DocumentOperator.CASE_INSENSITIVE
                 )
             )
         ).apply {
@@ -474,7 +481,7 @@ class DocumentOperatorBuilder(
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.startsWith(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.startsWith(
         value: R,
     ): Document {
         val key =
@@ -483,13 +490,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.REGEX, "^${value.convertIfId()}"),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.REGEX, "^${value.convertIfId()}"),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.endsWith(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.endsWith(
         value: R,
     ): Document {
         val key =
@@ -498,13 +505,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.REGEX, "${value.convertIfId()}$"),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.REGEX, "${value.convertIfId()}$"),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.match(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.match(
         value: R,
     ): Document {
         val key =
@@ -513,13 +520,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.MATCH, value.convertIfId()),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.MATCH, value.convertIfId()),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.all(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.all(
         value: Iterable<R>,
     ): Document {
         val key =
@@ -528,13 +535,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.ALL, value.map { it.convertIfId() }),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.ALL, value.map { it.convertIfId() }),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.size(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.size(
         value: Int,
     ): Document {
         val key =
@@ -543,13 +550,13 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.SIZE, value),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.SIZE, value),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.exists(
+    inline infix fun <reified T : Any, R> cherhy.mongo.dsl.clazz.Field<T, R>.exists(
         value: Boolean,
     ): Document {
         val key = if (isEmbeddedDocument) "${this.getClassName(T::class)}.${key.fieldName}"
@@ -557,7 +564,7 @@ class DocumentOperatorBuilder(
 
         return Document(
             key,
-            Document(DocumentOperator.EXISTS, value),
+            Document(cherhy.mongo.dsl.clazz.DocumentOperator.EXISTS, value),
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }

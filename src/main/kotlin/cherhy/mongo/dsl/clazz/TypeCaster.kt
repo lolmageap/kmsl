@@ -1,6 +1,6 @@
-package com.example.kotlinmongo.clazz
+package cherhy.mongo.dsl.clazz
 
-import com.example.kotlinmongo.extension.fieldName
+import cherhy.mongo.dsl.extension.fieldName
 import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass

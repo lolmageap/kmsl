@@ -1,6 +1,6 @@
-package com.example.kotlinmongo.extension
+package cherhy.mongo.dsl.extension
 
-import com.example.kotlinmongo.clazz.*
+import cherhy.mongo.dsl.clazz.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery
@@ -42,14 +42,14 @@ infix fun BasicQuery.min(
     EmptyGroup.Min(this.queryObject.copy(), Aggregation.group()).block()
 
 infix fun BasicQuery.where(
-    block: DocumentOperatorBuilder.() -> Unit,
+    block: cherhy.mongo.dsl.clazz.DocumentOperatorBuilder.() -> Unit,
 ): BasicQuery {
     val originalQuery = this.queryObject.copy()
-    val newQuery = DocumentOperatorBuilder().let {
+    val newQuery = cherhy.mongo.dsl.clazz.DocumentOperatorBuilder().let {
         it.block()
         if (it.documents.isEmpty()) BasicQuery(Document())
-        Document().append(DocumentOperator.AND, it.documents)
+        Document().append(cherhy.mongo.dsl.clazz.DocumentOperator.AND, it.documents)
     }
 
-    return BasicQuery(Document().append(DocumentOperator.AND, listOf(originalQuery, newQuery)))
+    return BasicQuery(Document().append(cherhy.mongo.dsl.clazz.DocumentOperator.AND, listOf(originalQuery, newQuery)))
 }

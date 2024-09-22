@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.extension
+package cherhy.mongo.dsl.extension
 
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation

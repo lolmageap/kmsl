@@ -1,18 +1,18 @@
 package com.example.kotlinmongo
 
-import com.example.kotlinmongo.clazz.FieldName.AVERAGE_FIELD
-import com.example.kotlinmongo.clazz.FieldName.COUNT_FIELD
-import com.example.kotlinmongo.clazz.FieldName.ID
-import com.example.kotlinmongo.clazz.FieldName.MAX_FIELD
-import com.example.kotlinmongo.clazz.FieldName.MIN_FIELD
-import com.example.kotlinmongo.clazz.FieldName.SUM_FIELD
-import com.example.kotlinmongo.clazz.GroupType.SINGLE
-import com.example.kotlinmongo.clazz.field
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Book
-import com.example.kotlinmongo.collection.Status
-import com.example.kotlinmongo.collection.Status.*
-import com.example.kotlinmongo.extension.*
+import cherhy.mongo.dsl.clazz.FieldName.AVERAGE_FIELD
+import cherhy.mongo.dsl.clazz.FieldName.COUNT_FIELD
+import cherhy.mongo.dsl.clazz.FieldName.ID
+import cherhy.mongo.dsl.clazz.FieldName.MAX_FIELD
+import cherhy.mongo.dsl.clazz.FieldName.MIN_FIELD
+import cherhy.mongo.dsl.clazz.FieldName.SUM_FIELD
+import cherhy.mongo.dsl.clazz.GroupType.SINGLE
+import cherhy.mongo.dsl.clazz.field
+import cherhy.mongo.dsl.collection.Author
+import cherhy.mongo.dsl.collection.Book
+import cherhy.mongo.dsl.collection.Status
+import cherhy.mongo.dsl.collection.Status.*
+import cherhy.mongo.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
@@ -337,16 +337,3 @@ class GroupTest(
         result[COUNT_FIELD].toLong() shouldBe 1
     }
 })
-
-private fun createBook(
-    title: String,
-    price: Long = 10000L,
-    isbn: String = "isbn",
-    description: String? = null,
-) =
-    Book.of(
-        title,
-        price,
-        isbn,
-        description,
-    )

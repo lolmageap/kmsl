@@ -1,4 +1,4 @@
-package com.example.kotlinmongo
+package cherhy.mongo.dsl
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class KotlinMongoApplication
 
 fun main(args: Array<String>) {
-	runApplication<KotlinMongoApplication>(*args)
+	runApplication<cherhy.mongo.dsl.KotlinMongoApplication>(*args)
 }
