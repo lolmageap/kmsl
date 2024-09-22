@@ -1,5 +1,6 @@
-# CH-Mongo
+# KMSL
 
+`KMSL` is a Kotlin MongoDB DSL library.  
 Spring Data MongoDB is supported in Kotlin DSL form.  
 It was created to solve dynamic queries and complex operations.  
 
