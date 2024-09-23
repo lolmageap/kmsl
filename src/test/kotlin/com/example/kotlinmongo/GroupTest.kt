@@ -88,7 +88,7 @@ class GroupTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "전체에 대한 count 를 구할 수 있다" {
+    "Total count" {
         val document = document {
             field(Author::name) eq "John"
         }
@@ -97,7 +97,7 @@ class GroupTest(
         count shouldBe 4
     }
 
-    "grouping 된 count 를 구할 수 있다" {
+    "Count of grouping" {
         val document = document {
             field(Author::name) eq "John"
         } group {
@@ -111,7 +111,7 @@ class GroupTest(
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
     }
 
-    "grouping 된 count 를 구할 수 있다2" {
+    "Count of grouping2" {
         val document = document {
             field(Author::name) eq "John"
         } group {
@@ -127,7 +127,7 @@ class GroupTest(
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
     }
 
-    "전체에 대한 합을 구할 수 있다" {
+    "Sum of all fields" {
         val document = document {
             field(Author::name) eq "John"
         } sum {
@@ -138,7 +138,7 @@ class GroupTest(
         sum shouldBe 100
     }
 
-    "grouping 된 필드에 대한 합을 구할 수 있다" {
+    "Sum of grouping" {
         val document = document {
             field(Author::name) eq "John"
         } group {
@@ -154,7 +154,18 @@ class GroupTest(
         sumOfGroup shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
     }
 
-    "전체에 대한 평균을 구할 수 있다" {
+    "Sum of grouping with mongoTemplate" {
+        val document = document {
+            field(Author::name) eq "John"
+        } group {
+            field(Author::status) by SINGLE
+        }
+
+        val statusToTotalAge = mongoTemplate.sum(document, Author::age)
+        statusToTotalAge shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
+    }
+
+    "Average of all fields" {
         val document = document {
             field(Author::name) eq "John"
         } average {
@@ -165,7 +176,7 @@ class GroupTest(
         avg shouldBe 25.0
     }
 
-    "grouping 된 평균을 구할 수 있다" {
+    "Average of grouping" {
         val document = document {
             field(Author::name) eq "John"
         } group {
@@ -181,7 +192,7 @@ class GroupTest(
         avgOfGroup shouldBe mapOf(ACTIVE to 30.0, RETIREMENT to 10.0)
     }
 
-    "전체에 대한 최대값을 구할 수 있다" {
+    "Max of all fields" {
         val document = document {
             field(Author::name) eq "John"
         } max {
@@ -192,18 +203,7 @@ class GroupTest(
         max shouldBe 40
     }
 
-    "mongoTemplate 을 이용 해서 grouping 된 총합을 구할 수 있다" {
-        val document = document {
-            field(Author::name) eq "John"
-        } group {
-            field(Author::status) by SINGLE
-        }
-
-        val statusToTotalAge = mongoTemplate.sum(document, Author::age)
-        statusToTotalAge shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
-    }
-
-    "grouping 된 최대값을 구할 수 있다" {
+    "Max of grouping" {
         val document = document {
             field(Author::name) eq "John"
         } group {
@@ -219,7 +219,7 @@ class GroupTest(
         maxOfGroup shouldBe mapOf(ACTIVE to 40, RETIREMENT to 10)
     }
 
-    "전체에 대한 최소값을 구할 수 있다" {
+    "Min of all fields" {
         val document = document {
             field(Author::name) eq "John"
         } min {
@@ -230,7 +230,7 @@ class GroupTest(
         min shouldBe 10
     }
 
-    "grouping 된 최소값을 구할 수 있다" {
+    "Min of grouping" {
         val document = document {
             field(Author::name) eq "John"
         } group {
@@ -246,7 +246,7 @@ class GroupTest(
         minOfGroup shouldBe mapOf(ACTIVE to 20, RETIREMENT to 10)
     }
 
-    "mongoDB에 데이터를 다른 타입으로 컨버팅 하고 연산을 할 수 있다." {
+    "Sum of all fields with different type" {
         val document = document {
             field(Author::name) eq "John"
         } sum {
@@ -257,7 +257,7 @@ class GroupTest(
         sum shouldBe 100.toBigDecimal()
     }
 
-    "grouping 한 뒤 집계 쿼리 조회" {
+    "Aggregate query after grouping" {
         val document =
             document {
                 field(Author::age) eq 30
@@ -303,7 +303,7 @@ class GroupTest(
         result.first { it[ID] == REST }[COUNT_FIELD].toLong() shouldBe 0
     }
 
-    "grouping 하지 않고 집계 쿼리 조회" {
+    "Aggregate query without grouping" {
         val author = mongoTemplate.insert(
             Author.of(
                 name = "Test",

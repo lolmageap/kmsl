@@ -81,7 +81,7 @@ class EmbeddedDocumentTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "내부 배열 오브젝트 필드에 대한 연산" {
+    "Operations on inner array object fields" {
         val document = document {
             embeddedDocument(Author::books) elemMatch {
                 or {
@@ -102,7 +102,7 @@ class EmbeddedDocumentTest(
         titles shouldBe mutableListOf("book1", "book2")
     }
 
-    "내부 단일 오브젝트 필드에 대한 연산" {
+    "Operations on internal single object fields" {
         val document = document {
             embeddedDocument(Author::receipt) where {
                 and {

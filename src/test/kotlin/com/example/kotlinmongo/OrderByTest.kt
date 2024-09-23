@@ -12,7 +12,7 @@ import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.domain.Sort.Direction.DESC
 
 class OrderByTest : StringSpec({
-    "단일 orderBy 정렬 테스트" {
+    "Single alignment test" {
         val result = document(OR) {
             field(Author::name) eq "John"
             field(Author::age) eq 18
@@ -23,7 +23,7 @@ class OrderByTest : StringSpec({
         result.sortObject shouldBe Document("name", -1)
     }
 
-    "다중 orderBy 정렬 테스트" {
+    "Multiple alignment test" {
         val result = document {
             field(Author::name) eq "John"
             field(Author::age) eq 18

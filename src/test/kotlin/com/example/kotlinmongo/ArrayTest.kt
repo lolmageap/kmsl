@@ -76,7 +76,7 @@ class ArrayTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "배열 필드에 대한 equal 연산" {
+    "Equal operation on array fields" {
         val books = mutableListOf(
             createBook("book1"),
             createBook("book2"),
@@ -91,7 +91,7 @@ class ArrayTest(
         titles shouldBe listOf("book1", "book2")
     }
 
-    "배열 필드에 대한 in 연산" {
+    "In operations on array fields" {
         val book = mutableListOf(createBook("book1"))
 
         val document = document {

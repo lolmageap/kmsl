@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import org.springframework.data.mongodb.core.query.BasicQuery
 
 class DocumentScopeTest : StringSpec({
-    "document scope 를 열 때 매개 변수를 전달하지 않으면 AND 연산자로 변환 된다." {
+    "Converting to AND operator when no parameters are passed while opening document scope" {
         val document = document {
             field(Author::name) eq "John"
             field(Author::age) eq 18
@@ -19,7 +19,7 @@ class DocumentScopeTest : StringSpec({
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
     }
 
-    "document scope 를 열 때 매개 변수로 OR 를 전달하면 OR 연산자로 변환 된다." {
+    "Converting to OR operator when OR is passed as a parameter while opening document scope" {
         val document = document(OR) {
             field(Author::name) eq "John"
             field(Author::age) eq 18
@@ -28,7 +28,7 @@ class DocumentScopeTest : StringSpec({
         document shouldBe BasicQuery("{ \"\$or\" : [{ \"name\" : \"John\"}, { \"age\" : 18}]}")
     }
 
-    "document scope 를 열 때 매개 변수로 NOR 를 전달하면 NOR 연산자로 변환 된다." {
+    "Converting to NOR operator when OR is passed as a parameter while opening document scope" {
         val document = document(NOR) {
             field(Author::name) eq "John"
             field(Author::age) eq 18

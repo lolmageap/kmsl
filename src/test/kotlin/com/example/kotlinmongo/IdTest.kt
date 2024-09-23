@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 class IdTest(
     private val mongoTemplate: MongoTemplate,
 ) : StringSpec({
-    "id 값으로 조회" {
+    "Lookup by ID value" {
         val author = mongoTemplate.insert(
             Author.of(
                 name = "Test",
