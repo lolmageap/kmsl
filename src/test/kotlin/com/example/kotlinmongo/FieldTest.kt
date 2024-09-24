@@ -35,12 +35,28 @@ class FieldTest : StringSpec({
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gt\" : 18}}]}")
     }
 
+    "converting type greater than operator test" {
+        val document = document {
+            field(Author::age) type Double::class gt 12.0
+        }
+
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"\$expr\" : { \"\$gt\" : [{ \"\$toDouble\" : \"\$age\" }, 12.0]}}]}")
+    }
+
     "greater than or equal operator test" {
         val document = document {
             field(Author::age) gte 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$gte\" : 18}}]}")
+    }
+
+    "converting type greater than or equal operator test" {
+        val document = document {
+            field(Author::age) type Double::class gte 12.0
+        }
+
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"\$expr\" : { \"\$gte\" : [{ \"\$toDouble\" : \"\$age\" }, 12.0]}}]}")
     }
 
     "less than operator test" {
@@ -51,12 +67,28 @@ class FieldTest : StringSpec({
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lt\" : 18}}]}")
     }
 
+    "converting type less than operator test" {
+        val document = document {
+            field(Author::age) type Double::class lt 12.0
+        }
+
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"\$expr\" : { \"\$lt\" : [{ \"\$toDouble\" : \"\$age\" }, 12.0]}}]}")
+    }
+
     "less than or equal operator test" {
         val document = document {
             field(Author::age) lte 18
         }
 
         document shouldBe BasicQuery("{ \"\$and\" : [{ \"age\" : {\"\$lte\" : 18}}]}")
+    }
+
+    "converting type less than or equal operator test" {
+        val document = document {
+            field(Author::age) type Double::class lte 12.0
+        }
+
+        document shouldBe BasicQuery("{ \"\$and\" : [{ \"\$expr\" : { \"\$lte\" : [{ \"\$toDouble\" : \"\$age\" }, 12.0]}}]}")
     }
 
     "between operator test" {
