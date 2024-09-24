@@ -1,9 +1,12 @@
 package com.kmsl.dsl.clazz
 
 import com.kmsl.dsl.clazz.DocumentOperator.AND
+import com.kmsl.dsl.clazz.DocumentOperator.EXPRESSION
 import com.kmsl.dsl.clazz.DocumentOperator.NOR
 import com.kmsl.dsl.clazz.DocumentOperator.OR
 import org.bson.Document
+import org.springframework.data.mapping.toDotPath
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 class DocumentOperatorBuilder(
@@ -73,7 +76,8 @@ class DocumentOperatorBuilder(
                 Document(
                     this.name,
                     Document(
-                        DocumentOperator.ELEM_MATCH, Document(AND, elemMatchDocuments))
+                        DocumentOperator.ELEM_MATCH, Document(AND, elemMatchDocuments)
+                    )
                 )
             )
         }
@@ -104,6 +108,14 @@ class DocumentOperatorBuilder(
         ).apply {
             if (isNotEmpty()) documents.add(this)
         }
+    }
+
+    infix fun <T, R, C: Any> Field<T, R>.type(
+        type: KClass<C>,
+    ): AggregationTypeCaster<T, R, C> {
+        val castValue = MongoTypeCaster.cast(type)
+
+        return AggregationTypeCaster(castValue, this.key, documents, type)
     }
 
     inline infix fun <reified T : Any, R> Field<T, R>.lt(
@@ -567,6 +579,81 @@ class DocumentOperatorBuilder(
             Document(DocumentOperator.EXISTS, value),
         ).apply {
             if (isNotEmpty()) documents.add(this)
+        }
+    }
+
+    class AggregationTypeCaster<T, R, V: Any>(
+        private val castValue: String,
+        private val key: KProperty1<T, R>,
+        private val documents: MutableList<Document>,
+        private val type: KClass<V>,
+    ) {
+        infix fun lt(
+            value: V,
+        ) {
+            val document = Document(
+                EXPRESSION,
+                Document(
+                    DocumentOperator.LESS_THAN,
+                    listOf(
+                        Document(castValue, "$"+key.toDotPath()),
+                        if (value is Enum<*>) value.name else value
+                    )
+                )
+            )
+
+            if (document.isNotEmpty()) documents.add(document)
+        }
+
+        infix fun lte(
+            value: V,
+        ) {
+            val document = Document(
+                EXPRESSION,
+                Document(
+                    DocumentOperator.LESS_THAN_EQUAL,
+                    listOf(
+                        Document(castValue, "$"+key.toDotPath()),
+                        if (value is Enum<*>) value.name else value
+                    )
+                )
+            )
+
+            if (document.isNotEmpty()) documents.add(document)
+        }
+
+        infix fun gt(
+            value: V,
+        ) {
+            val document = Document(
+                EXPRESSION,
+                Document(
+                    DocumentOperator.GREATER_THAN,
+                    listOf(
+                        Document(castValue, "$"+key.toDotPath()),
+                        if (value is Enum<*>) value.name else value
+                    )
+                )
+            )
+
+            if (document.isNotEmpty()) documents.add(document)
+        }
+
+        infix fun gte(
+            value: V,
+        ) {
+            val document = Document(
+                EXPRESSION,
+                Document(
+                    DocumentOperator.GREATER_THAN_EQUAL,
+                    listOf(
+                        Document(castValue, "$"+key.toDotPath()),
+                        if (value is Enum<*>) value.name else value
+                    )
+                )
+            )
+
+            if (document.isNotEmpty()) documents.add(document)
         }
     }
 }
