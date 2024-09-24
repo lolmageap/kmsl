@@ -22,4 +22,5 @@ object DocumentOperator {
     const val SIZE = "\$size"
     const val ALL = "\$all"
     const val PROJECT = "\$project"
+    const val EXPRESSION = "\$expr"
 }
