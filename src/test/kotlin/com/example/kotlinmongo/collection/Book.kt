@@ -1,10 +1,16 @@
 package com.example.kotlinmongo.collection
 
-data class Book private constructor(
+import com.kmsl.dsl.annotation.EmbeddedDocument
+import com.kmsl.dsl.annotation.EmbeddedField
+
+@EmbeddedDocument
+data class Book(
+    // embedded field is not require
+    @EmbeddedField("title")
     var title: String,
     var price: Long,
     var isbn: String,
-    var description: String? = null,
+    var description: String?,
 ) : MutableMap<String, Any?> {
     constructor() : this(
         title = "",
