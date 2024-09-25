@@ -52,12 +52,10 @@ tasks.withType<Test> {
 
 tasks.bootJar {
 	archiveClassifier = ""
-	archiveClassifier.set("")
 }
 
 tasks.jar {
 	archiveClassifier = ""
-	archiveClassifier.set("")
 }
 
 tasks.named("generateMetadataFileForMavenJavaPublication") {
