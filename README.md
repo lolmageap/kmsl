@@ -287,5 +287,32 @@ document {
 mongoTemplate.aggregate(document, Author::class)
 ```
 
+### Update
+
+You can use the update function to update the document.
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+} order {
+    field(Author::age) by DESC
+} update {
+    field(Author::age) set 30
+}
+
+mongoTemplate.updateFirst(document, Author::class)
+```
+
+You can also update multiple documents.
+
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+} update {
+    field(Author::age) set 30
+}
+
+mongoTemplate.updateMulti(document, Author::class)
+```
+
 ### TODO
 - [ ] create @EmbeddedDocument annotation
