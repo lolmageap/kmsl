@@ -49,6 +49,10 @@ fun <T : Any> MongoTemplate.findAll(
     return PageImpl(data, pageable, count)
 }
 
+fun <T : Any> MongoTemplate.findAll(
+    entityClass: KClass<T>,
+): List<T> = findAll(entityClass.java)
+
 fun <T : Any> MongoTemplate.count(
     query: BasicQuery,
     entityClass: KClass<T>,
@@ -360,19 +364,15 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
         }
 }
 
-fun <T: Any> MongoTemplate.updateFirst(
+fun <T : Any> MongoTemplate.updateFirst(
     update: UpdateQuery,
     entityClass: KClass<T>,
-): UpdateResult {
-    return this.updateFirst(update.query, update.update, entityClass.java)
-}
+) = this.findAndModify(update.query, update.update, entityClass.java)
 
-fun <T: Any> MongoTemplate.updateMulti(
+fun <T : Any> MongoTemplate.updateMulti(
     update: UpdateQuery,
     entityClass: KClass<T>,
-): UpdateResult {
-    return this.updateMulti(update.query, update.update, entityClass.java)
-}
+) = this.updateMulti(update.query, update.update, entityClass.java)
 
 val KClass<*>.fieldName
     get() = this.java.declaredFields.first { it.isAnnotationPresent(Id::class.java) }
