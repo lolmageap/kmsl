@@ -99,3 +99,7 @@ fun <T, R> EmptyGroup.Count.field(
 fun <T, R> Order.field(
     key: KProperty1<T, R>,
 ) = Field(key)
+
+fun <T, R> UpdateDocumentOperatorBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key)
