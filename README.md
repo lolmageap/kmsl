@@ -316,3 +316,4 @@ mongoTemplate.updateMulti(document, Author::class)
 
 ### TODO
 - [ ] create @EmbeddedDocument annotation
+- [ ] implement join query and projection
