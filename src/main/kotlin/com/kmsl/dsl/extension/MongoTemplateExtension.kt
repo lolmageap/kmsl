@@ -1,6 +1,7 @@
 package com.kmsl.dsl.extension
 
 import com.kmsl.dsl.clazz.*
+import com.mongodb.client.result.UpdateResult
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -357,6 +358,20 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
                 ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
             key to value
         }
+}
+
+fun <T: Any> MongoTemplate.updateFirst(
+    update: UpdateQuery,
+    entityClass: KClass<T>,
+): UpdateResult {
+    return this.updateFirst(update.query, update.update, entityClass.java)
+}
+
+fun <T: Any> MongoTemplate.updateMulti(
+    update: UpdateQuery,
+    entityClass: KClass<T>,
+): UpdateResult {
+    return this.updateMulti(update.query, update.update, entityClass.java)
 }
 
 val KClass<*>.fieldName

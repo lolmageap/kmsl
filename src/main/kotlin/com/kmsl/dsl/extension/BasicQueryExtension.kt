@@ -4,6 +4,7 @@ import com.kmsl.dsl.clazz.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.BasicQuery
+import org.springframework.data.mongodb.core.query.Update
 
 infix fun <T, R> BasicQuery.group(
     block: Group<T, R>.() -> Unit,
@@ -52,4 +53,17 @@ infix fun BasicQuery.where(
     }
 
     return BasicQuery(Document().append(DocumentOperator.AND, listOf(originalQuery, newQuery)))
+}
+
+infix fun BasicQuery.update(
+    block: UpdateDocumentOperatorBuilder.() -> Unit,
+): UpdateQuery {
+    return UpdateDocumentOperatorBuilder().let {
+        it.block()
+        if (it.count == 0) return UpdateQuery(this, Update())
+        UpdateQuery.of(
+            this,
+            it.update,
+        )
+    }
 }
