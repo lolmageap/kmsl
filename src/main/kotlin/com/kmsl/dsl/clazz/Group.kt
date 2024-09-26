@@ -1,6 +1,7 @@
 package com.kmsl.dsl.clazz
 
 import com.kmsl.dsl.extension.matchOperation
+import com.kmsl.dsl.extension.toSnakeCase
 import org.bson.Document
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -27,7 +28,7 @@ open class Group<T, R>(
             type: KClass<*>,
         ) =
             AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath().toSnakeCase()}")
             }
 
         infix fun AggregationExpression.alias(

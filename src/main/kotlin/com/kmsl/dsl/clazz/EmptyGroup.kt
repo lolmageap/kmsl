@@ -1,6 +1,7 @@
 package com.kmsl.dsl.clazz
 
 import com.kmsl.dsl.extension.matchOperation
+import com.kmsl.dsl.extension.toSnakeCase
 import org.bson.Document
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -8,9 +9,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationExpression
 import org.springframework.data.mongodb.core.aggregation.GroupOperation
 import kotlin.reflect.KClass
 
-class EmptyGroup(
-    private val document: Document,
-) {
+class EmptyGroup {
     class Sum(
         private val document: Document,
         private val groupOperation: GroupOperation,
@@ -19,7 +18,7 @@ class EmptyGroup(
             type: KClass<*>,
         ) =
             AggregationExpression {
-                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath()}")
+                Document(MongoTypeCaster.cast(type), "\$${this.key.toDotPath().toSnakeCase()}")
             }
 
         infix fun AggregationExpression.alias(
