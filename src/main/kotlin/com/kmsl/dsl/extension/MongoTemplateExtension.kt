@@ -1,7 +1,6 @@
 package com.kmsl.dsl.extension
 
 import com.kmsl.dsl.clazz.*
-import com.mongodb.client.result.UpdateResult
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -369,7 +368,7 @@ fun <T : Any> MongoTemplate.updateFirst(
     entityClass: KClass<T>,
 ) = this.findAndModify(update.query, update.update, entityClass.java)
 
-fun <T : Any> MongoTemplate.updateMulti(
+fun <T : Any> MongoTemplate.updateAll(
     update: UpdateQuery,
     entityClass: KClass<T>,
 ) = this.updateMulti(update.query, update.update, entityClass.java)
