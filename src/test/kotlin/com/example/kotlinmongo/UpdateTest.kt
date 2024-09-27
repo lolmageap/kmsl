@@ -74,10 +74,26 @@ class UpdateTest(
             field(Author::age) set 50
         }
 
-        mongoTemplate.updateMulti(document, Author::class)
+        mongoTemplate.updateAll(document, Author::class)
 
         val authors = mongoTemplate.findAll(Author::class)
         authors.size shouldBe 2
         authors.map { it.age } shouldContainAll listOf(50, 50)
+    }
+
+    "Update unset" {
+        val document = document {
+            field(Author::name) eq "John"
+        } order {
+            field(Author::age) by DESC
+        } update {
+            field(Author::age) set Unit
+        }
+
+        mongoTemplate.updateFirst(document, Author::class)
+
+        val authors = mongoTemplate.findAll(Author::class)
+        authors.size shouldBe 2
+        authors.map { it.age } shouldContainAll listOf(null, 20)
     }
 })

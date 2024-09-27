@@ -8,7 +8,7 @@ class UpdateDocumentOperatorBuilder {
     var count = 0
 
     inline infix fun <reified T : Any, R> Field<T, R>.set(
-        value: R
+        value: R,
     ) {
         update.set(
             key.fieldName,
@@ -17,11 +17,19 @@ class UpdateDocumentOperatorBuilder {
         count++
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.unset(
-        value: R
+    inline infix fun <reified T : Any, R> Field<T, R>.set(
+        nothing: Unit,
     ) {
-        update.unset(
-            key.fieldName
+        update.unset(key.fieldName)
+        count++
+    }
+
+    inline infix fun <reified T : Any, R> Field<T, R>.inc(
+        value: Number,
+    ) {
+        update.inc(
+            key.fieldName,
+            value
         )
         count++
     }
