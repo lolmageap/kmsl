@@ -300,7 +300,17 @@ val document = document {
     field(Author::age) set 30
 }
 
-mongoTemplate.updateMulti(document, Author::class)
+mongoTemplate.updateAll(document, Author::class)
+```
+
+You can also use the unset function to unset a field.
+
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+} update {
+    field(Author::age) set Unit
+}
 ```
 
 ### TODO
