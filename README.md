@@ -125,17 +125,6 @@ mongoTemplate.find(basicQuery, Author::class)
 
 ### Embedded Document
 
-To use the embeddedDocument function, you need to @EmbeddedDocument the model.  
-
-```kotlin
-@EmbeddedDocument
-data class Book(
-    val title: String,
-    val price: Long,
-    val description: String,
-)
-```
-
 It is used when searching for embedded documents within a collection.  
 You can declare it as shown below.  
 
