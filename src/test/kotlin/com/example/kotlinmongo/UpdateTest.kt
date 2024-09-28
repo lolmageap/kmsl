@@ -78,7 +78,7 @@ class UpdateTest(
 
         val authors = mongoTemplate.findAll(Author::class)
         authors.size shouldBe 2
-        authors.map { it.age } shouldContainAll listOf(50, 50)
+        authors.map { it.age }.shouldContainAll(50)
     }
 
     "Update unset" {

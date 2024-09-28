@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 
 @Document(collection = "author")
-data class Author private constructor(
+data class Author(
     @Id @Field("_id")
     val id: String? = ObjectId.get().toHexString(),
     val name: String,

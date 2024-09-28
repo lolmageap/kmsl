@@ -314,5 +314,4 @@ val document = document {
 ```
 
 ### TODO
-- [ ] create @EmbeddedDocument annotation
 - [ ] implement join query and projection
