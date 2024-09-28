@@ -103,3 +103,7 @@ fun <T, R> Order.field(
 fun <T, R> UpdateDocumentOperatorBuilder.field(
     key: KProperty1<T, R>,
 ) = Field(key)
+
+fun <T, R> JoinBuilder.field(
+    key: KProperty1<T, R>,
+) = Field(key)

@@ -23,4 +23,10 @@ object DocumentOperator {
     const val ALL = "\$all"
     const val PROJECT = "\$project"
     const val EXPRESSION = "\$expr"
+    const val JOIN = "\$lookup"
+    const val UNWIND = "\$unwind"
+    const val FROM = "from"
+    const val LOCAL_FIELD = "localField"
+    const val FOREIGN_FIELD = "foreignField"
+    const val AS = "as"
 }
