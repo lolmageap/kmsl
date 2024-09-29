@@ -3,7 +3,6 @@ package com.kmsl.dsl.extension
 import com.kmsl.dsl.clazz.*
 import org.bson.Document
 import org.springframework.data.mongodb.core.aggregation.Aggregation
-import org.springframework.data.mongodb.core.aggregation.LookupOperation
 import org.springframework.data.mongodb.core.query.BasicQuery
 import org.springframework.data.mongodb.core.query.Update
 
@@ -70,8 +69,8 @@ infix fun BasicQuery.update(
 }
 
 infix fun BasicQuery.join(
-    block: JoinBuilder.() -> LookupOperation,
-): LookupOperation {
-    val joinBuilder = JoinBuilder()
+    block: JoinBuilder.() -> Lookup,
+): Lookup {
+    val joinBuilder = JoinBuilder(this.queryObject.copy())
     return joinBuilder.block()
 }
