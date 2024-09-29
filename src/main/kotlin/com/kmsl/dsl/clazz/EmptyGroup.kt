@@ -1,6 +1,6 @@
 package com.kmsl.dsl.clazz
 
-import com.kmsl.dsl.extension.matchOperation
+import com.kmsl.dsl.extension.toMatchOperation
 import com.kmsl.dsl.extension.toSnakeCase
 import org.bson.Document
 import org.springframework.data.mapping.toDotPath
@@ -113,7 +113,7 @@ class EmptyGroup {
         private val groupOperation: GroupOperation,
     ) {
         fun toAggregation(): Aggregation {
-            val matchOperation = document.matchOperation()
+            val matchOperation = document.toMatchOperation()
             return Aggregation.newAggregation(matchOperation, groupOperation)
         }
 
