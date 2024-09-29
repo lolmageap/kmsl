@@ -7,6 +7,7 @@ import com.example.kotlinmongo.collection.Status.ACTIVE
 import com.example.kotlinmongo.collection.Status.RETIREMENT
 import com.kmsl.dsl.KmslApplication
 import com.kmsl.dsl.clazz.field
+import com.kmsl.dsl.extension.aggregate
 import com.kmsl.dsl.extension.document
 import com.kmsl.dsl.extension.join
 import com.kmsl.dsl.extension.projection
@@ -83,13 +84,29 @@ class JoinTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "Join test example :: not yet implemented" {
-        document {
+    "Join" {
+        val projection = document {
             field(Author::name) eq "John"
         } join {
             field(Author::id) eq field(Seller::authorId)
         } projection {
-            constructor(AuthorAndSeller::class) alias "authorAndSeller"
+            constructor(Author::class)
         }
+
+        val result = mongoTemplate.aggregate(projection, Author::class)
+        println(result)
+    }
+
+    "Join with projection" {
+        val projection = document {
+            field(Author::name) eq "John"
+        } join {
+            field(Author::id) eq field(Seller::authorId)
+        } projection {
+            constructor(AuthorAndSeller::class)
+        }
+
+        val result = mongoTemplate.aggregate(projection, AuthorAndSeller::class)
+        println(result)
     }
 })
