@@ -2,12 +2,15 @@
 
 `KMSL` is a Kotlin MongoDB DSL library.  
 Spring Data MongoDB is supported in Kotlin DSL form.  
-It was created to solve dynamic queries and complex operations.  
+It was created to solve dynamic queries and complex operations.
 
 ## Dependencies
-Warning: You might need to set your Kotlin JVM target to 17, and when using Spring, to 17, in order for this to work properly. This means that certain features are only available when using Java 17.  
+
+Warning: You might need to set your Kotlin JVM target to 17, and when using Spring, to 17, in order for this to work
+properly. This means that certain features are only available when using Java 17.
 
 add the following to your build.gradle.kts file:
+
 ```kotlin
 repositories {
     mavenCentral()
@@ -33,7 +36,7 @@ mongoTemplate.find(basicQuery, Author::class)
 ### Field
 
 In the document scope, using and, or, and nor, you can pass fields as function arguments.  
-The field object can generate an Expression.  
+The field object can generate an Expression.
 
 Below is an example where the top-level scope is created with an AND operator.
 
@@ -81,7 +84,7 @@ val basicQuery = document(NOR) {
 }
 ```
 
-Complex operations can be handled as shown below.  
+Complex operations can be handled as shown below.
 
 ```kotlin
 val basicQuery = document(OR) {
@@ -108,13 +111,13 @@ val basicQuery2 = document {
             field(Author::name) eq "wonny"
             field(Author::age) eq 30
             field(Author::phone) eq "010-5678-1234"
-        }   
+        }
     }
 }
 
 /**
  * The code above generates a query like the one shown below
- * 
+ *
  * ( cherhy and 25 and 010-1234-5678 )
  * or
  * ( wonny and 30 and 010-5678-1234 )
@@ -126,7 +129,7 @@ mongoTemplate.find(basicQuery, Author::class)
 ### Embedded Document
 
 It is used when searching for embedded documents within a collection.  
-You can declare it as shown below.  
+You can declare it as shown below.
 
 ```kotlin
 val basicQuery = document {
@@ -138,12 +141,12 @@ val basicQuery = document {
 
 You can use fields inside an embedded document declared with embeddedDocument as conditions.  
 When performing operations on a single embedded document field, you can use it as shown below.  
-Within the where function, you can also use and, or, and nor functions.  
+Within the where function, you can also use and, or, and nor functions.
 
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "cherhy"
-    
+
     embeddedDocument(Author::receipt) where {
         field(Receipt::card) eq "toss"
         field(Receipt::price) gte 10000L
@@ -155,13 +158,14 @@ mongoTemplate.find(basicQuery, Author::class)
 
 #### ElemMatch
 
-When performing operations on an array field of embedded documents, you can specify conditions using the elemMatch function as shown below.  
-Within the elemMatch function, you can also use and, or, and nor functions.  
+When performing operations on an array field of embedded documents, you can specify conditions using the elemMatch
+function as shown below.  
+Within the elemMatch function, you can also use and, or, and nor functions.
 
 ```kotlin
 val basicQuery = document {
     field(Author::name) eq "cherhy"
-    
+
     embeddedDocument(Author::books) elemMatch {
         field(Book::title) contains "kotlin"
         field(Book::price) gt 10000
@@ -173,7 +177,7 @@ mongoTemplate.find(basicQuery, Author::class)
 
 ### Sort
 
-You can use the order function to handle sorting.  
+You can use the order function to handle sorting.
 
 ```kotlin
 val basicQuery = document {
@@ -219,7 +223,7 @@ mongoTemplate.sum(basicQuery, Author::age)
 ```
 
 Even if a field in the actual MongoDB is of type String, you can perform calculations by converting it to a number.  
-Below is an example of converting to a number type when summing in MongoDB.  
+Below is an example of converting to a number type when summing in MongoDB.
 
 ```kotlin
 val statusGroup = document {
@@ -233,7 +237,7 @@ val statusGroup = document {
 mongoTemplate.aggregate(statusGroup, Author::class)
 ```
 
-You can also group by multiple groups.  
+You can also group by multiple groups.
 
 ```kotlin
 val statusAndAgeGroup = document {
@@ -247,7 +251,7 @@ val statusAndAgeGroup = document {
 mongoTemplate.aggregate(statusAndAgeGroup, Author::class)
 ```
 
-You can also calculate complex conditions and statistics in a single query, as shown below.  
+You can also calculate complex conditions and statistics in a single query, as shown below.
 
 ```kotlin
 document {
@@ -279,6 +283,7 @@ mongoTemplate.aggregate(document, Author::class)
 ### Update
 
 You can use the update function to update the document.
+
 ```kotlin
 val document = document {
     field(Author::name) eq "cherhy"
@@ -313,5 +318,34 @@ val document = document {
 }
 ```
 
-### TODO
-- [ ] implement join query and projection
+### Join
+
+You can use the join function to join collections.
+
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+} join {
+    field(Author::id) eq field(Seller::authorId)
+} projection {
+    constructor(Author::class)
+}
+
+mongoTemplate.aggregate(document, Author::class)
+```
+
+#### Projection
+
+You can use the projection function to project fields.
+
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+} join {
+    field(Author::id) eq field(Seller::authorId)
+} projection {
+    constructor(AuthorAndSeller::class)
+}
+
+mongoTemplate.aggregate(document, Author::class)
+```
