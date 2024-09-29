@@ -1,5 +1,6 @@
 package com.kmsl.dsl.clazz
 
+import com.kmsl.dsl.clazz.FieldName.ID
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -29,7 +30,7 @@ class Field<T, R>(
             return if (hasIdAnnotation) {
                 val hasFieldAnnotation = javaField.annotations.any { it is Field }
                 if (hasFieldAnnotation) javaField.annotations.filterIsInstance<Field>().first().value
-                else "_id"
+                else ID
             } else this.toDotPath()
         }
 
