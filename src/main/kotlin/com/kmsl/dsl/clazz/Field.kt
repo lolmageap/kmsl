@@ -38,10 +38,15 @@ class Field<T, R>(
         val javaField = key.javaField!!
         javaField.isAccessible = true
 
-        val hasIdAnnotation = javaField.annotations.any { it is Id }
-        return if (hasIdAnnotation) ObjectId(this.toString())
-        else if (this is Enum<*>) this.name
-        else this
+        val hasSpringDataIdAnnotation = javaField.annotations.any { it is Id }
+        val hasJakartaIdAnnotation = javaField.annotations.any { it is jakarta.persistence.Id }
+
+        return when {
+            hasSpringDataIdAnnotation -> ObjectId(this.toString())
+            hasJakartaIdAnnotation -> ObjectId(this.toString())
+            this is Enum<*> -> this.name
+            else -> this
+        }
     }
 }
 
