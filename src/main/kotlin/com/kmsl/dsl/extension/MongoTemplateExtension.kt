@@ -91,7 +91,7 @@ fun <T : Any> MongoTemplate.aggregate(
     }.toMap()
 }
 
-fun <T : Any, C : Any> MongoTemplate.aggregate(
+inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
     projection: DocumentProjection<T>,
     entityClass: KClass<C>,
 ): List<T> {
@@ -134,13 +134,20 @@ fun <T : Any, C : Any> MongoTemplate.aggregate(
         entityClass.java,
         Map::class.java,
     ).mappedResults.map { results ->
-        val entity = projection.projectionConstructor.entityClass.java.getDeclaredConstructor().newInstance()
+        val entity = T::class.java.getDeclaredConstructor().newInstance()
+
+        /**TODO:
+         *  this issue is caused by the type of the field in the entity class is different from the type of the value in the result map
+         *  Can not set final float field com.example.kotlinmongo.collection.Author.height to java.lang.Double
+         *  java.lang.IllegalArgumentException: Can not set final float field com.example.kotlinmongo.collection.Author.height to java.lang.Double
+         */
+
         results.forEach { (key, value) ->
-            val field = entityClass.java.declaredFields.first { it.name == key }
+            val field = entityClass.java.declaredFields.first { it.fieldName == key }
             field.isAccessible = true
             field.set(entity, value)
         }
-        entity as T
+        entity
     }
 }
 
@@ -410,10 +417,32 @@ fun <T : Any> MongoTemplate.updateAll(
     entityClass: KClass<T>,
 ) = this.updateMulti(update.query, update.update, entityClass.java)
 
-val KClass<*>.fieldName
-    get() = this.java.declaredFields.first { it.isAnnotationPresent(Id::class.java) }?.run {
-        isAccessible = true
-        val hasFieldAnnotation = annotations.any { it is Field }
-        if (hasFieldAnnotation) annotations.filterIsInstance<Field>().first().value
-        else ID
-    } ?: this.simpleName!!
+val KClass<*>.fieldName: String
+    get() {
+        val hasFieldAnnotation = this.annotations.any { it is Field }
+        val hasSpringDataIdAnnotation = this.annotations.any { it is Id }
+        val hasJakartaIdAnnotation = this.annotations.any { it is jakarta.persistence.Id }
+
+        return when {
+            hasFieldAnnotation -> this.annotations.filterIsInstance<Field>().first().value
+            hasSpringDataIdAnnotation -> ID
+            hasJakartaIdAnnotation -> ID
+            else -> this.simpleName!!
+        }
+    }
+
+
+val java.lang.reflect.Field?.fieldName: String
+    get() {
+        if (this == null) return ""
+        val hasFieldAnnotation = this.annotations.any { it is Field }
+        val hasSpringDataIdAnnotation = this.annotations.any { it is Id }
+        val hasJakartaIdAnnotation = this.annotations.any { it is jakarta.persistence.Id }
+
+        return when {
+            hasFieldAnnotation -> this.annotations.filterIsInstance<Field>().first().value
+            hasSpringDataIdAnnotation -> "id"
+            hasJakartaIdAnnotation -> "id"
+            else -> this.name
+        }
+    }
