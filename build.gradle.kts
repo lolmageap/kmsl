@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	kotlin("jvm") version "1.9.23"
 	kotlin("plugin.spring") version "1.9.23"
+	kotlin("plugin.noarg") version "1.9.23"
 	id("maven-publish")
 	id("org.springframework.boot") version "3.2.4"
 	id("io.spring.dependency-management") version "1.1.4"
@@ -21,15 +22,19 @@ repositories {
 	mavenCentral()
 }
 
+noArg {
+	annotation("org.springframework.data.mongodb.core.mapping.Document")
+}
+
 dependencies {
-	implementation("jakarta.persistence:jakarta.persistence-api")
-	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+	implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:3.3.4")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.kotest:kotest-runner-junit5")
-	testImplementation("io.kotest:kotest-assertions-core")
-	testImplementation("io.kotest.extensions:kotest-extensions-spring")
+	testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
+	testImplementation("io.kotest:kotest-assertions-core:5.7.2")
+	testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.3")
 }
 
 publishing {
