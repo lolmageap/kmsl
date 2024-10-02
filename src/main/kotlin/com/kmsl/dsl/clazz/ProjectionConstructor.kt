@@ -13,6 +13,10 @@ data class ProjectionConstructor<T : Any>(
     val fieldNames
         get() = entityClass.java.declaredFields.map { it.fieldName }.toTypedArray()
 
+    /**TODO
+     *  Projection constructor 가 있다면 그거로 바인딩 해야함.
+     *  get() = entityClass.java.constructors[1].parameters.map { it.name }.toTypedArray()
+     */
     private val java.lang.reflect.Field.fieldName: String
         get() {
             val hasFieldAnnotation = this.annotations.any { it is Field }
