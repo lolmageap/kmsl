@@ -15,11 +15,17 @@ data class ProjectionConstructor<T : Any>(
 
     private val java.lang.reflect.Field.fieldName: String
         get() {
-            val hasIdAnnotation = this.annotations.any { it is Id }
-            return if (hasIdAnnotation) {
-                val hasFieldAnnotation = this.annotations.any { it is Field }
-                if (hasFieldAnnotation) this.annotations.filterIsInstance<Field>().first().value
-                else ID
-            } else this.kotlinProperty?.toDotPath() ?: this.name
+            val hasFieldAnnotation = this.annotations.any { it is Field }
+            val hasSpringDataIdAnnotation = this.annotations.any { it is Id }
+            val hasJakartaIdAnnotation = this.annotations.any { it is jakarta.persistence.Id }
+
+            return when {
+                hasFieldAnnotation -> this.annotations
+                    .filterIsInstance<Field>()
+                    .first().value
+                hasSpringDataIdAnnotation -> ID
+                hasJakartaIdAnnotation -> ID
+                else -> this.kotlinProperty?.toDotPath() ?: this.name
+            }
         }
 }
