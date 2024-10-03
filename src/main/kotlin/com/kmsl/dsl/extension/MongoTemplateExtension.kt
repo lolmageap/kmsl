@@ -1,5 +1,6 @@
 package com.kmsl.dsl.extension
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kmsl.dsl.clazz.*
 import com.kmsl.dsl.clazz.FieldName.ID
 import org.springframework.data.annotation.Id
@@ -119,7 +120,20 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
         ProjectionOperation()
             .andExclude(ID)
             .andInclude(alias)
-            .andInclude(*projection.projectionConstructor.fieldNames)
+            .andInclude(*projection.lookup.joinedClassesNonDuplicatedFieldNames)
+
+    projection.lookup.duplicatedFieldNames.forEach { fieldName ->
+        val firstClassName = projection.lookup.firstClassName
+        val lastClassName = projection.lookup.lastClassName
+
+        val classNameAndField1 = "${firstClassName}.$fieldName"
+        val classNameAndField2 = "${lastClassName}.$fieldName"
+
+        ProjectionOperation()
+            .andExclude(fieldName)
+            .and(classNameAndField1).`as`("${firstClassName}_$fieldName")
+            .and(classNameAndField2).`as`("${lastClassName}_$fieldName")
+    }
 
     val aggregation =
         Aggregation.newAggregation(
@@ -136,16 +150,18 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
     ).mappedResults.map { results ->
         val entity = T::class.java.getDeclaredConstructor().newInstance()
 
-        /**TODO:
-         *  this issue is caused by the type of the field in the entity class is different from the type of the value in the result map
-         *  Can not set final float field com.example.kotlinmongo.collection.Author.height to java.lang.Double
-         *  java.lang.IllegalArgumentException: Can not set final float field com.example.kotlinmongo.collection.Author.height to java.lang.Double
-         */
-
         results.forEach { (key, value) ->
-            val field = entityClass.java.declaredFields.first { it.fieldName == key }
-            field.isAccessible = true
-            field.set(entity, value)
+            val field = entityClass.java.declaredFields.firstOrNull { it.fieldName == key }
+
+            if (field != null) {
+                field.isAccessible = true
+
+                val deserializeValue = jacksonObjectMapper().convertValue(value, field.type)
+                println("deserializeValue = $deserializeValue")
+                field.set(entity, deserializeValue)
+            } else {
+                println("Field not found for key: $key")
+            }
         }
         entity
     }
@@ -182,7 +198,11 @@ inline fun <reified T : Any, reified R : Any> MongoTemplate.sum(
 ): R {
     val sumOfAll = query sum { field(property) alias alias }
 
-    return aggregate(sumOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        sumOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias] as? R
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -196,7 +216,11 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.sum
 ): C {
     val sumOfAll = query sum { field(property) type castType alias alias }
 
-    return aggregate(sumOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        sumOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -209,7 +233,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any> MongoTemplate.sum
 ): Map<K, R> {
     val sumOfGroup = group sum { field(property) alias alias }
 
-    return aggregate(sumOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        sumOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias] as? R
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -225,7 +253,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
 ): Map<K, C> {
     val sumOfGroup = group sum { field(property) type castType alias alias }
 
-    return aggregate(sumOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        sumOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -240,7 +272,11 @@ inline fun <reified T : Any, reified R : Any> MongoTemplate.average(
 ): Double {
     val averageOfAll = query average { field(property) alias alias }
 
-    return aggregate(averageOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        averageOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias] as? Double
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -254,7 +290,11 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.ave
 ): C {
     val averageOfAll = query average { field(property) type castType alias alias }
 
-    return aggregate(averageOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        averageOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -267,7 +307,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any> MongoTemplate.ave
 ): Map<K, Double> {
     val averageOfGroup = group average { field(property) alias alias }
 
-    return aggregate(averageOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        averageOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias] as? Double
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -283,7 +327,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
 ): Map<K, C> {
     val averageOfGroup = group average { field(property) type castType alias alias }
 
-    return aggregate(averageOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        averageOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -298,7 +346,11 @@ inline fun <reified T : Any, reified R : Any> MongoTemplate.max(
 ): R {
     val maxOfAll = query max { field(property) alias alias }
 
-    return aggregate(maxOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        maxOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias] as? R
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -312,7 +364,11 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.max
 ): C {
     val maxOfAll = query max { field(property) type castType alias alias }
 
-    return aggregate(maxOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        maxOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -325,7 +381,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any> MongoTemplate.max
 ): Map<K, R> {
     val maxOfGroup = group max { field(property) alias alias }
 
-    return aggregate(maxOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        maxOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias] as? R
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -341,7 +401,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
 ): Map<K, C> {
     val maxOfGroup = group max { field(property) type castType alias alias }
 
-    return aggregate(maxOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        maxOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -356,7 +420,11 @@ inline fun <reified T : Any, reified R : Any> MongoTemplate.min(
 ): R {
     val minOfAll = query min { field(property) alias alias }
 
-    return aggregate(minOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        minOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias] as? R
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -370,7 +438,11 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.min
 ): C {
     val minOfAll = query min { field(property) type castType alias alias }
 
-    return aggregate(minOfAll.toAggregation(), T::class.java, Map::class.java).uniqueMappedResult?.let { result ->
+    return aggregate(
+        minOfAll.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).uniqueMappedResult?.let { result ->
         result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
     } ?: throw NoSuchElementException("No element found")
@@ -383,7 +455,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any> MongoTemplate.min
 ): Map<K, R> {
     val minOfGroup = group min { field(property) alias alias }
 
-    return aggregate(minOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        minOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias] as? R
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -399,7 +475,11 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
 ): Map<K, C> {
     val minOfGroup = group min { field(property) type castType alias alias }
 
-    return aggregate(minOfGroup.toAggregation(), T::class.java, Map::class.java).mappedResults.associate { result ->
+    return aggregate(
+        minOfGroup.toAggregation(),
+        T::class.java,
+        Map::class.java,
+    ).mappedResults.associate { result ->
         val key = castIfEnum<K, T>(result, T::class)
         val value = result[alias].cast<C>()
             ?: throw TypeCastException("null cannot be cast to non-null type ${property.returnType}")
@@ -417,32 +497,12 @@ fun <T : Any> MongoTemplate.updateAll(
     entityClass: KClass<T>,
 ) = this.updateMulti(update.query, update.update, entityClass.java)
 
-val KClass<*>.fieldName: String
-    get() {
-        val hasFieldAnnotation = this.annotations.any { it is Field }
-        val hasSpringDataIdAnnotation = this.annotations.any { it is Id }
-        val hasJakartaIdAnnotation = this.annotations.any { it is jakarta.persistence.Id }
-
-        return when {
-            hasFieldAnnotation -> this.annotations.filterIsInstance<Field>().first().value
-            hasSpringDataIdAnnotation -> ID
-            hasJakartaIdAnnotation -> ID
-            else -> this.simpleName!!
-        }
-    }
-
-
-val java.lang.reflect.Field?.fieldName: String
-    get() {
-        if (this == null) return ""
-        val hasFieldAnnotation = this.annotations.any { it is Field }
-        val hasSpringDataIdAnnotation = this.annotations.any { it is Id }
-        val hasJakartaIdAnnotation = this.annotations.any { it is jakarta.persistence.Id }
-
-        return when {
-            hasFieldAnnotation -> this.annotations.filterIsInstance<Field>().first().value
-            hasSpringDataIdAnnotation -> "id"
-            hasJakartaIdAnnotation -> "id"
-            else -> this.name
-        }
-    }
+val KClass<*>.fieldName
+    get() = this.java.declaredFields.first {
+        it.isAnnotationPresent(Id::class.java) or it.isAnnotationPresent(jakarta.persistence.Id::class.java)
+    }?.run {
+        isAccessible = true
+        val hasFieldAnnotation = annotations.any { it is Field }
+        if (hasFieldAnnotation) annotations.filterIsInstance<Field>().first().value
+        else ID
+    } ?: this.simpleName!!
