@@ -318,7 +318,9 @@ val document = document {
 }
 ```
 
-### Join
+## TODO : 
+
+### Join (Not yet implemented)
 
 You can use the join function to join collections.
 
@@ -334,7 +336,7 @@ val document = document {
 mongoTemplate.aggregate(document, Author::class)
 ```
 
-#### Projection
+#### Projection (Not yet implemented)
 
 You can use the projection function to project fields.
 
