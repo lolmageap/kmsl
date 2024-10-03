@@ -150,6 +150,8 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
     ).mappedResults.map { results ->
         val entity = T::class.java.getDeclaredConstructor().newInstance()
 
+        // TODO : projection class의 constructors를 순회하며 맞는 constructor를 찾아야 함
+        //  -> try catch로 binding 실패 시 다음 constructor로 넘어가는 방식으로 구현할듯 (@MongoProjection 어노테이션을 구현해서 해결해도 됨)
         results.forEach { (key, value) ->
             val field = entityClass.java.declaredFields.firstOrNull { it.fieldName == key }
 
@@ -157,10 +159,7 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
                 field.isAccessible = true
 
                 val deserializeValue = jacksonObjectMapper().convertValue(value, field.type)
-                println("deserializeValue = $deserializeValue")
                 field.set(entity, deserializeValue)
-            } else {
-                println("Field not found for key: $key")
             }
         }
         entity
