@@ -314,7 +314,7 @@ You can also use the unset function to unset a field.
 val document = document {
     field(Author::name) eq "cherhy"
 } update {
-    field(Author::age) set Unit
+    field(Author::age) unset Unit
 }
 ```
 

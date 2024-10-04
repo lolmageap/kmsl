@@ -87,7 +87,7 @@ class UpdateTest(
         } order {
             field(Author::age) by DESC
         } update {
-            field(Author::age) set Unit
+            field(Author::age) unset Unit
         }
 
         mongoTemplate.updateFirst(document, Author::class)

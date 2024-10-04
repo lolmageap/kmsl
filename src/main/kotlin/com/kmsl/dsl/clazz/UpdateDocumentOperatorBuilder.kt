@@ -17,7 +17,7 @@ class UpdateDocumentOperatorBuilder {
         count++
     }
 
-    inline infix fun <reified T : Any, R> Field<T, R>.set(
+    inline infix fun <reified T : Any, R> Field<T, R>.unset(
         nothing: Unit,
     ) {
         update.unset(key.fieldName)
