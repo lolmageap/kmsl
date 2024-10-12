@@ -498,7 +498,7 @@ fun <T : Any> MongoTemplate.updateAll(
 
 val KClass<*>.fieldName
     get() = this.java.declaredFields.first {
-        it.isAnnotationPresent(Id::class.java) or it.isAnnotationPresent(jakarta.persistence.Id::class.java)
+        it.isAnnotationPresent(Id::class.java) or it.hasJakartaIdAnnotation()
     }?.run {
         isAccessible = true
         val hasFieldAnnotation = annotations.any { it is Field }

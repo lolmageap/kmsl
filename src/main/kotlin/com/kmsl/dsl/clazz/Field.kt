@@ -31,7 +31,9 @@ class Field<T, R>(
         javaField.isAccessible = true
 
         val hasSpringDataIdAnnotation = javaField.annotations.any { it is Id }
-        val hasJakartaIdAnnotation = javaField.annotations.any { it is jakarta.persistence.Id }
+        val hasJakartaIdAnnotation = javaField.annotations.any {
+            it.annotationClass.qualifiedName == JakartaAnnotation.ID
+        }
 
         return when {
             hasSpringDataIdAnnotation -> ObjectId(this.toString())
