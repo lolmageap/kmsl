@@ -6,14 +6,13 @@ import com.kmsl.dsl.KmslApplication
 import com.kmsl.dsl.clazz.field
 import com.kmsl.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.MongoTemplate
 
 @SpringBootTest(classes = [KmslApplication::class])
-class UpdateTest(
+class DeleteTest(
     private val mongoTemplate: MongoTemplate,
 ) : StringSpec({
     beforeEach {
@@ -49,51 +48,30 @@ class UpdateTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "Update first document" {
+    "Delete first document" {
         val document = document {
             field(Author::name) eq "John"
         } order {
             field(Author::age) by DESC
-        } update {
-            field(Author::age) set 50
         }
 
-        mongoTemplate.updateFirst(document, Author::class)
+        mongoTemplate.deleteFirst(document, Author::class)
 
         val authors = mongoTemplate.findAll(Author::class)
-        authors.size shouldBe 2
-        authors.map { it.age } shouldContainAll listOf(10, 50)
+        authors.size shouldBe 1
+        authors.first().age shouldBe 10
     }
 
-    "Update all documents" {
+    "Delete all documents" {
         val document = document {
             field(Author::name) eq "John"
         } order {
             field(Author::age) by DESC
-        } update {
-            field(Author::age) set 50
         }
 
-        mongoTemplate.updateAll(document, Author::class)
+        mongoTemplate.deleteAll(document, Author::class)
 
         val authors = mongoTemplate.findAll(Author::class)
-        authors.size shouldBe 2
-        authors.map { it.age }.shouldContainAll(50)
-    }
-
-    "Update unset" {
-        val document = document {
-            field(Author::name) eq "John"
-        } order {
-            field(Author::age) by DESC
-        } update {
-            field(Author::age) unset Unit
-        }
-
-        mongoTemplate.updateFirst(document, Author::class)
-
-        val authors = mongoTemplate.findAll(Author::class)
-        authors.size shouldBe 2
-        authors.map { it.age } shouldContainAll listOf(null, 20)
+        authors.size shouldBe 0
     }
 })
