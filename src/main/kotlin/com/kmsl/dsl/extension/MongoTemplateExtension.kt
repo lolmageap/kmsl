@@ -496,6 +496,22 @@ fun <T : Any> MongoTemplate.updateAll(
     entityClass: KClass<T>,
 ) = this.updateMulti(update.query, update.update, entityClass.java)
 
+fun <T : Any> MongoTemplate.deleteFirst(
+    query: BasicQuery,
+    entityClass: KClass<T>,
+) = this.findAndRemove(
+    query,
+    entityClass.java,
+).noReturn()
+
+fun <T : Any> MongoTemplate.deleteAll(
+    query: BasicQuery,
+    entityClass: KClass<T>,
+) = this.remove(
+    query,
+    entityClass.java,
+)
+
 val KClass<*>.fieldName
     get() = this.java.declaredFields.first {
         it.isAnnotationPresent(Id::class.java) or it.hasJakartaIdAnnotation()
