@@ -1,5 +1,8 @@
 package com.example.kotlinmongo.collection
 
+import com.kmsl.dsl.annotation.EmbeddedDocument
+
+@EmbeddedDocument
 data class Receipt(
     val date: String,
     val card: String,

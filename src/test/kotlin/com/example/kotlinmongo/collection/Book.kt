@@ -1,5 +1,8 @@
 package com.example.kotlinmongo.collection
 
+import com.kmsl.dsl.annotation.EmbeddedDocument
+
+@EmbeddedDocument
 data class Book(
     var title: String,
     var price: Long,
