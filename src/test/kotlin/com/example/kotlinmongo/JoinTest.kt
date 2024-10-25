@@ -106,7 +106,7 @@ class JoinTest(
             constructor(AuthorAndSeller::class)
         }
 
-        val result = mongoTemplate.aggregate(projection, AuthorAndSeller::class)
+        val result = mongoTemplate.aggregate(projection, Author::class)
         println(result)
     }
 })
