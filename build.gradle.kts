@@ -24,6 +24,8 @@ repositories {
 
 noArg {
 	annotation("org.springframework.data.mongodb.core.mapping.Document")
+	annotation("com.kmsl.dsl.annotation.Projection")
+	annotation("com.kmsl.dsl.annotation.EmbeddedDocument")
 }
 
 dependencies {
