@@ -10,7 +10,7 @@ class JoinBuilder(
 ) {
     inline infix fun <reified T : Any, R, reified K : Any> Field<T, R>.eq(
         targetField: Field<K, R>,
-    ): Lookup {
+    ): Lookup<K> {
         val from = targetField.getClassName(K::class) ?: error("has no class name")
         val fieldName = key.fieldName
         val targetFieldName = targetField.key.fieldName
@@ -21,7 +21,7 @@ class JoinBuilder(
             foreignField = targetFieldName,
             alias = from,
             matchDocument = document,
-            joinedClasses = listOf(T::class, K::class),
+            joinedClass = K::class,
         )
     }
 

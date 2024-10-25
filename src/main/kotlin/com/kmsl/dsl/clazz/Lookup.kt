@@ -5,24 +5,19 @@ import org.bson.Document
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotations
 
-data class Lookup(
+data class Lookup<T : Any>(
     val from: String,
     val localField: String,
     val foreignField: String,
     val alias: String,
     val matchDocument: Document,
-    val joinedClasses: List<KClass<*>> = emptyList(),
+    val joinedClass: KClass<T>,
 ) {
     val joinedClassesNonDuplicatedFieldNames: Array<String>
         get() =
-            joinedClasses
-                .map { clazz ->
-                    clazz.java.declaredFields.mapNotNull { field ->
-                        if (field.name != COMPANION) field.fieldName else null
-                    }
-                }
-                .flatten()
-                .groupingBy { it }
+            joinedClass.java.declaredFields.mapNotNull {
+                if (it.name != COMPANION) it.fieldName else null
+            }.groupingBy { it }
                 .eachCount()
                 .filter { it.value == 1 }
                 .keys
@@ -31,24 +26,19 @@ data class Lookup(
 
     val duplicatedFieldNames
         get() =
-            joinedClasses
-                .map { clazz ->
-                    clazz.java.declaredFields.mapNotNull { field ->
-                        if (field.name != COMPANION) field.fieldName else null
-                    }
-                }
-                .flatten()
-                .groupingBy { it }
+            joinedClass.java.declaredFields.mapNotNull {
+                if (it.name != COMPANION) it.fieldName else null
+            }.groupingBy { it }
                 .eachCount()
                 .filter { it.value > 1 }
                 .keys
                 .toList()
 
     val firstClassName
-        get() = joinedClasses.first().className()
+        get() = joinedClass.className()
 
     val lastClassName
-        get() = joinedClasses.last().className()
+        get() = joinedClass.className()
 
     private fun KClass<*>.className() =
         this.findAnnotations<org.springframework.data.mongodb.core.mapping.Document>().first().collection

@@ -68,9 +68,9 @@ infix fun BasicQuery.update(
     }
 }
 
-infix fun BasicQuery.join(
-    block: JoinBuilder.() -> Lookup,
-): Lookup {
+infix fun <T: Any> BasicQuery.join(
+    block: JoinBuilder.() -> Lookup<T>,
+): Lookup<T> {
     val joinBuilder = JoinBuilder(this.queryObject.copy())
     return joinBuilder.block()
 }

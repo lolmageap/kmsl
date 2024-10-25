@@ -1,6 +1,6 @@
 package com.kmsl.dsl.clazz
 
-data class DocumentProjection<T : Any>(
+data class DocumentProjection<T : Any, R: Any>(
     val projectionConstructor: ProjectionConstructor<T>,
-    val lookup: Lookup,
+    val lookup: Lookup<R>,
 )
