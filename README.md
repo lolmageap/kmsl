@@ -315,7 +315,35 @@ val document = document {
     field(Author::name) eq "cherhy"
 } update {
     field(Author::age) unset Unit
+} order {
+    field(Author::age) by DESC
 }
+
+mongoTemplate.updateFirst(document, Author::class)
+```
+
+### Delete
+
+You can use the delete function to delete the document.
+
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+} order {
+    field(Author::age) by DESC
+}
+
+mongoTemplate.deleteFirst(document, Author::class)
+```
+
+You can also delete multiple documents.
+
+```kotlin
+val document = document {
+    field(Author::name) eq "cherhy"
+}
+
+mongoTemplate.deleteAll(document, Author::class)
 ```
 
 ## TODO : 
