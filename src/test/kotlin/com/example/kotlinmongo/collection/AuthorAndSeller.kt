@@ -1,5 +1,8 @@
 package com.example.kotlinmongo.collection
 
+import com.kmsl.dsl.annotation.Projection
+
+@Projection
 data class AuthorAndSeller(
     val authorId: String,
     val authorName: String,
