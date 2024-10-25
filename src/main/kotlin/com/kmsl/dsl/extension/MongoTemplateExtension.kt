@@ -1,6 +1,6 @@
 package com.kmsl.dsl.extension
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.kmsl.dsl.clazz.*
 import com.kmsl.dsl.clazz.FieldName.ID
 import org.springframework.data.annotation.Id
@@ -9,10 +9,14 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.aggregation.*
+import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.query.BasicQuery
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.findAnnotations
+
+val mapper = ObjectMapper()
 
 fun <T : Any> MongoTemplate.findOne(
     query: BasicQuery,
@@ -92,9 +96,9 @@ fun <T : Any> MongoTemplate.aggregate(
     }.toMap()
 }
 
-inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
-    projection: DocumentProjection<T>,
-    entityClass: KClass<C>,
+inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.aggregate(
+    projection: DocumentProjection<T, R>,
+    collection: KClass<C>,
 ): List<T> {
     val from = projection.lookup.from
     val localField = projection.lookup.localField
@@ -116,12 +120,7 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
     val matchOperation =
         match.toMatchOperation()
 
-    val projectionOperation =
-        ProjectionOperation()
-            .andExclude(ID)
-            .andInclude(alias)
-            .andInclude(*projection.lookup.joinedClassesNonDuplicatedFieldNames)
-
+    val projectionOperation = ProjectionOperation()
     projection.lookup.duplicatedFieldNames.forEach { fieldName ->
         val firstClassName = projection.lookup.firstClassName
         val lastClassName = projection.lookup.lastClassName
@@ -129,7 +128,7 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
         val classNameAndField1 = "${firstClassName}.$fieldName"
         val classNameAndField2 = "${lastClassName}.$fieldName"
 
-        ProjectionOperation()
+        projectionOperation
             .andExclude(fieldName)
             .and(classNameAndField1).`as`("${firstClassName}_$fieldName")
             .and(classNameAndField2).`as`("${lastClassName}_$fieldName")
@@ -140,29 +139,53 @@ inline fun <reified T : Any, C : Any> MongoTemplate.aggregate(
             lookupOperation,
             unwindOperation,
             matchOperation,
-            projectionOperation,
+            projectionOperation.andExclude(ID),
         )
 
+    // TODO: 데이터 바인딩 할 때 @Field name에 맞게 바인딩하는 처리도 해야함
     return this.aggregate(
         aggregation,
-        entityClass.java,
+        collection.java,
         Map::class.java,
     ).mappedResults.map { results ->
-        val entity = T::class.java.getDeclaredConstructor().newInstance()
+        val fields = mutableMapOf<String, Any?>()
+        var second: R? = null
+        val documentName = R::class.findAnnotations<Document>().first().collection
 
-        // TODO : projection class의 constructors를 순회하며 맞는 constructor를 찾아야 함
-        //  -> try catch로 binding 실패 시 다음 constructor로 넘어가는 방식으로 구현할듯 (@MongoProjection 어노테이션을 구현해서 해결해도 됨)
         results.forEach { (key, value) ->
-            val field = entityClass.java.declaredFields.firstOrNull { it.fieldName == key }
-
-            if (field != null) {
-                field.isAccessible = true
-
-                val deserializeValue = jacksonObjectMapper().convertValue(value, field.type)
-                field.set(entity, deserializeValue)
+            if (key?.toString() == documentName) {
+                second = mapper.convertValue(value, R::class.java)
+            } else {
+                if (key.toString() == "_id") fields["id"] = value
+                else fields[key.toString()] = value
             }
         }
-        entity
+
+        val first = mapper.convertValue(fields, collection.java)
+
+        var instance: T? = null
+        T::class.constructors.forEach { constructor ->
+            runCatching {
+                constructor.call(first, second)
+            }.onSuccess {
+                instance = it
+                return@forEach
+            }
+        }
+
+        val foreignKey = second!!::class.java.declaredFields.first { it.name == foreignField }
+        foreignKey.isAccessible = true
+
+        val primaryKey = first!!::class.java.declaredFields.first { it.name == ID }
+//        val primaryKey = first!!::class.java.declaredFields.first { it.name == localField }
+        primaryKey.isAccessible = true
+        primaryKey.set(first, foreignKey.get(second))
+
+        println("instance: $instance")
+        println("first: $first")
+        println("second: $second")
+
+        instance ?: throw NoSuchElementException("No element found")
     }
 }
 
