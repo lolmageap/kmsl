@@ -6,8 +6,7 @@ It was created to solve dynamic queries and complex operations.
 
 ## Dependencies
 
-Warning: You might need to set your Kotlin JVM target to 17, and when using Spring, to 17, in order for this to work
-properly. This means that certain features are only available when using Java 17.
+It requires JDK version 17 or higher
 
 add the following to your build.gradle.kts file:
 
