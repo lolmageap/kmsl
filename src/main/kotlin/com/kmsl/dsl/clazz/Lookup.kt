@@ -13,17 +13,6 @@ data class Lookup<T : Any>(
     val matchDocument: Document,
     val joinedClass: KClass<T>,
 ) {
-    val joinedClassesNonDuplicatedFieldNames: Array<String>
-        get() =
-            joinedClass.java.declaredFields.mapNotNull {
-                if (it.name != COMPANION) it.fieldName else null
-            }.groupingBy { it }
-                .eachCount()
-                .filter { it.value == 1 }
-                .keys
-                .toList()
-                .toTypedArray()
-
     val duplicatedFieldNames
         get() =
             joinedClass.java.declaredFields.mapNotNull {

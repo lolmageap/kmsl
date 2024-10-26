@@ -84,19 +84,6 @@ class JoinTest(
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "Join" {
-        val projection = document {
-            field(Author::name) eq "John"
-        } join {
-            field(Author::id) eq field(Seller::authorId)
-        } projection {
-            constructor(Author::class)
-        }
-
-        val result = mongoTemplate.aggregate(projection, Author::class)
-        println(result)
-    }
-
     "Join with projection" {
         val projection = document {
             field(Author::name) eq "John"
