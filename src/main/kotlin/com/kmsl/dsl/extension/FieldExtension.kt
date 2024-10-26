@@ -18,8 +18,8 @@ val java.lang.reflect.Field.fieldName: String
             hasFieldAnnotation -> this.annotations
                 .filterIsInstance<Field>()
                 .first().value
-            hasSpringDataIdAnnotation -> FieldName.ID
-            hasJakartaIdAnnotation -> FieldName.ID
+            hasSpringDataIdAnnotation -> FieldName._ID
+            hasJakartaIdAnnotation -> FieldName._ID
             else -> this.kotlinProperty?.toDotPath() ?: this.name
         }
     }

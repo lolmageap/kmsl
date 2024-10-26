@@ -2,7 +2,7 @@ package com.example.kotlinmongo
 
 import com.kmsl.dsl.clazz.FieldName.AVERAGE_FIELD
 import com.kmsl.dsl.clazz.FieldName.COUNT_FIELD
-import com.kmsl.dsl.clazz.FieldName.ID
+import com.kmsl.dsl.clazz.FieldName._ID
 import com.kmsl.dsl.clazz.FieldName.MAX_FIELD
 import com.kmsl.dsl.clazz.FieldName.MIN_FIELD
 import com.kmsl.dsl.clazz.FieldName.SUM_FIELD
@@ -121,7 +121,7 @@ class GroupTest(
         }
 
         val countOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it[ID] to it[COUNT_FIELD].toLong() }
+            .associate { it[_ID] to it[COUNT_FIELD].toLong() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
@@ -148,7 +148,7 @@ class GroupTest(
         }
 
         val sumOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it[ID] to it[SUM_FIELD].toLong() }
+            .associate { it[_ID] to it[SUM_FIELD].toLong() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         sumOfGroup shouldBe mapOf(ACTIVE to 90, RETIREMENT to 10)
@@ -186,7 +186,7 @@ class GroupTest(
         }
 
         val avgOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it[ID] to it[AVERAGE_FIELD].toDouble() }
+            .associate { it[_ID] to it[AVERAGE_FIELD].toDouble() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         avgOfGroup shouldBe mapOf(ACTIVE to 30.0, RETIREMENT to 10.0)
@@ -213,7 +213,7 @@ class GroupTest(
         }
 
         val maxOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it[ID] to it[MAX_FIELD].toLong() }
+            .associate { it[_ID] to it[MAX_FIELD].toLong() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         maxOfGroup shouldBe mapOf(ACTIVE to 40, RETIREMENT to 10)
@@ -240,7 +240,7 @@ class GroupTest(
         }
 
         val minOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it[ID] to it[MIN_FIELD].toInt() }
+            .associate { it[_ID] to it[MIN_FIELD].toInt() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         minOfGroup shouldBe mapOf(ACTIVE to 20, RETIREMENT to 10)
@@ -284,23 +284,23 @@ class GroupTest(
 
         val result = mongoTemplate.aggregate(document, Author::class)
 
-        result.first { it[ID] == ACTIVE }[SUM_FIELD].toLong() shouldBe 90
-        result.first { it[ID] == ACTIVE }[AVERAGE_FIELD].toDouble() shouldBe 90.0
-        result.first { it[ID] == ACTIVE }[MAX_FIELD].toInt() shouldBe 190
-        result.first { it[ID] == ACTIVE }[MIN_FIELD].toInt() shouldBe 190
-        result.first { it[ID] == ACTIVE }[COUNT_FIELD].toLong() shouldBe 1
+        result.first { it[_ID] == ACTIVE }[SUM_FIELD].toLong() shouldBe 90
+        result.first { it[_ID] == ACTIVE }[AVERAGE_FIELD].toDouble() shouldBe 90.0
+        result.first { it[_ID] == ACTIVE }[MAX_FIELD].toInt() shouldBe 190
+        result.first { it[_ID] == ACTIVE }[MIN_FIELD].toInt() shouldBe 190
+        result.first { it[_ID] == ACTIVE }[COUNT_FIELD].toLong() shouldBe 1
 
-        result.first { it[ID] == RETIREMENT }[SUM_FIELD].toLong() shouldBe 10
-        result.first { it[ID] == RETIREMENT }[AVERAGE_FIELD].toDouble() shouldBe 90.0
-        result.first { it[ID] == RETIREMENT }[MAX_FIELD].toInt() shouldBe 190
-        result.first { it[ID] == RETIREMENT }[MIN_FIELD].toInt() shouldBe 190
-        result.first { it[ID] == RETIREMENT }[COUNT_FIELD].toLong() shouldBe 1
+        result.first { it[_ID] == RETIREMENT }[SUM_FIELD].toLong() shouldBe 10
+        result.first { it[_ID] == RETIREMENT }[AVERAGE_FIELD].toDouble() shouldBe 90.0
+        result.first { it[_ID] == RETIREMENT }[MAX_FIELD].toInt() shouldBe 190
+        result.first { it[_ID] == RETIREMENT }[MIN_FIELD].toInt() shouldBe 190
+        result.first { it[_ID] == RETIREMENT }[COUNT_FIELD].toLong() shouldBe 1
 
-        result.first { it[ID] == REST }[SUM_FIELD].toLong() shouldBe 0
-        result.first { it[ID] == REST }[AVERAGE_FIELD].toDouble() shouldBe 0.0
-        result.first { it[ID] == REST }[MAX_FIELD].toInt() shouldBe 0
-        result.first { it[ID] == REST }[MIN_FIELD].toInt() shouldBe 0
-        result.first { it[ID] == REST }[COUNT_FIELD].toLong() shouldBe 0
+        result.first { it[_ID] == REST }[SUM_FIELD].toLong() shouldBe 0
+        result.first { it[_ID] == REST }[AVERAGE_FIELD].toDouble() shouldBe 0.0
+        result.first { it[_ID] == REST }[MAX_FIELD].toInt() shouldBe 0
+        result.first { it[_ID] == REST }[MIN_FIELD].toInt() shouldBe 0
+        result.first { it[_ID] == REST }[COUNT_FIELD].toLong() shouldBe 0
     }
 
     "Aggregate query without grouping" {
@@ -330,7 +330,7 @@ class GroupTest(
         }
 
         val result = mongoTemplate.aggregate(document, Author::class)
-        result[ID] shouldBe null
+        result[_ID] shouldBe null
         result[SUM_FIELD].toLong() shouldBe 100
         result[AVERAGE_FIELD].toDouble() shouldBe 170.0
         result[MAX_FIELD].toInt() shouldBe 70

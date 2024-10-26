@@ -3,6 +3,7 @@ package com.kmsl.dsl.extension
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kmsl.dsl.clazz.*
 import com.kmsl.dsl.clazz.FieldName.ID
+import com.kmsl.dsl.clazz.FieldName._ID
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -139,7 +140,7 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.agg
             lookupOperation,
             unwindOperation,
             matchOperation,
-            projectionOperation.andExclude(ID),
+            projectionOperation.andExclude(_ID),
         )
 
     // TODO: 데이터 바인딩 할 때 @Field name에 맞게 바인딩하는 처리도 해야함
@@ -156,12 +157,19 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.agg
             if (key?.toString() == documentName) {
                 second = mapper.convertValue(value, R::class.java)
             } else {
-                if (key.toString() == "_id") fields["id"] = value
+                if (key.toString() == _ID) fields[ID] = value
                 else fields[key.toString()] = value
             }
         }
 
         val first = mapper.convertValue(fields, collection.java)
+
+        val foreignKey = second!!::class.java.declaredFields.first { it.name == foreignField }
+        foreignKey.isAccessible = true
+
+        val primaryKey = first!!::class.java.declaredFields.first { it.name == ID }
+        primaryKey.isAccessible = true
+        primaryKey.set(first, foreignKey.get(second))
 
         var instance: T? = null
         T::class.constructors.forEach { constructor ->
@@ -173,19 +181,7 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.agg
             }
         }
 
-        val foreignKey = second!!::class.java.declaredFields.first { it.name == foreignField }
-        foreignKey.isAccessible = true
-
-        val primaryKey = first!!::class.java.declaredFields.first { it.name == ID }
-//        val primaryKey = first!!::class.java.declaredFields.first { it.name == localField }
-        primaryKey.isAccessible = true
-        primaryKey.set(first, foreignKey.get(second))
-
-        println("instance: $instance")
-        println("first: $first")
-        println("second: $second")
-
-        instance ?: throw NoSuchElementException("No element found")
+        instance ?: throw IllegalArgumentException("No instance matching the specified constructor was found")
     }
 }
 
@@ -542,5 +538,5 @@ val KClass<*>.fieldName
         isAccessible = true
         val hasFieldAnnotation = annotations.any { it is Field }
         if (hasFieldAnnotation) annotations.filterIsInstance<Field>().first().value
-        else ID
+        else _ID
     } ?: this.simpleName!!
