@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.lolmageap:kmsl:1.0.0")
+    implementation("com.github.lolmageap:kmsl:1.0.1")
 }
 ```
 
@@ -127,6 +127,18 @@ mongoTemplate.find(basicQuery, Author::class)
 ```
 
 ### Embedded Document
+
+You can use the embeddedDocument function to handle embedded documents.
+
+```kotlin
+@EmbeddedDocument
+data class Book(
+    var title: String,
+    var price: Long,
+    var isbn: String,
+    var description: String?,
+)
+```
 
 It is used when searching for embedded documents within a collection.  
 You can declare it as shown below.
@@ -346,31 +358,15 @@ val document = document {
 mongoTemplate.deleteAll(document, Author::class)
 ```
 
-## TODO : 
-
-### Join (Not yet implemented)
-
-You can use the join function to join collections.
-
-```kotlin
-val document = document {
-    field(Author::name) eq "cherhy"
-} join {
-    field(Author::id) eq field(Seller::authorId)
-} projection {
-    constructor(Author::class)
-}
-
-mongoTemplate.aggregate(document, Author::class)
-```
-
-#### Projection (Not yet implemented)
+### Join & Projection
 
 You can use the projection function to project fields.
 
 ```kotlin
 val document = document {
     field(Author::name) eq "cherhy"
+} where {
+    field(Author::age) eq 25
 } join {
     field(Author::id) eq field(Seller::authorId)
 } projection {
@@ -378,4 +374,53 @@ val document = document {
 }
 
 mongoTemplate.aggregate(document, Author::class)
+```
+
+But currently, the join can only be performed on a single collection, and the projection is also limited in the
+following way:
+
+```kotlin
+@Projection
+data class AuthorAndSeller(
+    val author: Author,
+    val seller: Seller
+)
+```
+
+or
+
+```kotlin
+@Projection
+data class AuthorAndSeller(
+    val authorId: String,
+    val authorName: String,
+    val authorAge: Int,
+    val authorWeight: Double,
+    val authorHeight: Float,
+    val authorStatus: Status,
+    val books: MutableList<Book>,
+    val receipt: Receipt?,
+    val sellerId: String,
+    val sellerName: String,
+    val sellerAge: Int,
+    val sellerAuthorId: String,
+) {
+    constructor(
+        author: Author,
+        seller: Seller,
+    ) : this(
+        authorId = author.id,
+        authorName = author.name,
+        authorAge = author.age,
+        authorWeight = author.weight,
+        authorHeight = author.height,
+        authorStatus = author.status,
+        books = author.books,
+        receipt = author.receipt,
+        sellerId = seller.id!!,
+        sellerName = seller.name,
+        sellerAge = seller.age,
+        sellerAuthorId = seller.authorId,
+    )
+}
 ```
