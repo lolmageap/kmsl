@@ -21,7 +21,7 @@ data class AuthorAndSeller(
         author: Author,
         seller: Seller,
     ) : this(
-        authorId = author.id!!,
+        authorId = author.id,
         authorName = author.name,
         authorAge = author.age,
         authorWeight = author.weight,
@@ -29,7 +29,7 @@ data class AuthorAndSeller(
         authorStatus = author.status,
         books = author.books,
         receipt = author.receipt,
-        sellerId = seller.id!!,
+        sellerId = seller.id,
         sellerName = seller.name,
         sellerAge = seller.age,
         sellerAuthorId = seller.authorId,

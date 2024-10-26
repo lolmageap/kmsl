@@ -7,12 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Field
 
 @Document(collection = "seller")
 data class Seller(
-    @Id @Field("_id")
-    val id: String? = ObjectId.get().toHexString(),
     val name: String,
     val age: Int,
     val authorId: String,
 ) {
+    @Id @Field("_id")
+    val id: String = ObjectId.get().toHexString()
+
     companion object {
         fun of(
             name: String,
