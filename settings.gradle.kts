@@ -1,1 +1,1 @@
-rootProject.name = "mongo-study"
+rootProject.name = "kmsl"
