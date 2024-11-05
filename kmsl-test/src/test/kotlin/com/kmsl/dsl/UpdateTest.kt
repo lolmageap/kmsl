@@ -1,9 +1,8 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Status
-import com.kmsl.dsl.KmslApplication
 import com.kmsl.dsl.clazz.field
+import com.kmsl.dsl.collection.Author
+import com.kmsl.dsl.collection.Status
 import com.kmsl.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
@@ -29,6 +28,7 @@ class UpdateTest(
                         createBook("book1"),
                         createBook("book2"),
                     ),
+                    nickname = "NotNull"
                 ),
                 Author.of(
                     name = "John",
@@ -40,6 +40,7 @@ class UpdateTest(
                         createBook("book3"),
                         createBook("book4"),
                     ),
+                    nickname = "Any"
                 )
             )
         )
@@ -87,13 +88,14 @@ class UpdateTest(
         } order {
             field(Author::age) by DESC
         } update {
-            field(Author::age) unset Unit
+            field(Author::nickname) unset Unit
         }
 
         mongoTemplate.updateFirst(document, Author::class)
 
         val authors = mongoTemplate.findAll(Author::class)
         authors.size shouldBe 2
-        authors.map { it.age } shouldContainAll listOf(null, 20)
+        authors[0].nickname shouldBe "NotNull"
+        authors[1].nickname shouldBe null
     }
 })
