@@ -11,6 +11,10 @@ It requires JDK version 17 or higher
 add the following to your build.gradle.kts file:
 
 ```kotlin
+plugins {
+    kotlin("plugin.noarg") version "your-kotlin-version"
+}
+
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
@@ -18,6 +22,17 @@ repositories {
 
 dependencies {
     implementation("com.github.lolmageap:kmsl:1.0.1")
+    
+    // please add the following dependencies
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+}
+
+noArg {
+    annotation("org.springframework.data.mongodb.core.mapping.Document")
+    annotation("com.kmsl.dsl.annotation.Projection")
+    annotation("com.kmsl.dsl.annotation.EmbeddedDocument")
 }
 ```
 
