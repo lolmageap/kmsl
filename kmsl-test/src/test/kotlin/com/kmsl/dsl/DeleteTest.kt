@@ -1,9 +1,8 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Status
-import com.kmsl.dsl.KmslApplication
 import com.kmsl.dsl.clazz.field
+import com.kmsl.dsl.collection.Author
+import com.kmsl.dsl.collection.Status
 import com.kmsl.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

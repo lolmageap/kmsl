@@ -1,11 +1,10 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Book
-import com.example.kotlinmongo.collection.Receipt
-import com.example.kotlinmongo.collection.Status
-import com.kmsl.dsl.KmslApplication
 import com.kmsl.dsl.clazz.field
+import com.kmsl.dsl.collection.Author
+import com.kmsl.dsl.collection.Book
+import com.kmsl.dsl.collection.Receipt
+import com.kmsl.dsl.collection.Status
 import com.kmsl.dsl.extension.document
 import com.kmsl.dsl.extension.find
 import com.kmsl.dsl.extension.order

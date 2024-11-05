@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.collection
+package com.kmsl.dsl.collection
 
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Field
 
 @Document(collection = "author")
 data class Author(
+    @Id @Field("_id")
+    val id: String = ObjectId.get().toHexString(),
     val name: String,
     val age: Int,
     val weight: Double,
@@ -14,10 +16,8 @@ data class Author(
     val status: Status,
     val books: MutableList<Book>,
     val receipt: Receipt?,
+    var nickname: String?,
 ) {
-    @Id @Field("_id")
-    val id: String = ObjectId.get().toHexString()
-
     companion object {
         fun of(
             name: String,
@@ -27,6 +27,7 @@ data class Author(
             status: Status,
             books: MutableList<Book>,
             receipt: Receipt? = null,
+            nickname: String? = null,
         ) = Author(
             name = name,
             age = age,
@@ -35,6 +36,7 @@ data class Author(
             status = status,
             books = books,
             receipt = receipt,
+            nickname = nickname,
         )
     }
 }

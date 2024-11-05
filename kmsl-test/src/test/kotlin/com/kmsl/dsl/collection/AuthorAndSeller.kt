@@ -1,4 +1,4 @@
-package com.example.kotlinmongo.collection
+package com.kmsl.dsl.collection
 
 import com.kmsl.dsl.annotation.Projection
 

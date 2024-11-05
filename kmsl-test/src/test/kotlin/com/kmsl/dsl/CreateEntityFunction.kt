@@ -1,8 +1,8 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
-import com.example.kotlinmongo.collection.Book
-import com.example.kotlinmongo.collection.Receipt
-import com.example.kotlinmongo.collection.Seller
+import com.kmsl.dsl.collection.Book
+import com.kmsl.dsl.collection.Receipt
+import com.kmsl.dsl.collection.Seller
 
 // When creating exception cases, use the copy method
 fun createBook(

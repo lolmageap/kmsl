@@ -1,18 +1,17 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
 import com.kmsl.dsl.clazz.FieldName.AVERAGE_FIELD
 import com.kmsl.dsl.clazz.FieldName.COUNT_FIELD
-import com.kmsl.dsl.clazz.FieldName._ID
 import com.kmsl.dsl.clazz.FieldName.MAX_FIELD
 import com.kmsl.dsl.clazz.FieldName.MIN_FIELD
 import com.kmsl.dsl.clazz.FieldName.SUM_FIELD
+import com.kmsl.dsl.clazz.FieldName._ID
 import com.kmsl.dsl.clazz.GroupType.SINGLE
 import com.kmsl.dsl.clazz.field
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.Book
-import com.example.kotlinmongo.collection.Status
-import com.example.kotlinmongo.collection.Status.*
-import com.kmsl.dsl.KmslApplication
+import com.kmsl.dsl.collection.Author
+import com.kmsl.dsl.collection.Book
+import com.kmsl.dsl.collection.Status
+import com.kmsl.dsl.collection.Status.*
 import com.kmsl.dsl.extension.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -338,3 +337,8 @@ class GroupTest(
         result[COUNT_FIELD].toLong() shouldBe 1
     }
 })
+
+private fun Any?.toLong() = this as Long
+private fun Any?.toDouble() = this as Double
+private fun Any?.toInt() = this as Int
+private fun Any?.toBigDecimal() = this as BigDecimal

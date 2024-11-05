@@ -1,7 +1,7 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
 import com.kmsl.dsl.clazz.field
-import com.example.kotlinmongo.collection.Author
+import com.kmsl.dsl.collection.Author
 import com.kmsl.dsl.extension.RootDocumentOperator.NOR
 import com.kmsl.dsl.extension.RootDocumentOperator.OR
 import com.kmsl.dsl.extension.document

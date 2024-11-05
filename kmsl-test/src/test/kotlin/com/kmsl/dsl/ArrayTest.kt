@@ -1,27 +1,23 @@
-package com.example.kotlinmongo
+package com.kmsl.dsl
 
-import com.example.kotlinmongo.collection.Author
-import com.example.kotlinmongo.collection.AuthorAndSeller
-import com.example.kotlinmongo.collection.Seller
-import com.example.kotlinmongo.collection.Status.ACTIVE
-import com.example.kotlinmongo.collection.Status.RETIREMENT
-import com.kmsl.dsl.KmslApplication
+import com.kmsl.dsl.collection.Author
+import com.kmsl.dsl.collection.Status.ACTIVE
+import com.kmsl.dsl.collection.Status.RETIREMENT
 import com.kmsl.dsl.clazz.field
-import com.kmsl.dsl.extension.aggregate
 import com.kmsl.dsl.extension.document
-import com.kmsl.dsl.extension.join
-import com.kmsl.dsl.extension.projection
+import com.kmsl.dsl.extension.find
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
 
 @SpringBootTest(classes = [KmslApplication::class])
-class JoinTest(
+class ArrayTest(
     @Autowired private val mongoTemplate: MongoTemplate,
 ) : StringSpec({
     beforeTest {
-        val author = mongoTemplate.insert(
+        mongoTemplate.insert(
             Author.of(
                 name = "John",
                 age = 10,
@@ -34,7 +30,7 @@ class JoinTest(
                 ),
             )
         )
-        val author2 = mongoTemplate.insert(
+        mongoTemplate.insert(
             Author.of(
                 name = "John",
                 age = 20,
@@ -73,27 +69,36 @@ class JoinTest(
                 ),
             )
         )
-
-        val seller = createSeller(author.id!!)
-        val seller2 = createSeller(author2.id!!)
-        mongoTemplate.insert(seller)
-        mongoTemplate.insert(seller2)
     }
 
     afterTest {
         mongoTemplate.dropCollection(Author::class.java)
     }
 
-    "Join with projection" {
-        val projection = document {
-            field(Author::name) eq "John"
-        } join {
-            field(Author::id) eq field(Seller::authorId)
-        } projection {
-            constructor(AuthorAndSeller::class)
+    "Equal operation on array fields" {
+        val books = mutableListOf(
+            createBook("book1"),
+            createBook("book2"),
+        )
+
+        val document = document {
+            field(Author::books) eq books
         }
 
-        val result = mongoTemplate.aggregate(projection, Author::class)
-        println(result)
+        val author = mongoTemplate.find(document, Author::class).first()
+        val titles = author.books.map { it.title }
+        titles shouldBe listOf("book1", "book2")
+    }
+
+    "In operations on array fields" {
+        val book = mutableListOf(createBook("book1"))
+
+        val document = document {
+            field(Author::books) `in` book
+        }
+
+        val author = mongoTemplate.find(document, Author::class).first()
+        val titles = author.books.map { it.title }
+        titles shouldBe listOf("book1", "book2")
     }
 })
