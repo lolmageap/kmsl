@@ -65,37 +65,40 @@ fun <T : Any> MongoTemplate.count(
 fun <T : Any, R : Any> MongoTemplate.count(
     group: Group<T, R>,
     entityClass: KClass<T>,
-): Map<String, *> = this.aggregate(
-    group.toAggregation(),
-    entityClass.java,
-    Map::class.java,
-).uniqueMappedResult!!.map {
-    it.key.toString() to it.value
-}.toMap()
+): Map<String, *> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).uniqueMappedResult!!.map { (key, value) ->
+        key.toString() to value
+    }.toMap()
 
 fun <T : Any> MongoTemplate.count(
     group: EmptyGroup.GroupOperationWrapper,
     entityClass: KClass<T>,
-): Map<String, *> = this.aggregate(
-    group.toAggregation(),
-    entityClass.java,
-    Map::class.java,
-).uniqueMappedResult!!.map {
-    it.key.toString() to it.value
-}.toMap()
+): Map<String, *> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).uniqueMappedResult!!.map { (key, value) ->
+        key.toString() to value
+    }.toMap()
 
 fun <T : Any> MongoTemplate.aggregate(
     aggregation: Aggregation,
     entityClass: KClass<T>,
-): List<Map<String, *>> = this.aggregate(
-    aggregation,
-    entityClass.java,
-    Map::class.java,
-).mappedResults.map { results ->
-    results.map {
-        it.key.toString() to it.value
-    }.toMap()
-}
+): List<Map<String, *>> =
+    this.aggregate(
+        aggregation,
+        entityClass.java,
+        Map::class.java,
+    ).mappedResults.map { results ->
+        results.map { (key, value) ->
+            key.toString() to value
+        }.toMap()
+    }
 
 inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.aggregate(
     projection: DocumentProjection<T, R>,
@@ -188,26 +191,28 @@ inline fun <reified T : Any, reified R : Any, reified C : Any> MongoTemplate.agg
 fun <T : Any> MongoTemplate.aggregate(
     group: Group.GroupOperationWrapper,
     entityClass: KClass<T>,
-): List<Map<String, *>> = this.aggregate(
-    group.toAggregation(),
-    entityClass.java,
-    Map::class.java,
-).mappedResults.map { results ->
-    results.map {
-        it.key.toString() to it.value
-    }.toMap()
-}
+): List<Map<String, *>> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).mappedResults.map { results ->
+        results.map { (key, value) ->
+            key.toString() to value
+        }.toMap()
+    }
 
 fun <T : Any> MongoTemplate.aggregate(
     group: EmptyGroup.GroupOperationWrapper,
     entityClass: KClass<T>,
-): Map<String, *> = this.aggregate(
-    group.toAggregation(),
-    entityClass.java,
-    Map::class.java,
-).uniqueMappedResult!!.map {
-    it.key.toString() to it.value
-}.toMap()
+): Map<String, *> =
+    this.aggregate(
+        group.toAggregation(),
+        entityClass.java,
+        Map::class.java,
+    ).uniqueMappedResult!!.map { (key, value) ->
+        key.toString() to value
+    }.toMap()
 
 inline fun <reified T : Any, reified R : Any> MongoTemplate.sum(
     query: BasicQuery,
@@ -508,28 +513,32 @@ inline fun <reified T : Any, reified R : Any, reified K : Any, reified C : Any> 
 fun <T : Any> MongoTemplate.updateFirst(
     update: UpdateQuery,
     entityClass: KClass<T>,
-) = this.findAndModify(update.query, update.update, entityClass.java)
+) =
+    this.findAndModify(update.query, update.update, entityClass.java)
 
 fun <T : Any> MongoTemplate.updateAll(
     update: UpdateQuery,
     entityClass: KClass<T>,
-) = this.updateMulti(update.query, update.update, entityClass.java)
+) =
+    this.updateMulti(update.query, update.update, entityClass.java)
 
 fun <T : Any> MongoTemplate.deleteFirst(
     query: BasicQuery,
     entityClass: KClass<T>,
-) = this.findAndRemove(
-    query,
-    entityClass.java,
-).noReturn()
+) =
+    this.findAndRemove(
+        query,
+        entityClass.java,
+    ).noReturn
 
 fun <T : Any> MongoTemplate.deleteAll(
     query: BasicQuery,
     entityClass: KClass<T>,
-) = this.remove(
-    query,
-    entityClass.java,
-)
+) =
+    this.remove(
+        query,
+        entityClass.java,
+    )
 
 val KClass<*>.fieldName
     get() = this.java.declaredFields.first {
