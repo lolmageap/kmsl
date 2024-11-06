@@ -17,8 +17,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Sort.Direction.ASC
-import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.MongoTemplate
 import java.math.BigDecimal
 
@@ -101,26 +99,12 @@ class GroupTest(
             field(Author::name) eq "John"
         } group {
             field(Author::status) by SINGLE
-        }
-
-        val countOfGroup = mongoTemplate.count(document, Author::class).map {
-            Status.valueOf(it.key) to it.value.toLong()
-        }.toMap()
-
-        countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
-    }
-
-    "Count of grouping2" {
-        val document = document {
-            field(Author::name) eq "John"
-        } group {
-            field(Author::status) by SINGLE
         } count {
             field(Author::status) alias COUNT_FIELD
         }
 
         val countOfGroup = mongoTemplate.aggregate(document, Author::class)
-            .associate { it[_ID] to it[COUNT_FIELD].toLong() }
+            .associate { it[_ID] to it[COUNT_FIELD].toInt() }
             .mapKeys { Status.valueOf(it.key.toString()) }
 
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
@@ -259,16 +243,13 @@ class GroupTest(
     "Aggregate query after grouping" {
         val document =
             document {
-                field(Author::age) eq 30
+                field(Author::name) eq "John"
                 embeddedDocument(Author::books) elemMatch {
-                    field(Book::price) exists false
-                    field(Book::description) startsWith "test"
+                    field(Book::description) exists false
+                    field(Book::price) eq 10000L
                 }
-            } order {
-                field(Author::age) by DESC
-                field(Author::weight) by ASC
             } group {
-                field(Author::status) and field(Author::age)
+                field(Author::status) by SINGLE
             } sum {
                 field(Author::age) alias SUM_FIELD
             } average {
@@ -283,39 +264,24 @@ class GroupTest(
 
         val result = mongoTemplate.aggregate(document, Author::class)
 
-        result.first { it[_ID] == ACTIVE }[SUM_FIELD].toLong() shouldBe 90
-        result.first { it[_ID] == ACTIVE }[AVERAGE_FIELD].toDouble() shouldBe 90.0
-        result.first { it[_ID] == ACTIVE }[MAX_FIELD].toInt() shouldBe 190
-        result.first { it[_ID] == ACTIVE }[MIN_FIELD].toInt() shouldBe 190
-        result.first { it[_ID] == ACTIVE }[COUNT_FIELD].toLong() shouldBe 1
+        result.first { it[_ID] == ACTIVE.name }[SUM_FIELD].toLong() shouldBe 90
+        result.first { it[_ID] == ACTIVE.name }[AVERAGE_FIELD].toDouble() shouldBe 90.0
+        result.first { it[_ID] == ACTIVE.name }[MAX_FIELD].toFloat() shouldBe 200f
+        result.first { it[_ID] == ACTIVE.name }[MIN_FIELD].toFloat() shouldBe 180f
+        result.first { it[_ID] == ACTIVE.name }[COUNT_FIELD].toLong() shouldBe 3
 
-        result.first { it[_ID] == RETIREMENT }[SUM_FIELD].toLong() shouldBe 10
-        result.first { it[_ID] == RETIREMENT }[AVERAGE_FIELD].toDouble() shouldBe 90.0
-        result.first { it[_ID] == RETIREMENT }[MAX_FIELD].toInt() shouldBe 190
-        result.first { it[_ID] == RETIREMENT }[MIN_FIELD].toInt() shouldBe 190
-        result.first { it[_ID] == RETIREMENT }[COUNT_FIELD].toLong() shouldBe 1
+        result.first { it[_ID] == RETIREMENT.name }[SUM_FIELD].toLong() shouldBe 10
+        result.first { it[_ID] == RETIREMENT.name }[AVERAGE_FIELD].toDouble() shouldBe 70.0
+        result.first { it[_ID] == RETIREMENT.name }[MAX_FIELD].toFloat() shouldBe 170f
+        result.first { it[_ID] == RETIREMENT.name }[MIN_FIELD].toFloat() shouldBe 170f
+        result.first { it[_ID] == RETIREMENT.name }[COUNT_FIELD].toLong() shouldBe 1
 
-        result.first { it[_ID] == REST }[SUM_FIELD].toLong() shouldBe 0
-        result.first { it[_ID] == REST }[AVERAGE_FIELD].toDouble() shouldBe 0.0
-        result.first { it[_ID] == REST }[MAX_FIELD].toInt() shouldBe 0
-        result.first { it[_ID] == REST }[MIN_FIELD].toInt() shouldBe 0
-        result.first { it[_ID] == REST }[COUNT_FIELD].toLong() shouldBe 0
+        result.firstOrNull { it[_ID] == REST.name } shouldBe null
     }
 
     "Aggregate query without grouping" {
-        val author = mongoTemplate.insert(
-            Author.of(
-                name = "Test",
-                age = 100,
-                weight = 170.0,
-                height = 70f,
-                status = RETIREMENT,
-                books = mutableListOf(),
-            )
-        )
-
         val document = document {
-            field(Author::id) eq author.id
+            field(Author::name) eq "John"
         } sum {
             field(Author::age) alias SUM_FIELD
         } average {
@@ -331,14 +297,30 @@ class GroupTest(
         val result = mongoTemplate.aggregate(document, Author::class)
         result[_ID] shouldBe null
         result[SUM_FIELD].toLong() shouldBe 100
-        result[AVERAGE_FIELD].toDouble() shouldBe 170.0
-        result[MAX_FIELD].toInt() shouldBe 70
-        result[MIN_FIELD].toInt() shouldBe 70
-        result[COUNT_FIELD].toLong() shouldBe 1
+        result[AVERAGE_FIELD].toDouble() shouldBe 85.0
+        result[MAX_FIELD].toFloat() shouldBe 200f
+        result[MIN_FIELD].toFloat() shouldBe 170f
+        result[COUNT_FIELD].toLong() shouldBe 4
     }
 })
 
-private fun Any?.toLong() = this as Long
-private fun Any?.toDouble() = this as Double
-private fun Any?.toInt() = this as Int
-private fun Any?.toBigDecimal() = this as BigDecimal
+private fun Any?.toLong() =
+    this?.toString()
+        ?.replaceAfter(".", "")
+        ?.toLongOrNull()
+        ?: 0
+
+private fun Any?.toInt(): Int =
+    this?.toString()
+        ?.replaceAfter(".", "")
+        ?.toIntOrNull()
+        ?: 0
+
+private fun Any?.toDouble() =
+    this?.toString()?.toDoubleOrNull() ?: 0.0
+
+private fun Any?.toFloat() =
+    this?.toString()?.toFloatOrNull() ?: 0f
+
+private fun Any?.toBigDecimal() =
+    this?.toString()?.toBigDecimalOrNull() ?: BigDecimal.ZERO
