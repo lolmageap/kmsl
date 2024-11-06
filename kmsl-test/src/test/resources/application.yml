@@ -1,6 +1,3 @@
 spring:
   application:
     name: kmsl
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/test
