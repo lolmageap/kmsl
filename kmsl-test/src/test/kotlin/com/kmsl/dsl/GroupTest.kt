@@ -13,6 +13,7 @@ import com.kmsl.dsl.collection.Book
 import com.kmsl.dsl.collection.Status
 import com.kmsl.dsl.collection.Status.*
 import com.kmsl.dsl.extension.*
+import com.kmsl.dsl.util.WithTestContainers
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +24,7 @@ import java.math.BigDecimal
 @SpringBootTest(classes = [KmslApplication::class])
 class GroupTest(
     @Autowired private val mongoTemplate: MongoTemplate,
-) : StringSpec({
+) : WithTestContainers, StringSpec({
     beforeTest {
         mongoTemplate.dropCollection(Author::class.java)
 

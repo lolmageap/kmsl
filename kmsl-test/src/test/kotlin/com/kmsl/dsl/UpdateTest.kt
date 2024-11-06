@@ -4,6 +4,7 @@ import com.kmsl.dsl.clazz.field
 import com.kmsl.dsl.collection.Author
 import com.kmsl.dsl.collection.Status
 import com.kmsl.dsl.extension.*
+import com.kmsl.dsl.util.WithTestContainers
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
@@ -14,7 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 @SpringBootTest(classes = [KmslApplication::class])
 class UpdateTest(
     private val mongoTemplate: MongoTemplate,
-) : StringSpec({
+) : WithTestContainers, StringSpec({
     beforeEach {
         mongoTemplate.insertAll(
             listOf(

@@ -10,6 +10,7 @@ import com.kmsl.dsl.extension.aggregate
 import com.kmsl.dsl.extension.document
 import com.kmsl.dsl.extension.join
 import com.kmsl.dsl.extension.projection
+import com.kmsl.dsl.util.WithTestContainers
 import io.kotest.core.spec.style.StringSpec
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,7 +19,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 @SpringBootTest(classes = [KmslApplication::class])
 class JoinTest(
     @Autowired private val mongoTemplate: MongoTemplate,
-) : StringSpec({
+) : WithTestContainers, StringSpec({
     beforeTest {
         val author = mongoTemplate.insert(
             Author.of(
