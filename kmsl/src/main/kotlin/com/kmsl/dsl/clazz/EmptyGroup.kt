@@ -51,7 +51,7 @@ class EmptyGroup {
         infix fun <T, R> Field<T, R>.alias(
             value: String,
         ) =
-            GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
+            GroupOperationWrapper(document, groupOperation.avg(this.key.toDotPath()).`as`(value))
     }
 
     class Max(
@@ -73,7 +73,7 @@ class EmptyGroup {
         infix fun <T, R> Field<T, R>.alias(
             value: String,
         ) =
-            GroupOperationWrapper(document, groupOperation.min(this.key.toDotPath()).`as`(value))
+            GroupOperationWrapper(document, groupOperation.max(this.key.toDotPath()).`as`(value))
     }
 
     class Min(
