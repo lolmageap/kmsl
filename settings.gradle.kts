@@ -1,4 +1,4 @@
 rootProject.name = "kmsl"
 
-include("kmsl")
-include("kmsl-test")
+include("core")
+include("test")

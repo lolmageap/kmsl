@@ -30,6 +30,12 @@ subprojects {
     }
 
     publishing {
+        if (project.name == "test") {
+            tasks.withType<PublishToMavenRepository> {
+                enabled = false
+            }
+        }
+
         publications {
             create<MavenPublication>("mavenJava") {
                 groupId = project.group.toString()

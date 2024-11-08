@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":kmsl"))
+    implementation(project(":core"))
     testImplementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-autoconfigure")
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
