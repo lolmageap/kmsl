@@ -36,3 +36,11 @@ tasks.withType<Test> {
 tasks.bootJar {
     enabled = false
 }
+
+tasks.named("test") {
+    dependsOn(":kmsl:bootJar")
+}
+
+tasks.withType<PublishToMavenRepository> {
+    enabled = false
+}
