@@ -3,6 +3,7 @@ package com.kmsl.dsl.util
 import com.github.dockerjava.api.model.ExposedPort
 import com.github.dockerjava.api.model.PortBinding
 import com.github.dockerjava.api.model.Ports.Binding.bindPort
+import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.MongoDBContainer
 
@@ -10,7 +11,9 @@ internal interface WithTestContainers {
     companion object {
         @JvmStatic
         @DynamicPropertySource
-        fun initTestContainers() {
+        fun initTestContainers(
+            registry: DynamicPropertyRegistry,
+        ) {
             activeTestContainers.parallelStream().forEach { it.start() }
         }
 
