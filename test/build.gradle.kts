@@ -33,12 +33,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.bootJar {
+tasks.jar {
     enabled = false
 }
 
-tasks.named("test") {
-    dependsOn(":kmsl:bootJar")
+tasks.bootJar {
+    enabled = false
 }
 
 tasks.withType<PublishToMavenRepository> {

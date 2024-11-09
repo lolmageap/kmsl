@@ -29,19 +29,17 @@ subprojects {
         withJavadocJar()
     }
 
-    publishing {
-        if (project.name == "test") {
-            tasks.withType<PublishToMavenRepository> {
-                enabled = false
-            }
-        }
-
-        publications {
-            create<MavenPublication>("mavenJava") {
-                groupId = project.group.toString()
-                artifactId = project.name
-                version = project.version.toString()
-                from(components["java"])
+    if (project.name == "test") {
+        tasks.matching { it.name != "clean" }.configureEach { enabled = false }
+    } else {
+        publishing {
+            publications {
+                create<MavenPublication>("mavenJava") {
+                    groupId = project.group.toString()
+                    artifactId = project.name
+                    version = project.version.toString()
+                    from(components["java"])
+                }
             }
         }
     }
