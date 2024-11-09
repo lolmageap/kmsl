@@ -50,7 +50,9 @@ fun <T, R> DocumentOperatorBuilder.field(
 
 fun <T, R> Group<T, R>.field(
     key: KProperty1<T, R>,
-) = Field(key)
+) = Field(key).also {
+    groupProperties.add(key)
+}
 
 fun <T, R> Group.Sum.field(
     key: KProperty1<T, R>,

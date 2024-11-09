@@ -6,7 +6,6 @@ import com.kmsl.dsl.clazz.FieldName.MAX_FIELD
 import com.kmsl.dsl.clazz.FieldName.MIN_FIELD
 import com.kmsl.dsl.clazz.FieldName.SUM_FIELD
 import com.kmsl.dsl.clazz.FieldName._ID
-import com.kmsl.dsl.clazz.GroupType.SINGLE
 import com.kmsl.dsl.clazz.field
 import com.kmsl.dsl.collection.Author
 import com.kmsl.dsl.collection.Book
@@ -99,14 +98,16 @@ class GroupTest(
         val document = document {
             field(Author::name) eq "John"
         } group {
-            field(Author::status) by SINGLE
+            field(Author::status)
         } count {
             field(Author::status) alias COUNT_FIELD
         }
 
         val countOfGroup = mongoTemplate.aggregate(document, Author::class)
             .associate { it[_ID] to it[COUNT_FIELD].toInt() }
-            .mapKeys { Status.valueOf(it.key.toString()) }
+            .mapKeys {
+                Status.valueOf(it.key.toString())
+            }
 
         countOfGroup shouldBe mapOf(ACTIVE to 3, RETIREMENT to 1)
     }
@@ -126,7 +127,7 @@ class GroupTest(
         val document = document {
             field(Author::name) eq "John"
         } group {
-            field(Author::status) by SINGLE
+            field(Author::status)
         } sum {
             field(Author::age) alias SUM_FIELD
         }
@@ -142,7 +143,7 @@ class GroupTest(
         val document = document {
             field(Author::name) eq "John"
         } group {
-            field(Author::status) by SINGLE
+            field(Author::status)
         }
 
         val statusToTotalAge = mongoTemplate.sum(document, Author::age)
@@ -164,7 +165,7 @@ class GroupTest(
         val document = document {
             field(Author::name) eq "John"
         } group {
-            field(Author::status) by SINGLE
+            field(Author::status)
         } average {
             field(Author::age) alias AVERAGE_FIELD
         }
@@ -191,7 +192,7 @@ class GroupTest(
         val document = document {
             field(Author::name) eq "John"
         } group {
-            field(Author::status) by SINGLE
+            field(Author::status)
         } max {
             field(Author::age) alias MAX_FIELD
         }
@@ -218,7 +219,7 @@ class GroupTest(
         val document = document {
             field(Author::name) eq "John"
         } group {
-            field(Author::status) by SINGLE
+            field(Author::status)
         } min {
             field(Author::age) alias MIN_FIELD
         }
@@ -250,7 +251,7 @@ class GroupTest(
                     field(Book::price) eq 10000L
                 }
             } group {
-                field(Author::status) by SINGLE
+                field(Author::status)
             } sum {
                 field(Author::age) alias SUM_FIELD
             } average {

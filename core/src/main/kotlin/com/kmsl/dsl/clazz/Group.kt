@@ -16,7 +16,7 @@ import kotlin.reflect.KProperty1
  */
 open class Group<T, R>(
     val document: Document,
-    private val groupProperties: MutableSet<KProperty1<T, R>> = mutableSetOf(),
+    val groupProperties: MutableSet<KProperty1<T, R>> = mutableSetOf(),
 ) {
     private var isSingleGroup: Boolean? = null
 
@@ -118,48 +118,9 @@ open class Group<T, R>(
             GroupOperationWrapper(document, groupOperation.count().`as`(value))
     }
 
-    infix fun Field<T, R>.by(
-        type: GroupType,
-    ) {
-        isSingleGroup = if (type == GroupType.SINGLE) {
-            if (isSingleGroup == false) {
-                error("Single Group으로 선언되어 있지 않습니다.")
-            }
-            true
-        } else {
-            if (isSingleGroup == true) {
-                error("Single Group으로 선언되어 있습니다.")
-            }
-            false
-        }
-
-        groupProperties.add(this.key)
-    }
-
     infix fun Field<T, R>.and(
         field: Field<T, R>,
     ): Group<T, R> {
-        if (isSingleGroup == true) {
-            error("Single Group으로 선언되어 있습니다.")
-        }
-
-        isSingleGroup = false
-        groupProperties.add(this.key)
-        groupProperties.add(field.key)
-
-        return this@Group
-    }
-
-    infix fun and(
-        field: Field<T, R>,
-    ): Group<T, R> {
-        if (isSingleGroup == true) {
-            error("Single Group으로 선언되어 있습니다.")
-        }
-
-        isSingleGroup = false
-        groupProperties.add(field.key)
-
         return this@Group
     }
 
