@@ -20,13 +20,9 @@ noArg {
 }
 
 tasks.bootJar {
-    archiveClassifier = ""
+    enabled = false
 }
 
 tasks.jar {
     archiveClassifier = ""
-}
-
-tasks.named("generateMetadataFileForMavenJavaPublication") {
-    dependsOn(tasks.named("bootJar"))
 }
