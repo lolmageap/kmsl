@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.lolmageap:kmsl:1.0.1")
+    implementation("com.github.lolmageap:kmsl:1.0.2")
     
     // please add the following dependencies
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
@@ -255,7 +255,7 @@ Below is an example of converting to a number type when summing in MongoDB.
 val statusGroup = document {
     field(Author::name) eq "cherhy"
 } group {
-    field(Author::status) by SINGLE
+    field(Author::status)
 } sum {
     field(Author::phone) type Double::class alias "sumOfPhone"
 }
@@ -264,6 +264,21 @@ mongoTemplate.aggregate(statusGroup, Author::class)
 ```
 
 You can also group by multiple groups.
+
+```kotlin
+val statusAndAgeGroup = document {
+    field(Author::name) eq "cherhy"
+} group {
+    field(Author::status)
+    field(Author::age)
+} sum {
+    field(Author::phone) alias "sumOfPhone"
+}
+
+mongoTemplate.aggregate(statusAndAgeGroup, Author::class)
+```
+
+or
 
 ```kotlin
 val statusAndAgeGroup = document {
