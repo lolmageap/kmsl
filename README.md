@@ -446,7 +446,7 @@ data class AuthorAndSeller(
         authorStatus = author.status,
         books = author.books,
         receipt = author.receipt,
-        sellerId = seller.id!!,
+        sellerId = seller.id,
         sellerName = seller.name,
         sellerAge = seller.age,
         sellerAuthorId = seller.authorId,
